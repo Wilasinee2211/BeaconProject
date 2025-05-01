@@ -1,0 +1,481 @@
+body.welcome-page,
+html.welcome-page {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    overflow: hidden;
+}
+
+.welcome-page .hero-section {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.welcome-page .background-image {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    transform: translate(-50%, -50%) rotate(-90deg) scale(0.75);
+    object-fit: contain;
+}
+
+.welcome-page .text-overlay {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    text-align: left;
+    color: white;
+    z-index: 2;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%);
+}
+
+.welcome-page .text-overlay h1 {
+    font-size: 4rem;
+    margin: 0;
+}
+
+.welcome-page .text-overlay h2 {
+    font-size: 5rem;
+    margin: 0 0 10px;
+    color: #D5A83F;
+}
+
+.welcome-page .text-overlay p {
+    font-size: 1.5rem;
+    margin: 0 0 20px;
+}
+
+.welcome-page .enter-button {
+    display: inline-block;
+    margin-top: 20px;
+    background-color: #39797B;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    font-weight: bold;
+    box-shadow: none;
+}
+
+.welcome-page .enter-button:hover {
+    background-color: #2a8c78;
+}
+
+body.login-page,
+html.login-page {
+    margin: 0;
+    padding: 0;
+    font-family: 'Kanit', sans-serif;
+    height: 100%;
+    background: #f7f7f7;
+}
+
+.login-page .login-container {
+    display: flex;
+    height: 100vh;
+}
+
+.login-page .login-left {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-page .login-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.login-page .login-overlay-center {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    text-align: center;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.login-page .login-overlay-center h1 {
+    font-size: 52px;
+    color: #f5af23;
+    margin: 0;
+}
+
+.login-page .login-overlay-center p {
+    font-size: 20px;
+    margin-top: 10px;
+    color: #d3e3ff;
+}
+
+.login-page .login-right {
+    flex: 1;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-page .login-box {
+    background: white;
+    padding: 60px 50px;
+    border-radius: 25px;
+    box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.2);
+    width: 420px;
+}
+
+.login-page .login-box h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    margin-top: 0;
+    text-align: center;
+    color: #000000;
+}
+
+.login-page .login-input-group {
+    display: flex;
+    align-items: center;
+    background: #ded8c8;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.login-page .login-input-group .icon,
+.login-page .login-input-group .eye {
+    font-size: 18px;
+    color: #555;
+}
+
+.login-page .login-input-group .icon {
+    margin-right: 10px;
+}
+
+.login-page .login-input-group .eye {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.login-page .login-input-group input {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
+
+.login-page .login-remember {
+    font-size: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.login-page .login-button,
+.login-page .register-button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-page .login-button {
+    background-color: #39797B;
+    color: white;
+    margin-bottom: 18px;
+}
+
+.login-page .login-button:hover {
+    background-color: #e09e1f;
+}
+
+.login-page .register-button {
+    background-color: #114345;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.login-page .register-button:hover {
+    background-color: #e09e1f;
+}
+
+.login-page .login-divider {
+    text-align: center;
+    margin: 15px 0;
+    color: #999;
+    font-size: 15px;
+}
+
+body.admin-page,
+html.admin-page {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    overflow: hidden;
+}
+
+.admin-page .hero-section {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132364.jpg') no-repeat center center;
+    background-size: cover;
+}
+
+.admin-page .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+}
+
+.admin-page .admin-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 40px 60px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.admin-page .admin-card::before,
+.admin-page .admin-card::after {
+    display: none;
+}
+
+.admin-page .admin-card::before {
+    left: -100px;
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+
+.admin-page .admin-card::after {
+    right: -100px;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.admin-page .admin-card h1 {
+    margin-bottom: 40px;
+    font-size: 2rem;
+    color: #000;
+}
+
+.admin-page .admin-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-page .admin-btn {
+    background-color: #1A5C5C;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.admin-page .admin-btn:hover {
+    background-color: #2a8c78;
+}
+
+.admin-page .admin-divider {
+    margin-top: 40px;
+    border: 0;
+    height: 2px;
+    background-color: #000;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.register-page,
+.register-page body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Kanit', sans-serif;
+    height: 100%;
+    background: #f7f7f7;
+}
+
+.register-page .register-container {
+    display: flex;
+    height: 100vh;
+}
+
+.register-page .register-left {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.register-page .register-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.register-page .register-overlay-center {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    text-align: center;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+    white-space: nowrap;
+    max-width: 90vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.register-page .register-overlay-center h1 {
+    font-size: 52px;
+    color: #f5af23;
+    margin: 0;
+}
+
+.register-page .register-overlay-center p {
+    font-size: 20px;
+    margin-top: 10px;
+    color: #d3e3ff;
+}
+
+.register-page .register-right {
+    flex: 1;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-page .register-box-wrapper {
+    position: relative;
+    width: 440px;
+    height: auto;
+  }
+  
+  .register-page .register-box-shadow {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    background-color: #d3e8dd; /* สีเขียวอ่อนซ้อนหลัง */
+    z-index: 0;
+  }
+  
+  .register-page .register-box {
+    position: relative;
+    background: white;
+    padding: 60px 50px;
+    border-radius: 25px;
+    box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+  }
+  
+.register-page .register-box h2 {
+    font-size: 2rem;
+    margin-bottom: 25px;
+    margin-top: 0;
+    text-align: center;
+    color: #000000;
+}
+
+.register-page .register-input-group {
+    display: flex;
+    align-items: center;
+    background: #ded8c8;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.register-page .register-button {
+    background-color: #39797B;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 14px;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+.register-page .register-button:hover {
+    background-color: #e09e1f;
+}
+
+.register-page .register-input-group .icon,
+.register-page .register-input-group .eye {
+    font-size: 18px;
+    color: #555;
+}
+
+.register-page .register-input-group .icon {
+    margin-right: 10px;
+}
+
+.register-page .register-input-group .eye {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.register-page .register-input-group input,
+.register-page .register-input-group select {
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    font-size: 16px;
+}
