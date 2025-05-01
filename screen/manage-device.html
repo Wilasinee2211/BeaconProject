@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th" class="manage-device-page">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>จัดการอุปกรณ์ที่ลงทะเบียน</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/manage-device.css" />
+</head>
+<body class="manage-device-page">
+  <div class="manage-device-container">
+    <h2 class="manage-device-header">จัดการอุปกรณ์ที่ลงทะเบียน</h2>
+
+    <!-- เลือกประเภทอุปกรณ์ -->
+    <div class="manage-device-group">
+      <label for="device-type">ประเภทอุปกรณ์</label>
+      <select id="device-type">
+        <option value="host" selected>ESP32 Host</option>
+        <option value="ibeacon">iBeacon Tag</option>
+      </select>
+    </div>
+
+    <!-- ตารางแสดงข้อมูล Host -->
+    <div id="host-section" class="device-section">
+      <table class="manage-device-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>Device ID</th>
+            <th>ชื่ออุปกรณ์</th>
+            <th>การกระทำ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>H001</td>
+            <td><input type="text" value="Host_1" /></td>
+            <td class="manage-device-actions">
+              <button class="btn-edit">แก้ไข</button>
+              <button class="btn-delete">ลบ</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="manage-device-actions">
+        <button class="btn-save">ยืนยัน</button>
+        <button class="btn-cancel">ยกเลิก</button>
+      </div>
+    </div>
+
+    <!-- ตารางแสดงข้อมูล iBeacon -->
+    <div id="ibeacon-section" class="device-section" style="display:none;">
+      <table class="manage-device-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>Device ID</th>
+            <th>Mac Address</th>
+            <th>UUID (8 หลักหลัง)</th>
+            <th>ชื่ออุปกรณ์</th>
+            <th>การกระทำ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>B001</td>
+            <td><input type="text" value="A1:B2:C3:D4:E5:F6" /></td>
+            <td><input type="text" value="1234ABCD" /></td>
+            <td><input type="text" value="iBeacon_1" /></td>
+            <td class="manage-device-actions">
+              <button class="btn-edit">แก้ไข</button>
+              <button class="btn-delete">ลบ</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="manage-device-actions">
+        <button class="btn-save">ยืนยัน</button>
+        <button class="btn-cancel">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const deviceSelect = document.getElementById('device-type');
+    const hostSection = document.getElementById('host-section');
+    const ibeaconSection = document.getElementById('ibeacon-section');
+
+    deviceSelect.addEventListener('change', () => {
+      if (deviceSelect.value === 'host') {
+        hostSection.style.display = 'block';
+        ibeaconSection.style.display = 'none';
+      } else {
+        hostSection.style.display = 'none';
+        ibeaconSection.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
