@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>จัดการสิทธิ์ผู้ใช้</title>
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+</head>
+<body class="manage-users__page">
+  <div class="manage-users__container">
+    <h2 class="manage-users__title">จัดการสิทธิ์ผู้ใช้</h2>
+
+    <table class="manage-users__table">
+      <thead>
+        <tr>
+          <th>เลขบัตรประชาชน</th>
+          <th>ชื่อ</th>
+          <th>นามสกุล</th>
+          <th>ตำแหน่ง</th>
+          <th>การจัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- ข้อมูลจะถูกดึงจาก manage_users.php -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // โหลดข้อมูลเมื่อหน้าเว็บเปิด
+    window.onload = () => {
+      fetch('manage_users.php')
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('userTableBody').innerHTML = html;
+        });
+    };
+
+    // ฟังก์ชันลบ
+    function deleteUser(userId) {
+      if (confirm("คุณแน่ใจว่าต้องการลบผู้ใช้นี้?")) {
+        fetch('delete_users.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'id=' + userId
+        })
+        .then(() => location.reload());
+      }
+    }
+
+    // ฟังก์ชันอัปเดต
+    function updateUser(userId) {
+      const row = document.getElementById(`user-${userId}`);
+      const firstName = row.querySelector('.first-name').textContent.trim();
+      const lastName = row.querySelector('.last-name').textContent.trim();
+      const role = row.querySelector('.role').value;
+
+      fetch('update_users.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `id=${userId}&firstName=${firstName}&lastName=${lastName}&role=${role}`
+      })
+      .then(() => alert("อัปเดตเรียบร้อยแล้ว"));
+    }
+  </script>
+</body>
+</html>

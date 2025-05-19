@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="th" class="register-page">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SIRIN MUSEUM - Register</title>
-  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
+
 <body class="register-page">
   <div class="register-container">
     <!-- Left: Image and overlay -->
@@ -22,27 +24,28 @@
     <div class="register-right">
       <div class="register-box-wrapper">
         <div class="register-box-shadow"></div>
-        <div class="register-box">
+        <form class="register-box" action="register.php" method="POST" onsubmit="return validateForm();">
           <h2>ลงทะเบียน</h2>
 
           <div class="register-input-group">
             <i class="fas fa-id-card icon"></i>
-            <input type="text" id="citizenId" placeholder="เลขบัตรประชาชน" maxlength="13" required />
+            <input type="text" id="citizenId" name="citizenId" placeholder="เลขบัตรประชาชน" maxlength="13" required
+              oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
           </div>
 
           <div class="register-input-group">
             <i class="fas fa-user icon"></i>
-            <input type="text" placeholder="ชื่อ" required />
+            <input type="text" name="firstName" placeholder="ชื่อ" required />
           </div>
 
           <div class="register-input-group">
             <i class="fas fa-user icon"></i>
-            <input type="text" placeholder="นามสกุล" required />
+            <input type="text" name="lastName" placeholder="นามสกุล" required />
           </div>
 
           <div class="register-input-group">
             <i class="fas fa-lock icon"></i>
-            <input type="password" id="password" placeholder="รหัสผ่าน" required />
+            <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required />
             <i class="fas fa-eye-slash eye" onclick="togglePassword('password', this)"></i>
           </div>
 
@@ -54,36 +57,35 @@
 
           <div class="register-input-group">
             <i class="fas fa-users icon"></i>
-            <select required>
+            <select name="role" required>
               <option value="" hidden disabled selected>-- เลือกตำแหน่ง --</option>
               <option value="admin">ผู้ดูแลระบบ</option>
-              <option value="executive">ผู้บริหาร</option>
+              <option value="manager">ผู้บริหาร</option>
               <option value="staff">เจ้าหน้าที่</option>
             </select>
           </div>
 
-          <button class="register-button">ลงทะเบียน</button>
-        </div>
+          <button type="submit" class="register-button">ลงทะเบียน</button>
+        </form>
       </div>
-    </div>
-  </div>
 
-  <script>
-    function togglePassword(inputId, icon) {
-      const input = document.getElementById(inputId);
-      const isPassword = input.type === "password";
-      input.type = isPassword ? "text" : "password";
-      icon.classList.toggle("fa-eye");
-      icon.classList.toggle("fa-eye-slash");
-    }
+      <script>
+        function togglePassword(inputId, icon) {
+          const input = document.getElementById(inputId);
+          const isPassword = input.type === "password";
+          input.type = isPassword ? "text" : "password";
+          icon.classList.toggle("fa-eye");
+          icon.classList.toggle("fa-eye-slash");
+        }
 
-    document.querySelector('.register-button').addEventListener('click', function(e) {
-      const citizenId = document.getElementById('citizenId').value;
-      if (!/^\d{13}$/.test(citizenId)) {
-        alert("กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก");
-        e.preventDefault();
-      }
-    });
-  </script>
+        document.querySelector('.register-button').addEventListener('click', function (e) {
+          const citizenId = document.getElementById('citizenId').value;
+          if (!/^\d{13}$/.test(citizenId)) {
+            alert("กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก");
+            e.preventDefault();
+          }
+        });
+      </script>
 </body>
+
 </html>

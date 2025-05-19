@@ -1,21 +1,24 @@
 function togglePassword(inputId, icon) {
-    const input = document.getElementById(inputId);
-    if (input.type === "password") {
-      input.type = "text";
-      icon.classList.remove("fa-eye");
-      icon.classList.add("fa-eye-slash");
-    } else {
-      input.type = "password";
-      icon.classList.remove("fa-eye-slash");
-      icon.classList.add("fa-eye");
-    }
+  const input = document.getElementById(inputId);
+  input.type = input.type === "password" ? "text" : "password";
+  icon.classList.toggle("fa-eye");
+  icon.classList.toggle("fa-eye-slash");
+}
+
+function validateForm() {
+  const citizenId = document.getElementById('citizenId').value;
+  const password = document.getElementById('password').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+
+  if (!/^\d{13}$/.test(citizenId)) {
+    alert("กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก");
+    return false;
   }
-  
-  document.getElementById('registerForm').addEventListener('submit', function (e) {
-    const citizenId = document.getElementById('citizenId').value;
-    if (!/^\d{13}$/.test(citizenId)) {
-      alert('กรุณากรอกเลขบัตรประชาชนให้ครบ 13 หลัก');
-      e.preventDefault();
-    }
-  });
-  
+
+  if (password !== confirmPassword) {
+    alert("รหัสผ่านไม่ตรงกัน");
+    return false;
+  }
+
+  return true;
+}
