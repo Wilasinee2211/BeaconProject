@@ -239,6 +239,22 @@ html.login-page {
   font-size: 15px;
 }
 
+.login-page .forgot-password {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin-top: 10px;
+}
+
+.login-page .forgot-password a {
+  color: #39797B;
+  text-decoration: none;
+}
+
+.login-page .forgot-password a:hover {
+  text-decoration: underline;
+}
+
 body.admin-page,
 html.admin-page {
   margin: 0;
@@ -409,7 +425,6 @@ html.admin-page {
   height: 100%;
   border-radius: 25px;
   background-color: #d3e8dd;
-  /* สีเขียวอ่อนซ้อนหลัง */
   z-index: 0;
 }
 
@@ -480,6 +495,54 @@ html.admin-page {
   outline: none;
   flex: 1;
   font-size: 16px;
+}
+
+.register-page-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  margin: 0 auto;
+}
+
+.register-page .register-page-popup .popup-content h3 {
+  margin-top: 0;
+  font-size: 1.5em;
+  color: #2e7d32;
+}
+
+.register-page .register-page-popup .popup-content p {
+  font-size: 1.1em;
+  margin: 10px 0 20px;
+}
+
+.register-page .register-page-popup .popup-content button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #2e7d32;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
 }
 
 /* Start Staff Styles */
@@ -813,54 +876,168 @@ html.register-device-page {
 
 /* End Manage-device Styles */
 
-.manage-users__page {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f5f5f5;
-  padding: 20px;
+/* หน้าจัดการสิทธิ์ */
+.manage-users {
+  font-family: 'Kanit', 'Sarabun', sans-serif;
+  background-color: #1c7e85;
+  padding: 30px;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .manage-users__container {
-  max-width: 1000px;
+  max-width: 1200px;
+  width: 90%;
   margin: auto;
   background: white;
+  border-radius: 24px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .manage-users__title {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 24px;
+  font-size: 32px;
+  padding: 20px 0;
+  margin: 10px 0 20px 0;
   color: #333;
+  border-bottom: 1px solid #ddd;
 }
 
 .manage-users__table {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.manage-users__table th,
-.manage-users__table td {
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 20px 0;
   border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
 }
 
 .manage-users__table th {
-  background-color: #e0e0e0;
+  background-color: #175e64;
+  color: white;
+  font-weight: 500;
+  text-align: center;
+  padding: 14px 15px;
+  border: 1px solid #0d4347;
 }
 
-.manage-users__table button {
-  padding: 5px 10px;
-  margin: 0 2px;
+.manage-users__table td {
+  padding: 12px 15px;
+  text-align: center;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+}
+
+.manage-users__table tr:nth-child(even) td {
+  background-color: #f1f1f1;
+}
+
+/* สไตล์สำหรับ dropdown */
+.role-select-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.role-select {
+  width: 100%;
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  font-size: 16px;
+  color: #333;
+}
+
+.role-select-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  border-style: solid;
+  border-width: 6px 6px 0 6px;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* สไตล์สำหรับแถวที่มีการเปลี่ยนแปลง */
+.row-modified {
+  background-color: #fff8e1 !important;
+}
+
+/* สไตล์สำหรับปุ่มลบ */
+.delete-btn {
+  background-color: #ff5252;
+  color: white;
   border: none;
   border-radius: 4px;
+  padding: 5px 10px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.manage-users__table button:hover {
-  opacity: 0.9;
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* สไตล์สำหรับปุ่มด้านล่าง */
+.manage-users__actions {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 30px 20px;
+  margin-top: 15px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #ddd;
+}
+
+.manage-users__confirm-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 35px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.manage-users__cancel-btn {
+  background-color: #9e9e9e;
+  color: white;
+  border: none;
+  padding: 12px 35px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.manage-users__confirm-btn:hover {
+  background-color: #388e3c;
+}
+
+.manage-users__cancel-btn:hover {
+  background-color: #757575;
+}
+
+/* ลบขอบสีฟ้าเมื่อคลิก input หรือ select */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 
