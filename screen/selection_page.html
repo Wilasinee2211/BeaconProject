@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sirin Museum - เลือกประเภทผู้ใช้</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="selection-page">
+  <div class="background-overlay"></div>
+  <div class="selection-container">
+    <div class="outer-frame">
+      <div class="selection-grid">
+        <!-- ผู้ใช้ทั่วไป -->
+        <div class="selection-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <button class="selection-button user-button" onclick="location.href='visitor_register.html'">
+            ผู้ใช้ทั่วไป
+          </button>
+        </div>
+
+        <!-- พนักงาน -->
+        <div class="selection-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-user-tie"></i>
+          </div>
+          <button class="selection-button staff-button" onclick="location.href='login.html'">
+            พนักงาน
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
