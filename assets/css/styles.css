@@ -200,25 +200,25 @@ html.selection-page {
   .selection-page .outer-frame {
     padding: 40px 25px;
   }
-  
+
   .selection-page .selection-grid {
     grid-template-columns: 1fr;
     gap: 30px;
     max-width: 350px;
   }
-  
+
   .selection-page .selection-card {
     padding: 40px 25px;
     min-height: 250px;
   }
-  
+
   .selection-page .card-icon {
     width: 100px;
     height: 100px;
     margin-bottom: 25px;
     font-size: 4rem;
   }
-  
+
   .selection-page .selection-button {
     font-size: 1.2rem;
     padding: 15px 30px;
@@ -229,27 +229,27 @@ html.selection-page {
   .selection-page .selection-container {
     padding: 15px;
   }
-  
+
   .selection-page .outer-frame {
     padding: 30px 20px;
   }
-  
+
   .selection-page .selection-grid {
     max-width: 300px;
   }
-  
+
   .selection-page .selection-card {
     padding: 35px 20px;
     min-height: 220px;
   }
-  
+
   .selection-page .card-icon {
     width: 80px;
     height: 80px;
     margin-bottom: 20px;
     font-size: 3rem;
   }
-  
+
   .selection-page .selection-button {
     font-size: 1.1rem;
     padding: 12px 25px;
@@ -261,19 +261,19 @@ html.selection-page {
   .selection-page .outer-frame {
     padding: 30px 25px;
   }
-  
+
   .selection-page .selection-card {
     min-height: 200px;
     padding: 30px 25px;
   }
-  
+
   .selection-page .card-icon {
     width: 80px;
     height: 80px;
     margin-bottom: 20px;
     font-size: 3rem;
   }
-  
+
   .selection-page .selection-grid {
     gap: 25px;
   }
@@ -455,6 +455,113 @@ html.login-page {
 
 .login-page .forgot-password a:hover {
   text-decoration: underline;
+}
+
+/* Popup Styles - Updated to match visitor registration */
+.login-page-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.login-page .popup-content {
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  margin: 0 auto;
+}
+
+.login-page .popup-content.success {
+  border-top: 4px solid #2e7d32;
+}
+
+.login-page .popup-content.error {
+  border-top: 4px solid #d32f2f;
+}
+
+.login-page .popup-icon {
+  font-size: 3em;
+  margin-bottom: 15px;
+}
+
+.login-page .popup-content h3 {
+  margin-top: 0;
+  font-size: 1.5em;
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+.login-page .popup-content.error h3 {
+  color: #d32f2f;
+}
+
+.login-page .popup-content p {
+  font-size: 1.1em;
+  margin: 10px 0 20px;
+  color: #555;
+}
+
+.login-page .popup-content button {
+  padding: 12px 24px;
+  border: none;
+  background-color: #2e7d32;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.login-page .popup-content.error button {
+  background-color: #d32f2f;
+}
+
+.login-page .popup-content button:hover {
+  background-color: #1b5e20;
+}
+
+.login-page .popup-content.error button:hover {
+  background-color: #b71c1c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .login-page .login-container {
+    flex-direction: column;
+  }
+
+  .login-page .login-left {
+    flex: 0 0 200px;
+  }
+
+  .login-page .login-overlay-center h1 {
+    font-size: 36px;
+  }
+
+  .login-page .login-overlay-center p {
+    font-size: 16px;
+  }
+
+  .login-page .login-box {
+    width: 90%;
+    max-width: 400px;
+    padding: 40px 30px;
+  }
 }
 
 body.admin-page,
@@ -657,6 +764,54 @@ html.admin-page {
   position: relative;
 }
 
+.register-page .register-input-group .icon,
+.register-page .register-input-group .eye {
+  font-size: 18px;
+  color: #555;
+}
+
+.register-page .register-input-group .icon {
+  margin-right: 10px;
+}
+
+.register-page .register-input-group .eye {
+  margin-left: auto;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.register-page .register-input-group .eye:hover {
+  color: #39797B;
+}
+
+.register-page .register-input-group input,
+.register-page .register-input-group select {
+  border: none;
+  background: transparent;
+  outline: none;
+  flex: 1;
+  font-size: 16px;
+  color: #333;
+}
+
+.register-page .register-input-group input::placeholder {
+  color: #666;
+}
+
+.register-page .register-input-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+}
+
+.register-page .register-input-group select option {
+  background-color: white;
+  color: #333;
+  padding: 10px;
+  font-size: 16px;
+}
+
 .register-page .register-button {
   background-color: #39797B;
   color: white;
@@ -675,30 +830,7 @@ html.admin-page {
   background-color: #e09e1f;
 }
 
-.register-page .register-input-group .icon,
-.register-page .register-input-group .eye {
-  font-size: 18px;
-  color: #555;
-}
-
-.register-page .register-input-group .icon {
-  margin-right: 10px;
-}
-
-.register-page .register-input-group .eye {
-  margin-left: auto;
-  cursor: pointer;
-}
-
-.register-page .register-input-group input,
-.register-page .register-input-group select {
-  border: none;
-  background: transparent;
-  outline: none;
-  flex: 1;
-  font-size: 16px;
-}
-
+/* Enhanced Popup Styles */
 .register-page-popup {
   position: fixed;
   top: 0;
@@ -714,7 +846,7 @@ html.admin-page {
   z-index: 9999;
 }
 
-.popup-content {
+.register-page .popup-content {
   background-color: #fff;
   padding: 30px 40px;
   border-radius: 12px;
@@ -726,25 +858,86 @@ html.admin-page {
   margin: 0 auto;
 }
 
-.register-page .register-page-popup .popup-content h3 {
+.register-page .popup-content.success {
+  border-top: 4px solid #2e7d32;
+}
+
+.register-page .popup-content.error {
+  border-top: 4px solid #d32f2f;
+}
+
+.register-page .popup-icon {
+  font-size: 3em;
+  margin-bottom: 15px;
+}
+
+.register-page .popup-content h3 {
   margin-top: 0;
   font-size: 1.5em;
   color: #2e7d32;
+  margin-bottom: 10px;
 }
 
-.register-page .register-page-popup .popup-content p {
+.register-page .popup-content.error h3 {
+  color: #d32f2f;
+}
+
+.register-page .popup-content p {
   font-size: 1.1em;
   margin: 10px 0 20px;
+  color: #555;
 }
 
-.register-page .register-page-popup .popup-content button {
-  padding: 10px 20px;
+.register-page .popup-content button {
+  padding: 12px 24px;
   border: none;
   background-color: #2e7d32;
   color: white;
   border-radius: 8px;
   cursor: pointer;
   font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.register-page .popup-content.error button {
+  background-color: #d32f2f;
+}
+
+.register-page .popup-content button:hover {
+  background-color: #1b5e20;
+}
+
+.register-page .popup-content.error button:hover {
+  background-color: #b71c1c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .register-page .register-container {
+    flex-direction: column;
+  }
+  
+  .register-page .register-left {
+    flex: 0 0 200px;
+  }
+  
+  .register-page .register-overlay-center h1 {
+    font-size: 36px;
+  }
+  
+  .register-page .register-overlay-center p {
+    font-size: 16px;
+  }
+  
+  .register-page .register-box-wrapper {
+    width: 90%;
+    max-width: 400px;
+  }
+  
+  .register-page .register-box {
+    padding: 40px 30px;
+  }
 }
 
 /* visitor-register.css */
@@ -1023,24 +1216,24 @@ html.admin-page {
   .visitor-register-page .visitor-register-container {
     flex-direction: column;
   }
-  
+
   .visitor-register-page .visitor-register-left {
     flex: 0 0 200px;
   }
-  
+
   .visitor-register-page .visitor-register-overlay-center h1 {
     font-size: 36px;
   }
-  
+
   .visitor-register-page .visitor-register-overlay-center p {
     font-size: 16px;
   }
-  
+
   .visitor-register-page .visitor-register-box-wrapper {
     width: 90%;
     max-width: 400px;
   }
-  
+
   .visitor-register-page .visitor-register-box {
     padding: 40px 30px;
   }
@@ -1532,6 +1725,277 @@ html.register-device-page {
   background-color: #757575;
 }
 
+.change-password-page,
+.change-password-page body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Kanit', sans-serif;
+  height: 100vh;
+  background: #5a9a9c;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* <== ป้องกัน scroll หน้า */
+}
+
+.change-password-container {
+  background: url('https://www.transparenttextures.com/patterns/linen.png'), white; /* พื้นผ้า */
+  border-radius: 25px;
+  padding: 35px 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 600px; /* ขยายแนวนอน */
+  max-width: 95%;
+  text-align: center;
+  position: relative;
+  border: 5px solid #000;
+  overflow: visible; 
+}
+
+.change-password-container::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  right: -12px;
+  bottom: -12px;
+  background: url('https://www.transparenttextures.com/patterns/linen.png'), white; 
+  border-radius: 33px;
+  z-index: -1;
+}
+
+.input-group {
+  margin-bottom: 16px; 
+}
+
+.input-label {
+  font-size: 1em;
+  margin-bottom: 6px;
+}
+
+.input-field {
+  padding: 12px 18px; 
+  font-size: 1em;
+}
+
+.confirm-button {
+  margin-top: 15px;
+}
+
+.lock-icon {
+  font-size: 3.2em; 
+  margin-bottom: 15px;
+}
+
+
+.change-password-container::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  right: -12px;
+  bottom: -12px;
+  background: white;
+  border-radius: 33px;
+  z-index: -1;
+}
+
+.lock-icon {
+  font-size: 4em;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.change-password-title {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin-bottom: 30px;
+  color: #000;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  font-size: 1.1em;
+}
+
+.input-field {
+  width: 100%;
+  padding: 15px 20px;
+  border: 3px solid #000;
+  border-radius: 25px;
+  font-size: 1.1em;
+  background: #c9b896;
+  outline: none;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.input-field:focus {
+  background: #d4c3a0;
+}
+
+.input-field::placeholder {
+  color: #666;
+}
+
+.check-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #4caf50;
+  font-size: 1.2em;
+  display: none;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2em;
+  transition: color 0.3s ease;
+}
+
+.eye-icon:hover {
+  color: #39797B;
+}
+
+.confirm-button {
+  background: #5a9a9c;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  border-radius: 25px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.3s ease;
+  width: 150px;
+}
+
+.confirm-button:hover {
+  background: #4a8a8c;
+}
+
+.confirm-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Enhanced Popup Styles */
+.change-password-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-content {
+  background-color: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+  margin: 0 auto;
+}
+
+.popup-content.success {
+  border-top: 4px solid #2e7d32;
+}
+
+.popup-content.error {
+  border-top: 4px solid #d32f2f;
+}
+
+.popup-icon {
+  font-size: 3em;
+  margin-bottom: 15px;
+}
+
+.popup-content h3 {
+  margin-top: 0;
+  font-size: 1.5em;
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+.popup-content.error h3 {
+  color: #d32f2f;
+}
+
+.popup-content p {
+  font-size: 1.1em;
+  margin: 10px 0 20px;
+  color: #555;
+}
+
+.popup-content button {
+  padding: 12px 24px;
+  border: none;
+  background-color: #2e7d32;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.popup-content.error button {
+  background-color: #d32f2f;
+}
+
+.popup-content button:hover {
+  background-color: #1b5e20;
+}
+
+.popup-content.error button:hover {
+  background-color: #b71c1c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .change-password-container {
+    width: 90%;
+    padding: 30px 20px;
+  }
+  
+  .change-password-title {
+    font-size: 2em;
+  }
+  
+  .input-field {
+    padding: 12px 15px;
+  }
+  
+  .confirm-button {
+    width: 100%;
+  }
+}
+
 /* ลบขอบสีฟ้าเมื่อคลิก input หรือ select */
 input:focus,
 select:focus,
@@ -1540,6 +2004,3 @@ button:focus {
   outline: none;
   box-shadow: none;
 }
-
-
-
