@@ -6,13 +6,11 @@
   <title>จัดการอุปกรณ์ที่ลงทะเบียน</title>
   <link rel="stylesheet" href="../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../assets/css/manage-device.css" />
-  
 </head>
 <body class="manage-device-page">
   <div class="manage-device-container">
     <h2 class="manage-device-header">จัดการอุปกรณ์ที่ลงทะเบียน</h2>
 
-    <!-- เลือกประเภทอุปกรณ์ -->
     <div class="manage-device-group">
       <label for="device-type">ประเภทอุปกรณ์</label>
       <select id="device-type">
@@ -21,41 +19,30 @@
       </select>
     </div>
 
-    <!-- ตารางแสดงข้อมูล Host -->
+    <!-- Host Section -->
     <div id="host-section" class="device-section">
       <table class="manage-device-table">
         <thead>
           <tr>
-            <th><input type="checkbox" /></th>
+            <th><input type="checkbox" id="select-all-host" /></th>
             <th>Device ID</th>
             <th>ชื่ออุปกรณ์</th>
             <th>การกระทำ</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td><input type="checkbox" /></td>
-            <td>H001</td>
-            <td><input type="text" value="Host_1" /></td>
-            <td class="manage-device-actions">
-              <button class="btn-edit">แก้ไข</button>
-              <button class="btn-delete">ลบ</button>
-            </td>
-          </tr>
-        </tbody>
+        <tbody></tbody>
       </table>
       <div class="manage-device-actions">
-        <button class="btn-save">ยืนยัน</button>
-        <button class="btn-cancel">ยกเลิก</button>
+        <button class="btn-delete" onclick="deleteSelected()">ลบที่เลือก</button>
       </div>
     </div>
 
-    <!-- ตารางแสดงข้อมูล iBeacon -->
+    <!-- iBeacon Section -->
     <div id="ibeacon-section" class="device-section" style="display:none;">
       <table class="manage-device-table">
         <thead>
           <tr>
-            <th><input type="checkbox" /></th>
+            <th><input type="checkbox" id="select-all-ibeacon" /></th>
             <th>Device ID</th>
             <th>Mac Address</th>
             <th>UUID (8 หลักหลัง)</th>
@@ -63,29 +50,15 @@
             <th>การกระทำ</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td><input type="checkbox" /></td>
-            <td>B001</td>
-            <td><input type="text" value="A1:B2:C3:D4:E5:F6" /></td>
-            <td><input type="text" value="1234ABCD" /></td>
-            <td><input type="text" value="iBeacon_1" /></td>
-            <td class="manage-device-actions">
-              <button class="btn-edit">แก้ไข</button>
-              <button class="btn-delete">ลบ</button>
-            </td>
-          </tr>
-        </tbody>
+        <tbody></tbody>
       </table>
       <div class="manage-device-actions">
-        <button class="btn-save">ยืนยัน</button>
-        <button class="btn-cancel">ยกเลิก</button>
+        <button class="btn-delete" onclick="deleteSelected()">ลบที่เลือก</button>
       </div>
     </div>
   </div>
 
   <script src="../../assets/js/manage-device.js"></script>
   <script src="../../assets/js/device-switch.js"></script>
-
 </body>
 </html>
