@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formHost = document.getElementById('form-host');
     const formIBeacon = document.getElementById('form-ibeacon');
 
-    // แสดงฟอร์มตามประเภทอุปกรณ์ที่เลือก
-    typeSelect.addEventListener('change', () => {
+    // ✅ แสดงฟอร์มตามประเภทอุปกรณ์ที่เลือก
+    function updateFormVisibility() {
         if (typeSelect.value === 'host') {
             formHost.style.display = 'block';
             formIBeacon.style.display = 'none';
@@ -12,44 +12,37 @@ document.addEventListener('DOMContentLoaded', () => {
             formHost.style.display = 'none';
             formIBeacon.style.display = 'block';
         }
-    });
+    }
 
-    // ฟังก์ชันตรวจสอบชื่ออุปกรณ์
+    // เรียกใช้ทันทีเมื่อโหลด และตอนเปลี่ยน
+    updateFormVisibility();
+    typeSelect.addEventListener('change', updateFormVisibility);
+
+    // ✅ ตรวจสอบชื่ออุปกรณ์ว่าไม่มีอักขระพิเศษ
     function validateDeviceName(name) {
         const regex = /^[a-zA-Z0-9_-]+$/;
         return regex.test(name);
     }
 
     const macInput = document.getElementById('mac-address');
-
     macInput.addEventListener('input', () => {
-        // ลบ ":" ออกชั่วคราว
         let raw = macInput.value.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
-
-        // จำกัดความยาวแค่ 12 ตัว (6 คู่)
-        if (raw.length > 12) {
-            raw = raw.substring(0, 12);
-        }
-
-        // แทรก ":" ทุก 2 ตัวอักษร
+        if (raw.length > 12) raw = raw.substring(0, 12);
         let formatted = '';
         for (let i = 0; i < raw.length; i += 2) {
             formatted += raw.substring(i, i + 2);
-            if (i + 2 < raw.length) {
-                formatted += ':';
-            }
+            if (i + 2 < raw.length) formatted += ':';
         }
-
         macInput.value = formatted;
     });
 
     const uuidInput = document.getElementById('uuid');
 
     uuidInput.addEventListener('input', () => {
-        // ลบอักขระที่ไม่ใช่ a-z A-Z 0-9
-        let value = uuidInput.value.replace(/[^a-zA-Z0-9]/g, '');
+        // ✅ ลบทุกอักขระที่ไม่ใช่ 0–9 หรือ A–F (case-insensitive)
+        let value = uuidInput.value.replace(/[^0-9a-fA-F]/g, '');
 
-        // จำกัดความยาวแค่ 8 ตัว
+        // ✅ จำกัดความยาวไม่เกิน 8 ตัวอักษร
         if (value.length > 8) {
             value = value.substring(0, 8);
         }
@@ -58,34 +51,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // ✅ ฟังก์ชันส่งข้อมูลเมื่อคลิกปุ่ม submit
     document.querySelectorAll('.register-device-submit').forEach(button => {
         button.addEventListener('click', async () => {
             const deviceType = typeSelect.value;
 
-            // === HOST ===
             if (deviceType === 'host') {
                 const hostNameInput = document.getElementById('host-name');
                 const hostName = hostNameInput.value.trim();
 
                 if (!hostName) {
-                    return Swal.fire({
-                        icon: 'warning',
-                        title: 'กรุณากรอกชื่ออุปกรณ์',
-                        confirmButtonText: 'ตกลง'
-                    });
+                    return Swal.fire('กรุณากรอกชื่ออุปกรณ์', '', 'warning');
                 }
 
                 if (!validateDeviceName(hostName)) {
                     return Swal.fire({
                         icon: 'error',
                         title: 'ชื่ออุปกรณ์ไม่ถูกต้อง',
-                        text: 'ห้ามเว้นวรรคหรือใช้สัญลักษณ์พิเศษ (ใช้ได้: ตัวอักษร, ตัวเลข, _ และ -)',
-                        confirmButtonText: 'ตกลง'
+                        text: 'ห้ามเว้นวรรคหรือใช้สัญลักษณ์พิเศษ (ใช้ได้: a-z, A-Z, 0-9, _, -)'
                     });
                 }
 
                 try {
-                    const response = await fetch('../../api/register_device.php', {
+                    const response = await fetch('../../backend/staff/api/register_device.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -104,38 +92,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         hostNameInput.value = '';
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '❌ ลงทะเบียน Host ไม่สำเร็จ',
-                            text: result.message
-                        });
+                        Swal.fire('❌ ลงทะเบียน Host ไม่สำเร็จ', result.message, 'error');
                     }
                 } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: error.message
-                    });
+                    Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
                 }
             }
 
-            // === IBEACON ===
             if (deviceType === 'ibeacon') {
-                const macInput = document.getElementById('mac-address');
-                const uuidInput = document.getElementById('uuid');
                 const mac = macInput.value.trim();
                 const uuid = uuidInput.value.trim();
 
                 if (!mac || !uuid) {
-                    return Swal.fire({
-                        icon: 'warning',
-                        title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                        confirmButtonText: 'ตกลง'
-                    });
+                    return Swal.fire('กรุณากรอก MAC Address และ UUID ให้ครบถ้วน', '', 'warning');
                 }
 
                 try {
-                    const response = await fetch('../../api/register_device.php', {
+                    const response = await fetch('../../backend/staff/api/register_device.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -156,18 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         macInput.value = '';
                         uuidInput.value = '';
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: '❌ ลงทะเบียน iBeacon ไม่สำเร็จ',
-                            text: result.message
-                        });
+                        Swal.fire('❌ ลงทะเบียน iBeacon ไม่สำเร็จ', result.message, 'error');
                     }
                 } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'เกิดข้อผิดพลาด',
-                        text: error.message
-                    });
+                    Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
                 }
             }
         });
