@@ -6,6 +6,7 @@
   <title>จัดการอุปกรณ์ที่ลงทะเบียน</title>
   <link rel="stylesheet" href="../../assets/css/styles.css" />
   <link rel="stylesheet" href="../../assets/css/manage-device.css" />
+  
 </head>
 <body class="manage-device-page">
   <div class="manage-device-container">
@@ -83,20 +84,8 @@
     </div>
   </div>
 
-  <script>
-    const deviceSelect = document.getElementById('device-type');
-    const hostSection = document.getElementById('host-section');
-    const ibeaconSection = document.getElementById('ibeacon-section');
+  <script src="../../assets/js/manage-device.js"></script>
+  <script src="../../assets/js/device-switch.js"></script>
 
-    deviceSelect.addEventListener('change', () => {
-      if (deviceSelect.value === 'host') {
-        hostSection.style.display = 'block';
-        ibeaconSection.style.display = 'none';
-      } else {
-        hostSection.style.display = 'none';
-        ibeaconSection.style.display = 'block';
-      }
-    });
-  </script>
 </body>
 </html>

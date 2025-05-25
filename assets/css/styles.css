@@ -1462,9 +1462,9 @@ html.register-device-page {
 }
 
 .manage-device-group select {
-  width: 250px;
+  width: 150px;
   padding: 8px 14px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   border: 1px solid #bbb;
   border-radius: 8px;
   background-color: #f0f0f0;
