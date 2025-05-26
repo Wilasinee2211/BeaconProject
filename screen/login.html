@@ -7,6 +7,7 @@
   <title>SIRIN MUSEUM - Login</title>
   <link rel="stylesheet" href="../assets/css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
 </head>
 
 <body class="login-page">
@@ -64,26 +65,34 @@
       togglePassword.classList.toggle("fa-eye-slash");
     });
 
+    const popup = document.getElementById("popupMessage");
+    const popupContent = document.getElementById("popupContent");
+    const popupText = document.getElementById("popupText");
+    const popupIcon = document.getElementById("popupIcon");
+
+    function closePopup() {
+      popup.style.display = "none";
+    }
+
+    document.getElementById("popupButton").addEventListener("click", closePopup);
+
+    // ปิด popup เมื่อกด ESC
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && popup.style.display === "flex") {
+        closePopup();
+      }
+    });
+
     document.getElementById("loginForm").addEventListener("submit", function (e) {
       e.preventDefault();
-      const userRole = localStorage.getItem("role");
-      if (userRole !== "admin") {
-        alert("คุณไม่มีสิทธิ์เข้าถึงหน้านี้");
-        window.location.href = "../login.html";
-      }
       const formData = new FormData(this);
 
-      fetch("http://localhost:8888/BeaconProject/screen/login.php", {
+      fetch("http://localhost:8888/BeaconProject/backend/login.php", {
         method: "POST",
         body: formData
       })
         .then(res => res.json())
         .then(data => {
-          const popup = document.getElementById("popupMessage");
-          const popupContent = document.getElementById("popupContent");
-          const popupText = document.getElementById("popupText");
-          const popupIcon = document.getElementById("popupIcon");
-
           popupContent.classList.remove("success", "error");
 
           if (data.success) {
@@ -95,6 +104,8 @@
             localStorage.setItem("role", data.role);
 
             setTimeout(() => {
+              closePopup(); // ปิด popup ก่อน redirect
+
               if (data.role === "admin") {
                 window.location.href = "../screen/admin/admin.html";
               } else if (data.role === "staff") {
@@ -104,26 +115,27 @@
                 popupIcon.textContent = "❌";
                 popupContent.classList.remove("success");
                 popupContent.classList.add("error");
+                popup.style.display = "flex";
               }
             }, 1500);
-
-        } else {
-          popupText.textContent = data.message;
-          popupIcon.textContent = "❌";
-          popupContent.classList.add("error");
-          popup.style.display = "flex";
-        }
+          } else {
+            popupText.textContent = data.message;
+            popupIcon.textContent = "❌";
+            popupContent.classList.add("error");
+            popup.style.display = "flex";
+          }
         })
-
-      .catch(err => {
-        console.error("Login error:", err);
-        alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
-      });
+        .catch(err => {
+          console.error("Login error:", err);
+          alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+        });
     });
+
     function validateCitizenId(input) {
       input.value = input.value.replace(/[^0-9]/g, '').slice(0, 13);
     }
   </script>
+
 </body>
 
 </html>

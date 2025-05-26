@@ -2,7 +2,7 @@ body.welcome-page,
 html.welcome-page {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Kanit', sans-serif;
   height: 100%;
   overflow: hidden;
 }
@@ -44,17 +44,22 @@ html.welcome-page {
 .welcome-page .text-overlay h1 {
   font-size: 4rem;
   margin: 0;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
 }
 
 .welcome-page .text-overlay h2 {
   font-size: 5rem;
   margin: 0 0 10px;
   color: #D5A83F;
+  line-height: 1.2;
+  letter-spacing: 0.5px;
 }
 
 .welcome-page .text-overlay p {
   font-size: 1.5rem;
   margin: 0 0 20px;
+  letter-spacing: 0.5px;
 }
 
 .welcome-page .enter-button {
@@ -71,6 +76,7 @@ html.welcome-page {
   transition: background-color 0.3s ease;
   font-weight: bold;
   box-shadow: none;
+  letter-spacing: 0.8px;
 }
 
 .welcome-page .enter-button:hover {
@@ -82,7 +88,7 @@ body.selection-page,
 html.selection-page {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Kanit', sans-serif;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -182,6 +188,7 @@ html.selection-page {
   max-width: 250px;
   box-shadow: 0 4px 15px rgba(57, 121, 123, 0.4);
   font-family: inherit;
+  letter-spacing: 1px;
 }
 
 .selection-page .selection-button:hover {
@@ -323,12 +330,14 @@ html.login-page {
   font-size: 52px;
   color: #f5af23;
   margin: 0;
+  line-height: 1.2;
 }
 
 .login-page .login-overlay-center p {
   font-size: 20px;
   margin-top: 10px;
   color: #d3e3ff;
+  line-height: 1.2;
 }
 
 .login-page .login-right {
@@ -353,6 +362,7 @@ html.login-page {
   margin-top: 0;
   text-align: center;
   color: #000000;
+  letter-spacing: 0.5px;
 }
 
 .login-page .login-input-group {
@@ -568,7 +578,7 @@ body.admin-page,
 html.admin-page {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Kanit', sans-serif;
   height: 100%;
   overflow: hidden;
 }
@@ -626,6 +636,7 @@ html.admin-page {
   margin-bottom: 40px;
   font-size: 2rem;
   color: #000;
+  letter-spacing: 0.5px;
 }
 
 .admin-page .admin-buttons {
@@ -704,12 +715,14 @@ html.admin-page {
   font-size: 52px;
   color: #f5af23;
   margin: 0;
+  line-height: 1.2;
 }
 
 .register-page .register-overlay-center p {
   font-size: 20px;
   margin-top: 10px;
   color: #d3e3ff;
+  line-height: 1.2;
 }
 
 .register-page .register-right {
@@ -752,6 +765,7 @@ html.admin-page {
   margin-top: 0;
   text-align: center;
   color: #000000;
+  letter-spacing: 0.5px;
 }
 
 .register-page .register-input-group {
@@ -986,12 +1000,14 @@ html.admin-page {
   font-size: 52px;
   color: #f5af23;
   margin: 0;
+  line-height: 1.2;
 }
 
 .visitor-register-page .visitor-register-overlay-center p {
   font-size: 20px;
   margin-top: 10px;
   color: #d3e3ff;
+  line-height: 1.2;
 }
 
 .visitor-register-page .visitor-register-right {
@@ -1034,6 +1050,7 @@ html.admin-page {
   margin-top: 0;
   text-align: center;
   color: #000000;
+  letter-spacing: 0.5px;
 }
 
 .visitor-register-page .visitor-register-input-group {
@@ -1259,7 +1276,7 @@ html.staff-menu-page {
 
 .staff-menu-card {
   background: rgba(255, 255, 255, 0.7);
-  padding: 50px 60px;
+  padding: 30px 60px 40px 60px;
   border-radius: 25px;
   text-align: center;
   backdrop-filter: blur(8px);
@@ -1270,6 +1287,7 @@ html.staff-menu-page {
   font-size: 2.5rem;
   color: #1A5C5C;
   margin-bottom: 40px;
+  letter-spacing: 0.5px;
 }
 
 .staff-menu-buttons {
@@ -1337,6 +1355,7 @@ html.register-device-page {
   margin-bottom: 30px;
   text-align: center;
   color: #000;
+  letter-spacing: 0.5px;
 }
 
 .register-device-group {
@@ -1462,9 +1481,9 @@ html.register-device-page {
 }
 
 .manage-device-group select {
-  width: 250px;
+  width: 150px;
   padding: 8px 14px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   border: 1px solid #bbb;
   border-radius: 8px;
   background-color: #f0f0f0;
@@ -1572,7 +1591,7 @@ html.register-device-page {
 
 /* หน้าจัดการสิทธิ์ */
 .manage-users {
-  font-family: 'Kanit', 'Sarabun', sans-serif;
+  font-family: 'Kanit', sans-serif;
   background-color: #1c7e85;
   padding: 30px;
   margin: 0;
@@ -1600,6 +1619,7 @@ html.register-device-page {
   margin: 10px 0 20px 0;
   color: #333;
   border-bottom: 1px solid #ddd;
+  letter-spacing: 0.5px;
 }
 
 .manage-users__table {
@@ -1703,6 +1723,7 @@ html.register-device-page {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-family: 'Kanit', sans-serif;
 }
 
 .manage-users__cancel-btn {
@@ -1715,6 +1736,7 @@ html.register-device-page {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-family: 'Kanit', sans-serif;
 }
 
 .manage-users__confirm-btn:hover {
@@ -1735,7 +1757,7 @@ html.register-device-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; /* <== ป้องกัน scroll หน้า */
+  overflow: hidden; 
 }
 
 .change-password-container {
@@ -1832,14 +1854,14 @@ html.register-device-page {
   border: 3px solid #000;
   border-radius: 25px;
   font-size: 1.1em;
-  background: #c9b896;
+  background: #ded8c8;
   outline: none;
   box-sizing: border-box;
   position: relative;
 }
 
 .input-field:focus {
-  background: #d4c3a0;
+  background: #ded8c8;
 }
 
 .input-field::placeholder {
