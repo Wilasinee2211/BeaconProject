@@ -25,7 +25,7 @@ class Device {
     // ✅ ดึงทั้งหมด: iBeacons
     public function getAllIBeacons() {
         try {
-            $stmt = $this->conn->prepare("SELECT id, macaddress, uuid, device_name FROM {$this->table_ibeacons}");
+            $stmt = $this->conn->prepare("SELECT id, macaddress, uuid FROM {$this->table_ibeacons}");
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {

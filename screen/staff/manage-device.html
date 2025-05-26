@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="th" class="manage-device-page">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>จัดการอุปกรณ์ที่ลงทะเบียน</title>
 
   <!-- เรียกใช้ stylesheet หลัก -->
@@ -39,7 +40,7 @@
       </div>
     </div>
 
-    <!-- iBeacon Section -->
+    <!-- ตารางแสดงข้อมูล iBeacon -->
     <div id="ibeacon-section" class="device-section" style="display:none;">
       <table class="manage-device-table">
         <thead>
@@ -48,14 +49,13 @@
             <th>Device ID</th>
             <th>Mac Address</th>
             <th>UUID (8 หลักหลัง)</th>
-            <th>ชื่ออุปกรณ์</th>
             <th>การกระทำ</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
       <div class="manage-device-actions">
-        <button class="btn-delete" onclick="deleteSelected()">ลบที่เลือก</button>
+        <button onclick="deleteSelected()">ลบรายการที่เลือก</button>
       </div>
     </div>
   </div>
@@ -63,4 +63,5 @@
   <!-- เรียกใช้ JavaScript (แค่ตัวเดียว) -->
   <script src="/BeaconProject/assets/js/manage-device.js"></script>
 </body>
+
 </html>
