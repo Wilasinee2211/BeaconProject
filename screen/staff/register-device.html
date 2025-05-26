@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="th" class="register-device-page">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ลงทะเบียนอุปกรณ์</title>
   <link rel="stylesheet" href="../../assets/css/styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
 </head>
+
 <body class="register-device-page">
   <div class="register-device-wrapper">
     <div class="register-device-shadow"></div>
@@ -27,10 +29,11 @@
         <div class="register-device-group">
           <label for="host-name">ชื่ออุปกรณ์</label>
           <input type="text" id="host-name" placeholder="กรุณากรอกชื่ออุปกรณ์" />
-          <p class="register-device-hint">ชื่ออุปกรณ์ต้องไม่มีช่องว่างและอักขระพิเศษ</p>
+          <p class="register-device-hint">ชื่ออุปกรณ์ต้องไม่เว้นวรรคและไม่ใช้สัญลักษณ์พิเศษ</p>
         </div>
         <div class="register-device-buttons">
-          <button class="register-device-submit">ลงทะเบียนประเภทอุปกรณ์</button>
+          <button class="register-device-submit" type="button" id="submit-host">ลงทะเบียนประเภทอุปกรณ์</button>
+
           <a href="staff-menu.html" class="register-device-back">กลับไปหน้าเมนู</a>
         </div>
       </div>
@@ -44,31 +47,21 @@
         </div>
         <div class="register-device-group">
           <label for="uuid">UUID</label>
-          <input type="text" id="uuid" placeholder="กรุณากรอก UUID 8 ตัวหลัง" />
+          <input type="text" id="uuid" placeholder="กรุณากรอก UUID 8 หลักหลัง" />
           <p class="register-device-hint">กรอกเฉพาะ 8 หลักสุดท้ายของ UUID</p>
         </div>
         <div class="register-device-buttons">
-          <button class="register-device-submit">ลงทะเบียนประเภทอุปกรณ์</button>
+          <button class="register-device-submit" type="button">ลงทะเบียนประเภทอุปกรณ์</button>
           <a href="staff-menu.html" class="register-device-back">กลับไปหน้าเมนู</a>
         </div>
       </div>
+
     </div>
   </div>
 
-  <script>
-    const typeSelect = document.getElementById('device-type');
-    const formHost = document.getElementById('form-host');
-    const formIBeacon = document.getElementById('form-ibeacon');
+  <script src="../../assets/js/register-device.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    typeSelect.addEventListener('change', () => {
-      if (typeSelect.value === 'host') {
-        formHost.style.display = 'block';
-        formIBeacon.style.display = 'none';
-      } else {
-        formHost.style.display = 'none';
-        formIBeacon.style.display = 'block';
-      }
-    });
-  </script>
 </body>
+
 </html>
