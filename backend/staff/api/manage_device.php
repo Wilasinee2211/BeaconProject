@@ -1,121 +1,97 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/classes/Device.php';
+
+header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-require_once '../config/database.php';
-require_once '../classes/Device.php';
+$database = new Database();
+$db = $database->getConnection();
+$device = new Device($db);
 
-try {
-    $database = new Database();
-    $db = $database->getConnection();
+$method = $_SERVER['REQUEST_METHOD'];
 
-    if (!$db) {
-        error_log("[manage_device.php][E201] Database connection failed");
-        http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Database connection failed"]);
-        exit;
-    }
+switch ($method) {
+    case 'GET':
+        $type = $_GET['type'] ?? '';
 
-    $device = new Device($db);
-    $method = $_SERVER['REQUEST_METHOD'];
-
-    switch ($method) {
-        case 'GET':
-            $device_type = $_GET['type'] ?? '';
-            if ($device_type === 'host') {
-                $hosts = $device->getAllHosts();
-                echo json_encode(["success" => true, "data" => $hosts]);
-            } elseif ($device_type === 'ibeacon') {
-                $ibeacons = $device->getAllIBeacons();
-                echo json_encode(["success" => true, "data" => $ibeacons]);
-            } else {
-                echo json_encode(["success" => false, "message" => "Invalid device type"]);
-            }
-            exit;
-
-        case 'PUT':
-            $input = json_decode(file_get_contents('php://input'), true);
-            if (!$input || !isset($input['id']) || !isset($input['device_type'])) {
-                error_log("[manage_device.php][E203] Invalid PUT input");
-                http_response_code(400);
-                echo json_encode(["success" => false, "message" => "ข้อมูลไม่ครบถ้วน"]);
-                exit;
-            }
-
-            $id = $input['id'];
-            $device_type = $input['device_type'];
-
-            if ($device_type === 'host') {
-                $host_name = trim($input['host_name'] ?? '');
-                if (!$host_name || !preg_match('/^[a-zA-Z0-9_-]+$/', $host_name)) {
-                    http_response_code(400);
-                    echo json_encode(["success" => false, "message" => "ชื่ออุปกรณ์ไม่ถูกต้อง"]);
-                    exit;
-                }
-                $result = $device->updateHost($id, $host_name);
-                echo json_encode($result);
-                exit;
-
-            } elseif ($device_type === 'ibeacon') {
-                $mac = strtoupper(trim($input['mac_address'] ?? ''));
-                $uuid = strtoupper(trim($input['uuid'] ?? ''));
-
-                if (!preg_match('/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/', $mac) || !preg_match('/^[0-9A-F]{8}$/', $uuid)) {
-                    http_response_code(400);
-                    echo json_encode(["success" => false, "message" => "MAC หรือ UUID ไม่ถูกต้อง"]);
-                    exit;
-                }
-
-                $result = $device->updateIBeacon($id, $mac, $uuid);
-                echo json_encode($result);
-                exit;
-            }
-
+        if ($type === 'host') {
+            $data = $device->getAllHosts();
+        } elseif ($type === 'ibeacon') {
+            $data = $device->getAllIBeacons();
+        } else {
             http_response_code(400);
-            echo json_encode(["success" => false, "message" => "ประเภทอุปกรณ์ไม่ถูกต้อง"]);
+            echo json_encode(['success' => false, 'message' => 'Invalid device type']);
             exit;
+        }
 
-        case 'DELETE':
-            $input = json_decode(file_get_contents('php://input'), true);
-            if (!$input || !isset($input['id']) || !isset($input['device_type'])) {
-                http_response_code(400);
-                echo json_encode(["success" => false, "message" => "ข้อมูลไม่ครบถ้วน"]);
-                exit;
-            }
+        echo json_encode(['success' => true, 'data' => $data]);
+        break;
 
-            $id = $input['id'];
-            $device_type = $input['device_type'];
-
-            if ($device_type === 'host') {
-                $result = $device->deleteHost($id);
-                echo json_encode($result);
-                exit;
-            } elseif ($device_type === 'ibeacon') {
-                $result = $device->deleteIBeacon($id);
-                echo json_encode($result);
-                exit;
-            }
-
+    case 'PUT':
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input || !isset($input['device_type']) || !isset($input['id'])) {
             http_response_code(400);
-            echo json_encode(["success" => false, "message" => "ประเภทอุปกรณ์ไม่ถูกต้อง"]);
+            echo json_encode(['success' => false, 'message' => 'Invalid input']);
             exit;
+        }
 
-        default:
-            http_response_code(405);
-            echo json_encode(["success" => false, "message" => "Method not allowed"]);
+        $id = $input['id'];
+        $type = $input['device_type'];
+
+        if ($type === 'host') {
+            $host_name = $input['host_name'] ?? '';
+            $result = $device->updateHost($id, $host_name);
+        } elseif ($type === 'ibeacon') {
+            $mac = $input['mac_address'] ?? '';
+            $uuid = $input['uuid'] ?? '';
+            $name = $input['device_name'] ?? '';
+            $result = $device->updateIBeacon($id, $mac, $uuid, $name);
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid device type']);
             exit;
-    }
+        }
 
-} catch (Exception $e) {
-    error_log("[manage_device.php][E999] Exception: " . $e->getMessage());
-    http_response_code(500);
-    echo json_encode(["success" => false, "message" => "เกิดข้อผิดพลาด: " . $e->getMessage()]);
-    exit;
+        echo json_encode($result);
+        break;
+
+    case 'DELETE':
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input || !isset($input['device_type']) || !isset($input['id'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid input']);
+            exit;
+        }
+
+        $id = $input['id'];
+        $type = $input['device_type'];
+
+        if ($type === 'host') {
+            $result = $device->deleteHost($id);
+        } elseif ($type === 'ibeacon') {
+            $result = $device->deleteIBeacon($id);
+        } else {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Invalid device type']);
+            exit;
+        }
+
+        echo json_encode($result);
+        break;
+
+    default:
+        http_response_code(405);
+        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+        break;
 }
-?>
