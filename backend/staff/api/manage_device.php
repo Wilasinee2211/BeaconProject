@@ -56,7 +56,8 @@ switch ($method) {
             $mac = $input['mac_address'] ?? '';
             $uuid = $input['uuid'] ?? '';
             $name = $input['device_name'] ?? '';
-            $result = $device->updateIBeacon($id, $mac, $uuid, $name);
+            $result = $device->updateIBeacon($id, $mac, $uuid);
+            
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid device type']);

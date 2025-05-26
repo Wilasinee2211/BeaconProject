@@ -51,24 +51,27 @@ class Device {
     }
 
     // ✅ อัปเดต iBeacon
-    public function updateIBeacon($id, $mac, $uuid, $device_name = '') {
+    public function updateIBeacon($id, $mac, $uuid) {
         try {
             $stmt = $this->conn->prepare("UPDATE {$this->table_ibeacons} 
-                SET macaddress = :mac, uuid = :uuid, device_name = :device_name 
+                SET macaddress = :mac, uuid = :uuid 
                 WHERE id = :id");
+
             $stmt->bindParam(":mac", $mac);
             $stmt->bindParam(":uuid", $uuid);
-            $stmt->bindParam(":device_name", $device_name);
             $stmt->bindParam(":id", $id);
+
             if ($stmt->execute()) {
                 return ["success" => true, "message" => "อัปเดต iBeacon สำเร็จ"];
             }
+
             return ["success" => false, "message" => "อัปเดต iBeacon ไม่สำเร็จ"];
         } catch (PDOException $e) {
             error_log("[Device.php][updateIBeacon][E504] " . $e->getMessage());
             return ["success" => false, "message" => "Database error"];
         }
     }
+
 
     // ✅ ลบ Host
     public function deleteHost($id) {
