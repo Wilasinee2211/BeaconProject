@@ -4,10 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIRIN MUSEUM - ลงทะเบียนผู้เยียมชม</title>
+  <title>SIRIN MUSEUM - ลงทะเบียนผู้เยี่ยมชม</title>
   <link rel="stylesheet" href="../assets/css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="visitor-register-page">
@@ -19,7 +20,7 @@
         <p>พิพิธภัณฑ์ธรรมชาติวิทยาเทพรัตน์ฯ มหาวิทยาลัยวลัยลักษณ์</p>
       </div>
     </div>
-
+    
     <div class="visitor-register-right">
       <div class="visitor-register-box-wrapper">
         <div class="visitor-register-box-shadow"></div>
@@ -58,65 +59,7 @@
     </div>
   </div>
 
-  <!-- Popup -->
-  <div id="popupMessage" class="visitor-register-page-popup">
-    <div id="popupContent" class="popup-content">
-      <div id="popupIcon" class="popup-icon">✔️</div>
-      <h3 id="popupTitle">สำเร็จ</h3>
-      <p id="popupText">ลงทะเบียนเรียบร้อยแล้ว</p>
-      <button id="popupCloseBtn">ตกลง</button>
-    </div>
-  </div>
-
-  <script>
-    document.getElementById("visitorRegisterForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      const form = e.target;
-      const formData = new FormData(form);
-
-      fetch("http://localhost:8888/BeaconProject/backend/visitor/visitor_register.php", {
-        method: "POST",
-        body: formData
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            showPopup("success", "ลงทะเบียนสำเร็จ", data.message);
-            form.reset();
-          } else {
-            showPopup("error", "เกิดข้อผิดพลาด", data.message);
-          }
-        })
-        .catch((error) => {
-          console.error("เกิดข้อผิดพลาด:", error);
-          showPopup("error", "เกิดข้อผิดพลาด", "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
-        });
-    });
-
-    function showPopup(type, title, text) {
-      const popup = document.getElementById("popupMessage");
-      const content = document.getElementById("popupContent");
-      const icon = document.getElementById("popupIcon");
-      const titleEl = document.getElementById("popupTitle");
-      const textEl = document.getElementById("popupText");
-
-      content.classList.remove("success", "error");
-      content.classList.add(type);
-
-      icon.textContent = type === "success" ? "✔️" : "❌";
-      titleEl.textContent = title;
-      textEl.textContent = text;
-
-      popup.style.display = "flex";
-    }
-
-    function closePopup() {
-      document.getElementById("popupMessage").style.display = "none";
-    }
-
-    document.getElementById("popupCloseBtn").addEventListener("click", closePopup);
-  </script>
+  <script src="../assets/js/visitor-register.js"></script>
 </body>
 
 </html>
