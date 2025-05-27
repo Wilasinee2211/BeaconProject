@@ -1333,6 +1333,40 @@ html.register-device-page {
   background-color: #8c8c8c;
 }
 
+/* ปุ่มในตารางแถวแต่ละแถว */
+.action-button {
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-family: 'Kanit', sans-serif;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin: 0 4px;
+}
+
+/* ปุ่มแก้ไข */
+.btn-edit-row {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-edit-row:hover {
+  background-color: #388E3C;
+}
+
+/* ปุ่มลบ */
+.btn-delete-row {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-delete-row:hover {
+  background-color: #d32f2f;
+}
+
+
 /* Manage Users Page Styles */
 .manage-users {
   font-family: 'Kanit', sans-serif;
