@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>นำออกข้อมูล</title>
-  <link rel="stylesheet" href="../../assets/css/styles.css"> 
+  <link rel="stylesheet" href="../../assets/css/styles.css">
 </head>
 <body>
 
 <div class="export-container">
   <h2>นำออกข้อมูล</h2>
 
-  <div class="date-inputs">
+  <div class="export-date-inputs">
     <div>
       <label for="start-date">วันที่เริ่มต้น</label>
       <input type="date" id="start-date">
@@ -21,14 +21,14 @@
     </div>
   </div>
 
-  <div class="file-types">
+  <div class="export-file-types">
     <button onclick="selectFileType('csv')">CSV</button>
     <button onclick="selectFileType('excel')">Excel</button>
     <button onclick="selectFileType('pdf')">PDF</button>
     <button onclick="selectFileType('json')">JSON</button>
   </div>
 
-  <button class="export-button" onclick="exportData()">📥 ส่งออกข้อมูล</button>
+  <button class="export-download-button" onclick="exportData()">📥 ส่งออกข้อมูล</button>
 </div>
 
 <script>
@@ -36,7 +36,7 @@
 
   function selectFileType(type) {
     selectedFileType = type;
-    document.querySelectorAll('.file-types button').forEach(btn => btn.classList.remove('selected'));
+    document.querySelectorAll('.export-file-types button').forEach(btn => btn.classList.remove('selected'));
     event.target.classList.add('selected');
   }
 
@@ -49,7 +49,6 @@
       return;
     }
 
-    // จำลองการดาวน์โหลด
     const blob = new Blob([`ข้อมูลจาก ${startDate} ถึง ${endDate}`], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
