@@ -5,9 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>จัดการอุปกรณ์ที่ลงทะเบียน</title>
-
-  <!-- เรียกใช้ stylesheet หลัก -->
   <link rel="stylesheet" href="../../assets/css/staff_styles.css" />
+
 </head>
 
 <body class="manage-device-page">
@@ -35,8 +34,8 @@
         </thead>
         <tbody></tbody>
       </table>
-      <div class="manage-device-actions">
-        <button class="btn-delete" onclick="deleteSelected()">ลบที่เลือก</button>
+      <div class="manage-device-actions delete-selected-wrapper" id="delete-selected-host" style="display: none;">
+        <button class="btn-delete" onclick="deleteSelected()">ลบรายการที่เลือก</button>
       </div>
     </div>
 
@@ -54,10 +53,16 @@
         </thead>
         <tbody></tbody>
       </table>
-      <div class="manage-device-actions">
-        <button onclick="deleteSelected()">ลบรายการที่เลือก</button>
+      <div class="manage-device-actions delete-selected-wrapper" id="delete-selected-ibeacon" style="display: none;">
+        <button class="btn-delete" onclick="deleteSelected()">ลบรายการที่เลือก</button>
       </div>
     </div>
+
+    <div class="manage-device-footer-inside">
+      <a href="/BeaconProject/screen/staff/register-device.html" class="footer-btn btn-add">เพิ่มอุปกรณ์</a>
+      <a href="/BeaconProject/screen/staff/staff-menu.html" class="footer-btn btn-back">กลับไปหน้าเมนู</a>
+    </div>
+
   </div>
 
   <script src="/BeaconProject/assets/js/manage-device.js"></script>
