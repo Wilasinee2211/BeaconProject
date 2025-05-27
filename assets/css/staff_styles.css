@@ -1,0 +1,358 @@
+/* Staff Menu Page Styles */
+body.staff-menu-page,
+html.staff-menu-page {
+  margin: 0;
+  padding: 0;
+  font-family: 'Kanit', sans-serif;
+  height: 100%;
+  background: url('https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132364.jpg') no-repeat center center;
+  background-size: cover;
+}
+
+.staff-menu-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.staff-menu-card {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 30px 60px 40px 60px;
+  border-radius: 25px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.staff-menu-card h1 {
+  font-size: 2.5rem;
+  color: #1A5C5C;
+  margin-bottom: 40px;
+  letter-spacing: 0.5px;
+}
+
+.staff-menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.staff-menu-btn {
+  background-color: #1A5C5C;
+  color: white;
+  font-size: 1.2rem;
+  padding: 15px 100px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.staff-menu-btn:hover {
+  background-color: #e09e1f;
+}
+
+/* Register Device Page Styles */
+body.register-device-page,
+html.register-device-page {
+  margin: 0;
+  padding: 0;
+  font-family: 'Kanit', sans-serif;
+  height: 100%;
+  background: #39797B;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-device-wrapper {
+  position: relative;
+  width: 520px;
+}
+
+.register-device-shadow {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 100%;
+  height: 100%;
+  border-radius: 25px;
+  background-color: #d3e8dd;
+  z-index: 0;
+}
+
+.register-device-box {
+  position: relative;
+  background: white;
+  padding: 50px 40px;
+  border-radius: 25px;
+  box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.1);
+  z-index: 1;
+}
+
+.register-device-box h2 {
+  font-size: 1.6rem;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #000;
+  letter-spacing: 0.5px;
+}
+
+.register-device-group {
+  margin-bottom: 20px;
+}
+
+.register-device-group label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+  font-size: 1rem;
+}
+
+.register-device-group input,
+.register-device-group select {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.register-device-group select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+.register-device-hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 8px;
+  display: block;
+}
+
+.register-device-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.register-device-submit {
+  background-color: #3390EC;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 14px 0;
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.register-device-submit:hover {
+  background-color: #2a78c2;
+}
+
+.register-device-back {
+  background-color: #aeb7b7;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 14px 0;
+  flex: 1;
+  text-align: center;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.register-device-back:hover {
+  background-color: #949c9c;
+}
+
+/* Manage Device Page Styles */
+.manage-device-page {
+  background-color: #39797B;
+  min-height: 100vh;
+  margin: 0;
+  padding: 40px 20px;
+  font-family: 'Kanit', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.manage-device-container {
+  width: 100%;
+  max-width: 980px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.manage-device-header {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #114345;
+}
+
+.manage-device-group {
+  margin-bottom: 30px;
+}
+
+.manage-device-group label {
+  font-weight: bold;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 10px;
+  color: #114345;
+}
+
+.manage-device-group select {
+  width: 150px;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  border: 1px solid #bbb;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  color: #333;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+}
+
+
+.manage-device-group select:focus {
+  border-color: #39797B;
+  outline: none;
+}
+
+.manage-device-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 30px;
+  background-color: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.manage-device-table th {
+  background-color: #39797B;
+  color: white;
+  padding: 14px;
+  font-size: 1rem;
+}
+
+.manage-device-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.manage-device-table input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #fafafa;
+}
+
+.manage-device-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.manage-device-actions button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-edit {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #45a049;
+}
+
+.btn-delete {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #d32f2f;
+}
+
+.btn-save {
+  background-color: #1a5c5c;
+  color: white;
+}
+
+.btn-save:hover {
+  background-color: #144746;
+}
+
+.btn-cancel {
+  background-color: #a9a9a9;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background-color: #8c8c8c;
+}
+
+/* ปุ่มในตารางแถวแต่ละแถว */
+.action-button {
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-family: 'Kanit', sans-serif;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin: 0 4px;
+}
+
+/* ปุ่มแก้ไข */
+.btn-edit-row {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-edit-row:hover {
+  background-color: #388E3C;
+}
+
+/* ปุ่มลบ */
+.btn-delete-row {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-delete-row:hover {
+  background-color: #d32f2f;
+}
