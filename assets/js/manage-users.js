@@ -1,0 +1,147 @@
+window.onload = () => {
+  loadUserData();
+};
+
+let originalData = [];
+let currentData = [];
+let deleteQueue = new Set();
+
+function loadUserData() {
+  const loadingStatus = document.getElementById('loadingStatus');
+  loadingStatus.textContent = "กำลังโหลดข้อมูล...";
+
+  fetch('../../backend/admin/manage_users.php?action=get_users')
+    .then(response => response.json())
+    .then(data => {
+      originalData = JSON.parse(JSON.stringify(data));
+      currentData = JSON.parse(JSON.stringify(data));
+      renderUserTable();
+      loadingStatus.textContent = `โหลดสำเร็จ : พบผู้ใช้ ${data.length} คน`;
+    })
+    .catch(error => {
+      loadingStatus.textContent = `เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`;
+    });
+}
+
+function renderUserTable() {
+  const tableBody = document.getElementById('userTableBody');
+  tableBody.innerHTML = '';
+
+  currentData.forEach(user => {
+    if (deleteQueue.has(user.id)) return;
+
+    const row = document.createElement('tr');
+    row.id = `user-${user.id}`;
+    
+    const originalUser = originalData.find(u => u.id == user.id);
+    if (originalUser && user.role !== originalUser.role) {
+      row.classList.add('row-modified');
+    }
+
+    row.innerHTML = `
+      <td>${user.citizen_id || '-'}</td>
+      <td>${user.first_name || '-'}</td>
+      <td>${user.last_name || '-'}</td>
+      <td>
+        <div class="role-select-container">
+          <select class="role-select" data-userid="${user.id}" onchange="handleRoleChange(this)">
+            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ผู้ดูแล</option>
+            <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>ผู้บริหาร</option>
+            <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>เจ้าหน้าที่</option>
+          </select>
+          <span class="role-select-arrow"></span>
+        </div>
+      </td>
+      <td>
+        <button class="delete-btn" data-userid="${user.id}" onclick="handleDelete(${user.id})">ลบ</button>
+      </td>
+    `;
+
+    tableBody.appendChild(row);
+  });
+}
+
+function handleRoleChange(selectElement) {
+  const userId = selectElement.dataset.userid;
+  const newRole = selectElement.value;
+  
+  const userIndex = currentData.findIndex(u => u.id == userId);
+  if (userIndex !== -1) {
+    currentData[userIndex].role = newRole;
+  }
+
+  const originalUser = originalData.find(u => u.id == userId);
+  const row = document.getElementById(`user-${userId}`);
+  
+  if (originalUser && newRole !== originalUser.role) {
+    row.classList.add('row-modified');
+  } else {
+    row.classList.remove('row-modified');
+  }
+}
+
+function handleDelete(userId) {
+  deleteQueue.add(userId);
+  const row = document.getElementById(`user-${userId}`);
+  row.classList.add('row-modified');
+  row.style.opacity = '0.5';
+}
+
+document.getElementById('confirmBtn').addEventListener('click', function () {
+  const loadingStatus = document.getElementById('loadingStatus');
+  loadingStatus.textContent = "กำลังอัปเดตข้อมูล...";
+  
+  const updates = [];
+
+  currentData.forEach(user => {
+    const originalUser = originalData.find(u => u.id == user.id);
+    if (originalUser && user.role !== originalUser.role) {
+      updates.push({
+        id: user.id,
+        role: user.role
+      });
+    }
+  });
+
+  if (updates.length > 0) {
+    fetch('../../backend/admin/manage_users.php?action=update_users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ updates })
+    }).catch(error => {
+      console.error("Error updating roles:", error);
+    });
+  }
+
+  const deletePromises = [];
+  deleteQueue.forEach(userId => {
+    const deletePromise = fetch('../../backend/admin/manage_users.php?action=delete_user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `id=${userId}`
+    }).catch(error => {
+      console.error(`Error deleting user ${userId}:`, error);
+    });
+    
+    deletePromises.push(deletePromise);
+  });
+
+  Promise.all(deletePromises)
+    .then(() => {
+      originalData = JSON.parse(JSON.stringify(currentData));
+      currentData = currentData.filter(user => !deleteQueue.has(user.id));
+      originalData = originalData.filter(user => !deleteQueue.has(user.id));
+      deleteQueue.clear();
+      alert('อัปเดตสิทธิ์และลบผู้ใช้เรียบร้อยแล้ว');
+      loadingStatus.textContent = `อัปเดตข้อมูลสำเร็จ: มีผู้ใช้คงเหลือ ${currentData.length} คน`;
+      renderUserTable();
+    });
+});
+
+document.getElementById('cancelBtn').addEventListener('click', function () {
+  if (confirm('คุณต้องการยกเลิกการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?')) {
+    deleteQueue.clear();
+    currentData = JSON.parse(JSON.stringify(originalData));
+    renderUserTable();
+  }
+});

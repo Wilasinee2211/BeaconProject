@@ -2,7 +2,6 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header("Content-Type: application/json");
-header("Content-Type: application/json");
 
 $host = "localhost";
 $port = 8889;
@@ -22,6 +21,19 @@ $lastName = $_POST['lastName'];
 $rawPassword = $_POST['password'];
 $role = $_POST['role'];
 $hashedPassword = password_hash($rawPassword, PASSWORD_DEFAULT);
+
+$checkStmt = $conn->prepare("SELECT id FROM users WHERE citizen_id = ?");
+$checkStmt->bind_param("s", $citizenId);
+$checkStmt->execute();
+$checkStmt->store_result();
+
+if ($checkStmt->num_rows > 0) {
+    echo json_encode(["success" => false, "message" => "เลขบัตรประชาชนนี้ถูกใช้ไปแล้ว"]);
+    $checkStmt->close();
+    $conn->close();
+    exit;
+}
+$checkStmt->close();
 
 $sql = "INSERT INTO users (citizen_id, first_name, last_name, password, role)
         VALUES (?, ?, ?, ?, ?)";

@@ -1,3 +1,4 @@
+/* Welcome Page Styles */
 body.welcome-page,
 html.welcome-page {
   margin: 0;
@@ -202,7 +203,6 @@ html.selection-page {
   box-shadow: 0 2px 10px rgba(57, 121, 123, 0.3);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .selection-page .outer-frame {
     padding: 40px 25px;
@@ -263,7 +263,6 @@ html.selection-page {
   }
 }
 
-/* สำหรับหน้าจอเล็กมาก */
 @media (max-height: 600px) {
   .selection-page .outer-frame {
     padding: 30px 25px;
@@ -286,6 +285,7 @@ html.selection-page {
   }
 }
 
+/* Login Page Styles */
 body.login-page,
 html.login-page {
   margin: 0;
@@ -467,89 +467,6 @@ html.login-page {
   text-decoration: underline;
 }
 
-/* Popup Styles - Updated to match visitor registration */
-.login-page-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.login-page .popup-content {
-  background-color: #fff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-  margin: 0 auto;
-}
-
-.login-page .popup-content.success {
-  border-top: 4px solid #2e7d32;
-}
-
-.login-page .popup-content.error {
-  border-top: 4px solid #d32f2f;
-}
-
-.login-page .popup-icon {
-  font-size: 3em;
-  margin-bottom: 15px;
-}
-
-.login-page .popup-content h3 {
-  margin-top: 0;
-  font-size: 1.5em;
-  color: #2e7d32;
-  margin-bottom: 10px;
-}
-
-.login-page .popup-content.error h3 {
-  color: #d32f2f;
-}
-
-.login-page .popup-content p {
-  font-size: 1.1em;
-  margin: 10px 0 20px;
-  color: #555;
-}
-
-.login-page .popup-content button {
-  padding: 12px 24px;
-  border: none;
-  background-color: #2e7d32;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.login-page .popup-content.error button {
-  background-color: #d32f2f;
-}
-
-.login-page .popup-content button:hover {
-  background-color: #1b5e20;
-}
-
-.login-page .popup-content.error button:hover {
-  background-color: #b71c1c;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .login-page .login-container {
     flex-direction: column;
@@ -574,6 +491,7 @@ html.login-page {
   }
 }
 
+/* Admin Page Styles */
 body.admin-page,
 html.admin-page {
   margin: 0;
@@ -671,6 +589,7 @@ html.admin-page {
   margin-right: auto;
 }
 
+/* Register Page Styles */
 .register-page,
 .register-page body {
   margin: 0;
@@ -844,89 +763,6 @@ html.admin-page {
   background-color: #e09e1f;
 }
 
-/* Enhanced Popup Styles */
-.register-page-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.register-page .popup-content {
-  background-color: #fff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-  margin: 0 auto;
-}
-
-.register-page .popup-content.success {
-  border-top: 4px solid #2e7d32;
-}
-
-.register-page .popup-content.error {
-  border-top: 4px solid #d32f2f;
-}
-
-.register-page .popup-icon {
-  font-size: 3em;
-  margin-bottom: 15px;
-}
-
-.register-page .popup-content h3 {
-  margin-top: 0;
-  font-size: 1.5em;
-  color: #2e7d32;
-  margin-bottom: 10px;
-}
-
-.register-page .popup-content.error h3 {
-  color: #d32f2f;
-}
-
-.register-page .popup-content p {
-  font-size: 1.1em;
-  margin: 10px 0 20px;
-  color: #555;
-}
-
-.register-page .popup-content button {
-  padding: 12px 24px;
-  border: none;
-  background-color: #2e7d32;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.register-page .popup-content.error button {
-  background-color: #d32f2f;
-}
-
-.register-page .popup-content button:hover {
-  background-color: #1b5e20;
-}
-
-.register-page .popup-content.error button:hover {
-  background-color: #b71c1c;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .register-page .register-container {
     flex-direction: column;
@@ -954,8 +790,7 @@ html.admin-page {
   }
 }
 
-/* visitor-register.css */
-
+/* Visitor Register Page Styles */
 .visitor-register-page,
 .visitor-register-page body {
   margin: 0;
@@ -1093,7 +928,6 @@ html.admin-page {
   color: #333;
 }
 
-/* ซ่อนปุ่มเพิ่ม/ลดของ input type number */
 .visitor-register-page .visitor-register-input-group input[type="number"]::-webkit-outer-spin-button,
 .visitor-register-page .visitor-register-input-group input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -1146,89 +980,6 @@ html.admin-page {
   background-color: #e09e1f;
 }
 
-/* Popup Styles */
-.visitor-register-page-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.visitor-register-page .popup-content {
-  background-color: #fff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-  margin: 0 auto;
-}
-
-.visitor-register-page .popup-content.success {
-  border-top: 4px solid #2e7d32;
-}
-
-.visitor-register-page .popup-content.error {
-  border-top: 4px solid #d32f2f;
-}
-
-.visitor-register-page .popup-icon {
-  font-size: 3em;
-  margin-bottom: 15px;
-}
-
-.visitor-register-page .popup-content h3 {
-  margin-top: 0;
-  font-size: 1.5em;
-  color: #2e7d32;
-  margin-bottom: 10px;
-}
-
-.visitor-register-page .popup-content.error h3 {
-  color: #d32f2f;
-}
-
-.visitor-register-page .popup-content p {
-  font-size: 1.1em;
-  margin: 10px 0 20px;
-  color: #555;
-}
-
-.visitor-register-page .popup-content button {
-  padding: 12px 24px;
-  border: none;
-  background-color: #2e7d32;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.visitor-register-page .popup-content.error button {
-  background-color: #d32f2f;
-}
-
-.visitor-register-page .popup-content button:hover {
-  background-color: #1b5e20;
-}
-
-.visitor-register-page .popup-content.error button:hover {
-  background-color: #b71c1c;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .visitor-register-page .visitor-register-container {
     flex-direction: column;
@@ -1256,7 +1007,7 @@ html.admin-page {
   }
 }
 
-/* Start Staff Styles */
+/* Staff Menu Page Styles */
 body.staff-menu-page,
 html.staff-menu-page {
   margin: 0;
@@ -1310,9 +1061,7 @@ html.staff-menu-page {
   background-color: #e09e1f;
 }
 
-/* End Staff Styles */
-
-/* Start Register-device Styles */
+/* Register Device Page Styles */
 body.register-device-page,
 html.register-device-page {
   margin: 0;
@@ -1397,7 +1146,6 @@ html.register-device-page {
   display: block;
 }
 
-/* ปุ่ม 2 ปุ่มเรียงแนวนอน */
 .register-device-buttons {
   display: flex;
   gap: 15px;
@@ -1438,9 +1186,7 @@ html.register-device-page {
   background-color: #949c9c;
 }
 
-/* End Register-device Styles */
-
-/* Start Manage-device Styles */
+/* Manage Device Page Styles */
 .manage-device-page {
   background-color: #39797B;
   min-height: 100vh;
@@ -1587,9 +1333,7 @@ html.register-device-page {
   background-color: #8c8c8c;
 }
 
-/* End Manage-device Styles */
-
-/* หน้าจัดการสิทธิ์ */
+/* Manage Users Page Styles */
 .manage-users {
   font-family: 'Kanit', sans-serif;
   background-color: #1c7e85;
@@ -1682,12 +1426,10 @@ html.register-device-page {
   border-color: #555 transparent transparent transparent;
 }
 
-/* สไตล์สำหรับแถวที่มีการเปลี่ยนแปลง */
 .row-modified {
   background-color: #fff8e1 !important;
 }
 
-/* สไตล์สำหรับปุ่มลบ */
 .delete-btn {
   background-color: #ff5252;
   color: white;
@@ -1702,7 +1444,6 @@ html.register-device-page {
   background-color: #d32f2f;
 }
 
-/* สไตล์สำหรับปุ่มด้านล่าง */
 .manage-users__actions {
   display: flex;
   justify-content: center;
@@ -1747,6 +1488,7 @@ html.register-device-page {
   background-color: #757575;
 }
 
+/* Change Password Page Styles */
 .change-password-page,
 .change-password-page body {
   margin: 0;
@@ -1807,7 +1549,6 @@ html.register-device-page {
   font-size: 3.2em; 
   margin-bottom: 15px;
 }
-
 
 .change-password-container::before {
   content: '';
@@ -1916,89 +1657,6 @@ html.register-device-page {
   cursor: not-allowed;
 }
 
-/* Enhanced Popup Styles */
-.change-password-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.popup-content {
-  background-color: #fff;
-  padding: 30px 40px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-  margin: 0 auto;
-}
-
-.popup-content.success {
-  border-top: 4px solid #2e7d32;
-}
-
-.popup-content.error {
-  border-top: 4px solid #d32f2f;
-}
-
-.popup-icon {
-  font-size: 3em;
-  margin-bottom: 15px;
-}
-
-.popup-content h3 {
-  margin-top: 0;
-  font-size: 1.5em;
-  color: #2e7d32;
-  margin-bottom: 10px;
-}
-
-.popup-content.error h3 {
-  color: #d32f2f;
-}
-
-.popup-content p {
-  font-size: 1.1em;
-  margin: 10px 0 20px;
-  color: #555;
-}
-
-.popup-content button {
-  padding: 12px 24px;
-  border: none;
-  background-color: #2e7d32;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.popup-content.error button {
-  background-color: #d32f2f;
-}
-
-.popup-content button:hover {
-  background-color: #1b5e20;
-}
-
-.popup-content.error button:hover {
-  background-color: #b71c1c;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .change-password-container {
     width: 90%;
@@ -2018,7 +1676,6 @@ html.register-device-page {
   }
 }
 
-/* ลบขอบสีฟ้าเมื่อคลิก input หรือ select */
 input:focus,
 select:focus,
 textarea:focus,

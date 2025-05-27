@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>จัดการสิทธิ์</title>
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+</head>
+
+<body class="manage-users">
+  <div class="manage-users__container">
+    <h2 class="manage-users__title">จัดการสิทธิ์</h2>
+
+    <div id="loadingStatus" style="margin-bottom: 20px; color: #666; text-align: center; font-size: 16px;"></div>
+
+    <table class="manage-users__table">
+      <thead>
+        <tr>
+          <th>รหัสบัตรประชาชน</th>
+          <th>ชื่อ</th>
+          <th>นามสกุล</th>
+          <th>ตำแหน่ง</th>
+          <th>ลบ</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+
+    <div class="manage-users__actions">
+      <button class="manage-users__confirm-btn" id="confirmBtn">ยืนยันสิทธิ์</button>
+      <button class="manage-users__cancel-btn" id="cancelBtn">ยกเลิก</button>
+    </div>
+  </div>
+
+  <script src="../../assets/js/manage-users.js"></script>
+</body>
+
+</html>
