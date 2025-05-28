@@ -4,7 +4,7 @@ const passwordInput = document.getElementById("password");
 togglePassword.addEventListener("click", () => {
   const isPassword = passwordInput.type === "password";
   passwordInput.type = isPassword ? "text" : "password";
-  
+
   togglePassword.classList.toggle("fa-eye");
   togglePassword.classList.toggle("fa-eye-slash");
 });
@@ -55,6 +55,8 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
             window.location.href = "../screen/admin/admin.html";
           } else if (data.role === "staff") {
             window.location.href = "../screen/staff/staff-menu.html";
+          } else if (data.role === "manager") {
+            window.location.href = "../screen/manager/index.html";
           } else {
             Swal.fire({
               icon: 'error',

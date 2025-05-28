@@ -2,12 +2,15 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>นำออกข้อมูล</title>
-  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/manager_styles.css">
 </head>
-<body>
+<body class="export-page">
 
 <div class="export-container">
+  <div class="export-icon">📤</div>
   <h2>นำออกข้อมูล</h2>
 
   <div class="export-date-inputs">
@@ -22,40 +25,16 @@
   </div>
 
   <div class="export-file-types">
-    <button onclick="selectFileType('csv')">CSV</button>
-    <button onclick="selectFileType('excel')">Excel</button>
-    <button onclick="selectFileType('pdf')">PDF</button>
-    <button onclick="selectFileType('json')">JSON</button>
+    <button onclick="selectFileType('csv', this)">CSV</button>
+    <button onclick="selectFileType('excel', this)">Excel</button>
+    <button onclick="selectFileType('pdf', this)">PDF</button>
+    <button onclick="selectFileType('json', this)">JSON</button>
   </div>
 
-  <button class="export-download-button" onclick="exportData()">📥 ส่งออกข้อมูล</button>
+  <button class="export-download-button" onclick="exportData()">ส่งออกข้อมูล</button>
 </div>
 
-<script>
-  let selectedFileType = 'csv';
-
-  function selectFileType(type) {
-    selectedFileType = type;
-    document.querySelectorAll('.export-file-types button').forEach(btn => btn.classList.remove('selected'));
-    event.target.classList.add('selected');
-  }
-
-  function exportData() {
-    const startDate = document.getElementById('start-date').value;
-    const endDate = document.getElementById('end-date').value;
-
-    if (!startDate || !endDate) {
-      alert('กรุณาเลือกวันที่ให้ครบถ้วน');
-      return;
-    }
-
-    const blob = new Blob([`ข้อมูลจาก ${startDate} ถึง ${endDate}`], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `export.${selectedFileType}`;
-    link.click();
-  }
-</script>
+<script src="../../assets/js/drop.js"></script>
 
 </body>
 </html>
