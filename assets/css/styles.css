@@ -1366,19 +1366,20 @@ button:focus {
 body.dashboard-body {
   margin: 0;
   padding: 0;
-  background-color: #3e8d8c;
+  background-color: #121212;
   font-family: 'Kanit', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  color: #e0e0e0;
 }
 
 .dashboard-card {
-  background: #ffffff;
+  background: #1e1e1e;
   padding: 60px 40px;
   border-radius: 20px;
-  box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
   width: 95%;
   max-width: 1400px;
   margin: 40px auto;
@@ -1388,7 +1389,7 @@ body.dashboard-body {
 .dashboard-card h1 {
   font-size: 2.2rem;
   margin-bottom: 30px;
-  color: #1a5c5c;
+  color: #f5af23;
 }
 
 .dashboard-grid {
@@ -1404,15 +1405,15 @@ body.dashboard-body {
 
 .dashboard-grid .dashboard-card-item:hover {
   transform: scale(1.02);
-  box-shadow: 12px 12px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 20px rgba(245, 175, 35, 0.4);
 }
 
 .dashboard-chart-box {
-  background-color: #1c1c1c;
+  background-color: #2b2b2b;
   padding: 20px;
   border-radius: 15px;
-  color: white;
-  box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
 }
 
 .dashboard-chart-box h2 {
@@ -1423,11 +1424,11 @@ body.dashboard-body {
 }
 
 .dashboard-chart-box2 {
-  background-color: #1c1c1c;
+  background-color: #2b2b2b;
   padding: 60px;
   border-radius: 15px;
   color: white;
-  box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
   margin-top: 40px;
 }
 
@@ -1435,11 +1436,11 @@ body.dashboard-body {
   font-size: 1rem;
   margin-bottom: 15px;
   text-align: left;
-  color: #f5af23;
+  color: #b084f6;
 }
 
 .dashboard-export-button {
-  background: linear-gradient(135deg, #3390EC, #2b79c2);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #fff;
   font-family: 'Kanit', sans-serif;
   font-size: 1rem;
@@ -1449,7 +1450,7 @@ body.dashboard-body {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
@@ -1462,7 +1463,7 @@ body.dashboard-body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   transition: left 0.4s ease;
 }
 
@@ -1471,8 +1472,8 @@ body.dashboard-body {
 }
 
 .dashboard-export-button:hover {
-  background: linear-gradient(135deg, #2a74c5, #2463a6);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
 }
 
@@ -1480,6 +1481,8 @@ body.dashboard-body {
   width: 100%;
   height: 200px;
   border: none;
+  border-radius: 8px;
+  background-color: #000;
 }
 
 /* Export Page Styles */
