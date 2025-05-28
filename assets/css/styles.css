@@ -767,24 +767,24 @@ html.admin-page {
   .register-page .register-container {
     flex-direction: column;
   }
-  
+
   .register-page .register-left {
     flex: 0 0 200px;
   }
-  
+
   .register-page .register-overlay-center h1 {
     font-size: 36px;
   }
-  
+
   .register-page .register-overlay-center p {
     font-size: 16px;
   }
-  
+
   .register-page .register-box-wrapper {
     width: 90%;
     max-width: 400px;
   }
-  
+
   .register-page .register-box {
     padding: 40px 30px;
   }
@@ -1007,364 +1007,6 @@ html.admin-page {
   }
 }
 
-/* Staff Menu Page Styles */
-body.staff-menu-page,
-html.staff-menu-page {
-  margin: 0;
-  padding: 0;
-  font-family: 'Kanit', sans-serif;
-  height: 100%;
-  background: url('https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132364.jpg') no-repeat center center;
-  background-size: cover;
-}
-
-.staff-menu-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.staff-menu-card {
-  background: rgba(255, 255, 255, 0.7);
-  padding: 30px 60px 40px 60px;
-  border-radius: 25px;
-  text-align: center;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-.staff-menu-card h1 {
-  font-size: 2.5rem;
-  color: #1A5C5C;
-  margin-bottom: 40px;
-  letter-spacing: 0.5px;
-}
-
-.staff-menu-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.staff-menu-btn {
-  background-color: #1A5C5C;
-  color: white;
-  font-size: 1.2rem;
-  padding: 15px 100px;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-}
-
-.staff-menu-btn:hover {
-  background-color: #e09e1f;
-}
-
-/* Register Device Page Styles */
-body.register-device-page,
-html.register-device-page {
-  margin: 0;
-  padding: 0;
-  font-family: 'Kanit', sans-serif;
-  height: 100%;
-  background: #39797B;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.register-device-wrapper {
-  position: relative;
-  width: 520px;
-}
-
-.register-device-shadow {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 100%;
-  height: 100%;
-  border-radius: 25px;
-  background-color: #d3e8dd;
-  z-index: 0;
-}
-
-.register-device-box {
-  position: relative;
-  background: white;
-  padding: 50px 40px;
-  border-radius: 25px;
-  box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.1);
-  z-index: 1;
-}
-
-.register-device-box h2 {
-  font-size: 1.6rem;
-  margin-bottom: 30px;
-  text-align: center;
-  color: #000;
-  letter-spacing: 0.5px;
-}
-
-.register-device-group {
-  margin-bottom: 20px;
-}
-
-.register-device-group label {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: bold;
-  color: #333;
-  font-size: 1rem;
-}
-
-.register-device-group input,
-.register-device-group select {
-  width: 100%;
-  padding: 14px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  box-sizing: border-box;
-  outline: none;
-}
-
-.register-device-group select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-.register-device-hint {
-  font-size: 0.85rem;
-  color: #555;
-  margin-top: 8px;
-  display: block;
-}
-
-.register-device-buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.register-device-submit {
-  background-color: #3390EC;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 14px 0;
-  flex: 1;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.register-device-submit:hover {
-  background-color: #2a78c2;
-}
-
-.register-device-back {
-  background-color: #aeb7b7;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  padding: 14px 0;
-  flex: 1;
-  text-align: center;
-  border-radius: 10px;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.register-device-back:hover {
-  background-color: #949c9c;
-}
-
-/* Manage Device Page Styles */
-.manage-device-page {
-  background-color: #39797B;
-  min-height: 100vh;
-  margin: 0;
-  padding: 40px 20px;
-  font-family: 'Kanit', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.manage-device-container {
-  width: 100%;
-  max-width: 980px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 40px;
-  border-radius: 25px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.manage-device-header {
-  font-size: 2rem;
-  text-align: center;
-  margin-bottom: 30px;
-  color: #114345;
-}
-
-.manage-device-group {
-  margin-bottom: 30px;
-}
-
-.manage-device-group label {
-  font-weight: bold;
-  font-size: 1.1rem;
-  display: block;
-  margin-bottom: 10px;
-  color: #114345;
-}
-
-.manage-device-group select {
-  width: 150px;
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  border: 1px solid #bbb;
-  border-radius: 8px;
-  background-color: #f0f0f0;
-  color: #333;
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 14px;
-}
-
-
-.manage-device-group select:focus {
-  border-color: #39797B;
-  outline: none;
-}
-
-.manage-device-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-bottom: 30px;
-  background-color: #fff;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-}
-
-.manage-device-table th {
-  background-color: #39797B;
-  color: white;
-  padding: 14px;
-  font-size: 1rem;
-}
-
-.manage-device-table td {
-  padding: 14px;
-  border-bottom: 1px solid #eee;
-  text-align: center;
-}
-
-.manage-device-table input[type="text"] {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  background-color: #fafafa;
-}
-
-.manage-device-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
-.manage-device-actions button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-.btn-edit {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-edit:hover {
-  background-color: #45a049;
-}
-
-.btn-delete {
-  background-color: #f44336;
-  color: white;
-}
-
-.btn-delete:hover {
-  background-color: #d32f2f;
-}
-
-.btn-save {
-  background-color: #1a5c5c;
-  color: white;
-}
-
-.btn-save:hover {
-  background-color: #144746;
-}
-
-.btn-cancel {
-  background-color: #a9a9a9;
-  color: white;
-}
-
-.btn-cancel:hover {
-  background-color: #8c8c8c;
-}
-
-/* ปุ่มในตารางแถวแต่ละแถว */
-.action-button {
-  padding: 6px 14px;
-  font-size: 0.9rem;
-  font-family: 'Kanit', sans-serif;
-  font-weight: bold;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  margin: 0 4px;
-}
-
-/* ปุ่มแก้ไข */
-.btn-edit-row {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-edit-row:hover {
-  background-color: #388E3C;
-}
-
-/* ปุ่มลบ */
-.btn-delete-row {
-  background-color: #f44336;
-  color: white;
-}
-
-.btn-delete-row:hover {
-  background-color: #d32f2f;
-}
 
 
 /* Manage Users Page Styles */
@@ -1533,20 +1175,22 @@ html.register-device-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .change-password-container {
-  background: url('https://www.transparenttextures.com/patterns/linen.png'), white; /* พื้นผ้า */
+  background: url('https://www.transparenttextures.com/patterns/linen.png'), white;
+  /* พื้นผ้า */
   border-radius: 25px;
   padding: 35px 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  width: 600px; /* ขยายแนวนอน */
+  width: 600px;
+  /* ขยายแนวนอน */
   max-width: 95%;
   text-align: center;
   position: relative;
   border: 5px solid #000;
-  overflow: visible; 
+  overflow: visible;
 }
 
 .change-password-container::before {
@@ -1556,13 +1200,13 @@ html.register-device-page {
   left: -12px;
   right: -12px;
   bottom: -12px;
-  background: url('https://www.transparenttextures.com/patterns/linen.png'), white; 
+  background: url('https://www.transparenttextures.com/patterns/linen.png'), white;
   border-radius: 33px;
   z-index: -1;
 }
 
 .input-group {
-  margin-bottom: 16px; 
+  margin-bottom: 16px;
 }
 
 .input-label {
@@ -1571,7 +1215,7 @@ html.register-device-page {
 }
 
 .input-field {
-  padding: 12px 18px; 
+  padding: 12px 18px;
   font-size: 1em;
 }
 
@@ -1580,7 +1224,7 @@ html.register-device-page {
 }
 
 .lock-icon {
-  font-size: 3.2em; 
+  font-size: 3.2em;
   margin-bottom: 15px;
 }
 
@@ -1696,15 +1340,15 @@ html.register-device-page {
     width: 90%;
     padding: 30px 20px;
   }
-  
+
   .change-password-title {
     font-size: 2em;
   }
-  
+
   .input-field {
     padding: 12px 15px;
   }
-  
+
   .confirm-button {
     width: 100%;
   }
@@ -1777,128 +1421,3 @@ body.dashboard-body {
   text-align: left;
   color: #f5af23;
 }
-
-.dashboard-chart-box2 {
-  background-color: #1c1c1c;
-  padding: 60px;
-  border-radius: 15px;
-  color: white;
-  box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.4);
-  margin-top: 40px;
-}
-
-.dashboard-chart-box2 h2 {
-  font-size: 1rem;
-  margin-bottom: 15px;
-  text-align: left;
-  color: #f5af23;
-}
-
-.dashboard-export-button {
-  background: linear-gradient(135deg, #3390EC, #2b79c2);
-  color: #fff;
-  font-family: 'Kanit', sans-serif;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 14px 28px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  letter-spacing: 0.5px;
-  position: relative;
-  overflow: hidden;
-}
-
-.dashboard-export-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.2);
-  transition: left 0.4s ease;
-}
-
-.dashboard-export-button:hover::before {
-  left: 100%;
-}
-
-.dashboard-export-button:hover {
-  background: linear-gradient(135deg, #2a74c5, #2463a6);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  transform: translateY(-2px);
-}
-
-.dashboard-iframe {
-  width: 100%;
-  height: 200px;
-  border: none;
-}
-
-/* Export Page Styles */
-.export-container {
-  background-color: #f2f2f2;
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 10px 10px 20px rgba(0,0,0,0.3);
-  text-align: center;
-  width: 600px;
-  margin: 50px auto;
-}
-
-.export-container h2 {
-  margin-bottom: 30px;
-}
-
-.export-date-inputs {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-}
-
-.export-date-inputs div {
-  flex: 0 0 48%;
-  text-align: left;
-}
-
-input[type="date"] {
-  width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-.export-file-types {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 30px;
-}
-
-.export-file-types button {
-  padding: 10px 20px;
-  border: 2px solid #000;
-  background-color: #fff;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.export-file-types button.selected {
-  background-color: #000;
-  color: #fff;
-}
-
-.export-download-button {
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  padding: 15px 40px;
-  font-size: 16px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-

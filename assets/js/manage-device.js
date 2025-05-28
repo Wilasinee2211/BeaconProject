@@ -37,6 +37,11 @@ async function loadDevices() {
       }
 
       tbody.appendChild(tr);
+
+      // ⏩ เพิ่ม Event ให้ checkbox
+      const rowCheck = tr.querySelector('.row-check');
+      rowCheck.addEventListener('change', updateDeleteSelectedVisibility);
+
     });
   }
 
@@ -44,6 +49,7 @@ async function loadDevices() {
   selectAll.checked = false;
   selectAll.onclick = () => {
     tbody.querySelectorAll('.row-check').forEach(chk => chk.checked = selectAll.checked);
+    updateDeleteSelectedVisibility();
   };
 }
 
@@ -101,13 +107,40 @@ async function deleteDevice(id, type) {
 async function deleteSelected() {
   const type = typeSelect.value;
   const checked = document.querySelectorAll(`.device-section input.row-check:checked`);
-  if (checked.length === 0) return alert('กรุณาเลือกรายการที่ต้องการลบ');
 
-  for (const input of checked) {
-    const id = input.getAttribute('data-id');
-    await deleteDevice(id, type);
+  if (checked.length === 0) {
+    return Swal.fire('กรุณาเลือกรายการที่ต้องการลบ', '', 'warning');
+  }
+
+  const confirmResult = await Swal.fire({
+    title: 'คุณแน่ใจหรือไม่?',
+    text: `คุณต้องการลบ ${checked.length} รายการที่เลือกหรือไม่?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#aaa',
+    confirmButtonText: 'ใช่, ลบเลย!',
+    cancelButtonText: 'ยกเลิก'
+  });
+
+  if (confirmResult.isConfirmed) {
+    for (const input of checked) {
+      const id = input.getAttribute('data-id');
+      await deleteDevice(id, type);
+    }
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'ลบสำเร็จ',
+      text: 'รายการที่เลือกถูกลบแล้ว',
+      timer: 1500,
+      showConfirmButton: false
+    });
+
+    loadDevices();
   }
 }
+
 
 function enableEditHost(id, btn) {
   const td = document.querySelector(`td.editable[data-id='${id}']`);
@@ -216,6 +249,22 @@ async function confirmUpdateIBeacon(id, btn) {
     loadDevices();
   } else {
     Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
+  }
+}
+
+function updateDeleteSelectedVisibility() {
+  const type = typeSelect.value;
+  const checked = document.querySelectorAll(`.device-section input.row-check:checked`).length > 0;
+
+  const hostDeleteWrapper = document.getElementById('delete-selected-host');
+  const ibeaconDeleteWrapper = document.getElementById('delete-selected-ibeacon');
+
+  if (type === 'host') {
+    hostDeleteWrapper.style.display = checked ? 'flex' : 'none';
+    ibeaconDeleteWrapper.style.display = 'none';
+  } else {
+    ibeaconDeleteWrapper.style.display = checked ? 'flex' : 'none';
+    hostDeleteWrapper.style.display = 'none';
   }
 }
 
