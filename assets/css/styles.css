@@ -498,95 +498,52 @@ html.admin-page {
   padding: 0;
   font-family: 'Kanit', sans-serif;
   height: 100%;
-  overflow: hidden;
+  background: url('https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132364.jpg') no-repeat center center;
+  background-size: cover;
 }
 
 .admin-page .hero-section {
   width: 100vw;
   height: 100vh;
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url('https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132364.jpg') no-repeat center center;
-  background-size: cover;
-}
-
-.admin-page .overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 1;
 }
 
 .admin-page .admin-card {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  padding: 40px 60px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 30px 60px 40px 60px;
+  border-radius: 25px;
   text-align: center;
-  position: relative;
-  z-index: 2;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.admin-page .admin-card::before,
-.admin-page .admin-card::after {
-  display: none;
-}
-
-.admin-page .admin-card::before {
-  left: -100px;
-  clip-path: polygon(100% 0, 0 50%, 100% 100%);
-}
-
-.admin-page .admin-card::after {
-  right: -100px;
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .admin-page .admin-card h1 {
+  font-size: 2.5rem;
+  color: #1A5C5C;
   margin-bottom: 40px;
-  font-size: 2rem;
-  color: #000;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .admin-page .admin-buttons {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
 }
 
 .admin-page .admin-btn {
-  text-decoration: none;
   background-color: #1A5C5C;
   color: white;
-  border: none;
-  padding: 15px 30px;
   font-size: 1.2rem;
+  padding: 15px 100px;
   border-radius: 10px;
-  cursor: pointer;
+  text-decoration: none;
   transition: background-color 0.3s ease;
 }
 
 .admin-page .admin-btn:hover {
-  background-color: #2a8c78;
-}
-
-.admin-page .admin-divider {
-  margin-top: 40px;
-  border: 0;
-  height: 2px;
-  background-color: #000;
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
+  background-color: #e09e1f;
 }
 
 /* Register Page Styles */
@@ -1070,7 +1027,6 @@ html.admin-page {
   background-color: #f1f1f1;
 }
 
-/* สไตล์สำหรับ dropdown */
 .role-select-container {
   position: relative;
   display: inline-block;
@@ -1131,7 +1087,7 @@ html.admin-page {
 }
 
 .manage-users__confirm-btn {
-  background-color: #4caf50;
+  background-color: #1A5C5C;
   color: white;
   border: none;
   padding: 12px 35px;
@@ -1157,7 +1113,7 @@ html.admin-page {
 }
 
 .manage-users__confirm-btn:hover {
-  background-color: #388e3c;
+  background-color: #518b8e;
 }
 
 .manage-users__cancel-btn:hover {

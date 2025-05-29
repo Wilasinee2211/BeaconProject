@@ -87,7 +87,7 @@ function handleDelete(userId) {
   row.style.opacity = '0.5';
 }
 
-document.getElementById('confirmBtn').addEventListener('click', function () {
+document.getElementById('confirmBtn').addEventListener('click', async function () {
   const loadingStatus = document.getElementById('loadingStatus');
   loadingStatus.textContent = "กำลังอัปเดตข้อมูล...";
   
@@ -103,45 +103,67 @@ document.getElementById('confirmBtn').addEventListener('click', function () {
     }
   });
 
-  if (updates.length > 0) {
-    fetch('../../backend/admin/manage_users.php?action=update_users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ updates })
-    }).catch(error => {
-      console.error("Error updating roles:", error);
-    });
-  }
+  const updatePromise = updates.length > 0
+    ? fetch('../../backend/admin/manage_users.php?action=update_users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updates })
+      }).catch(error => {
+        console.error("Error updating roles:", error);
+      })
+    : Promise.resolve();
 
-  const deletePromises = [];
-  deleteQueue.forEach(userId => {
-    const deletePromise = fetch('../../backend/admin/manage_users.php?action=delete_user', {
+  const deletePromises = Array.from(deleteQueue).map(userId =>
+    fetch('../../backend/admin/manage_users.php?action=delete_user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `id=${userId}`
     }).catch(error => {
       console.error(`Error deleting user ${userId}:`, error);
-    });
-    
-    deletePromises.push(deletePromise);
-  });
+    })
+  );
 
-  Promise.all(deletePromises)
-    .then(() => {
-      originalData = JSON.parse(JSON.stringify(currentData));
-      currentData = currentData.filter(user => !deleteQueue.has(user.id));
-      originalData = originalData.filter(user => !deleteQueue.has(user.id));
-      deleteQueue.clear();
-      alert('อัปเดตสิทธิ์และลบผู้ใช้เรียบร้อยแล้ว');
-      loadingStatus.textContent = `อัปเดตข้อมูลสำเร็จ: มีผู้ใช้คงเหลือ ${currentData.length} คน`;
-      renderUserTable();
-    });
+  await Promise.all([updatePromise, ...deletePromises]);
+
+  originalData = JSON.parse(JSON.stringify(currentData));
+  currentData = currentData.filter(user => !deleteQueue.has(user.id));
+  originalData = originalData.filter(user => !deleteQueue.has(user.id));
+  deleteQueue.clear();
+  renderUserTable();
+  loadingStatus.textContent = `อัปเดตข้อมูลสำเร็จ: มีผู้ใช้คงเหลือ ${currentData.length} คน`;
+
+  Swal.fire({
+    icon: 'success',
+    title: 'สำเร็จ',
+    text: 'อัปเดตสิทธิ์และลบผู้ใช้เรียบร้อยแล้ว',
+    timer: 2000,
+    showConfirmButton: false
+  });
 });
 
-document.getElementById('cancelBtn').addEventListener('click', function () {
-  if (confirm('คุณต้องการยกเลิกการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?')) {
+document.getElementById('cancelBtn').addEventListener('click', async function () {
+  const result = await Swal.fire({
+    title: 'ยืนยันการยกเลิก',
+    text: 'คุณต้องการยกเลิกการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'ใช่, ยกเลิกเลย',
+    cancelButtonText: 'ไม่'
+  });
+
+  if (result.isConfirmed) {
     deleteQueue.clear();
     currentData = JSON.parse(JSON.stringify(originalData));
     renderUserTable();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'ยกเลิกการเปลี่ยนแปลงแล้ว',
+      timer: 1500,
+      showConfirmButton: false
+    });
   }
 });
+

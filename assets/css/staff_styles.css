@@ -144,7 +144,7 @@ html.register-device-page {
 }
 
 .register-device-submit {
-  background-color: #3390EC;
+  background-color: #39797B;
   color: white;
   font-size: 16px;
   font-weight: bold;
@@ -154,14 +154,16 @@ html.register-device-page {
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-family: 'Kanit', sans-serif;
+  letter-spacing: 1px;
 }
 
 .register-device-submit:hover {
-  background-color: #2a78c2;
+  background-color: #e09e1f;
 }
 
 .register-device-back {
-  background-color: #aeb7b7;
+  background-color: #9e9e9e;
   color: white;
   font-size: 16px;
   font-weight: bold;
@@ -171,6 +173,8 @@ html.register-device-page {
   border-radius: 10px;
   text-decoration: none;
   display: inline-block;
+  font-family: 'Kanit', sans-serif;
+  letter-spacing: 1px;
 }
 
 .register-device-back:hover {
@@ -388,11 +392,11 @@ html.register-device-page {
 }
 
 .btn-add {
-  background-color: #3390EC;
+  background-color: #39797B;
 }
 
 .btn-add:hover {
-  background-color: #2a78c2;
+  background-color: #518b8e;
 }
 
 .btn-back {

@@ -1,4 +1,4 @@
-let selectedFileType = 'csv';
+let selectedFileType = '';
 
 function selectFileType(type, buttonElement) {
   selectedFileType = type;
@@ -11,7 +11,20 @@ function exportData() {
   const endDate = document.getElementById('end-date').value;
 
   if (!startDate || !endDate) {
-    alert('กรุณาเลือกวันที่ให้ครบถ้วน');
+    Swal.fire({
+      icon: 'warning',
+      title: 'กรุณาเลือกวันที่ให้ครบถ้วน',
+      confirmButtonText: 'ตกลง'
+    });
+    return;
+  }
+
+  if (!selectedFileType) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'กรุณาเลือกประเภทไฟล์',
+      confirmButtonText: 'ตกลง'
+    });
     return;
   }
 
@@ -20,10 +33,11 @@ function exportData() {
   link.href = URL.createObjectURL(blob);
   link.download = `export.${selectedFileType}`;
   link.click();
-}
 
-// Set default selection when page loads
-document.addEventListener('DOMContentLoaded', function() {
-  const csvButton = document.querySelector('.export-file-types button');
-  csvButton.classList.add('selected');
-});
+  Swal.fire({
+    icon: 'success',
+    title: 'ส่งออกสำเร็จ!',
+    text: `ไฟล์ประเภท ${selectedFileType.toUpperCase()} ถูกดาวน์โหลดแล้ว`,
+    confirmButtonText: 'ตกลง'
+  });
+}
