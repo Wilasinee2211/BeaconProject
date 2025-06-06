@@ -70,8 +70,14 @@ try {
         }
 
         $result = $device->registerHost($host_name);
-        echo json_encode($result);
-        exit;
+
+        if ($result['success']) {
+        require_once __DIR__ . '/mqtt/send_rename.php';
+        sendRenameCommand($host_name);
+        }
+
+    echo json_encode($result);
+    exit;
 
     } elseif ($device_type === 'ibeacon') {
         if (!isset($input['mac_address']) || !isset($input['uuid'])) {
