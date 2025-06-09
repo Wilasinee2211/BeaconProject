@@ -4,13 +4,11 @@ require_once __DIR__ . '/../config/database.php';
 class Device {
     private $conn;
     private $table_hosts = "hosts";
-    private $table_ibeacons = "ibeacons";
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
-    // ✅ ดึงทั้งหมด: Hosts
     public function getAllHosts() {
         try {
             $stmt = $this->conn->prepare("SELECT id, host_name FROM {$this->table_hosts}");
@@ -22,17 +20,35 @@ class Device {
         }
     }
 
-    // ✅ ดึงทั้งหมด: iBeacons
-    public function getAllIBeacons() {
-        try {
-            $stmt = $this->conn->prepare("SELECT id, macaddress, uuid FROM {$this->table_ibeacons}");
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("[Device.php][getAllIBeacons][E502] " . $e->getMessage());
-            return [];
+    public function getUniqueHostsFromBeaconAverages() {
+    try {
+        // 🔍 ตรวจสอบว่าเชื่อมต่อกับ DB อะไรอยู่
+        $stmt = $this->conn->prepare("SELECT DATABASE() AS db_name");
+        $stmt->execute();
+        $dbInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        error_log("[DEBUG] Database in use: " . $dbInfo['db_name']);
+
+        // ✅ คำสั่งหลัก
+        $stmt = $this->conn->prepare("
+            SELECT DISTINCT host_name 
+            FROM beacon_db.beacon_averages
+            WHERE host_name IS NOT NULL AND host_name != ''
+        ");
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $data = [];
+        $i = 1;
+        foreach ($results as $name) {
+            $data[] = ['id' => $i++, 'host_name' => $name];
         }
+        return $data;
+    } catch (PDOException $e) {
+        error_log("[Device.php][getUniqueHostsFromBeaconAverages][E509] " . $e->getMessage());
+        return [];
     }
+}
+
 
     // ✅ อัปเดต Host
     public function updateHost($id, $host_name) {
@@ -50,29 +66,6 @@ class Device {
         }
     }
 
-    // ✅ อัปเดต iBeacon
-    public function updateIBeacon($id, $mac, $uuid) {
-        try {
-            $stmt = $this->conn->prepare("UPDATE {$this->table_ibeacons} 
-                SET macaddress = :mac, uuid = :uuid 
-                WHERE id = :id");
-
-            $stmt->bindParam(":mac", $mac);
-            $stmt->bindParam(":uuid", $uuid);
-            $stmt->bindParam(":id", $id);
-
-            if ($stmt->execute()) {
-                return ["success" => true, "message" => "อัปเดต iBeacon สำเร็จ"];
-            }
-
-            return ["success" => false, "message" => "อัปเดต iBeacon ไม่สำเร็จ"];
-        } catch (PDOException $e) {
-            error_log("[Device.php][updateIBeacon][E504] " . $e->getMessage());
-            return ["success" => false, "message" => "Database error"];
-        }
-    }
-
-
     // ✅ ลบ Host
     public function deleteHost($id) {
         try {
@@ -84,68 +77,6 @@ class Device {
             return ["success" => false, "message" => "ลบ Host ไม่สำเร็จ"];
         } catch (PDOException $e) {
             error_log("[Device.php][deleteHost][E505] " . $e->getMessage());
-            return ["success" => false, "message" => "Database error"];
-        }
-    }
-
-    // ✅ ลบ iBeacon
-    public function deleteIBeacon($id) {
-        try {
-            $stmt = $this->conn->prepare("DELETE FROM {$this->table_ibeacons} WHERE id = :id");
-            $stmt->bindParam(":id", $id);
-            if ($stmt->execute()) {
-                return ["success" => true, "message" => "ลบ iBeacon สำเร็จ"];
-            }
-            return ["success" => false, "message" => "ลบ iBeacon ไม่สำเร็จ"];
-        } catch (PDOException $e) {
-            error_log("[Device.php][deleteIBeacon][E506] " . $e->getMessage());
-            return ["success" => false, "message" => "Database error"];
-        }
-    }
-
-    // ✅ ลงทะเบียน Host
-    public function registerHost($host_name) {
-        try {
-            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM {$this->table_hosts} WHERE host_name = :host_name");
-            $stmt->bindParam(":host_name", $host_name);
-            $stmt->execute();
-            if ($stmt->fetchColumn() > 0) {
-                return ["success" => false, "message" => "ชื่ออุปกรณ์นี้มีอยู่แล้ว"];
-            }
-
-            $stmt = $this->conn->prepare("INSERT INTO {$this->table_hosts} (host_name) VALUES (:host_name)");
-            $stmt->bindParam(":host_name", $host_name);
-            if ($stmt->execute()) {
-                return ["success" => true, "message" => "ลงทะเบียน Host สำเร็จ"];
-            }
-
-            return ["success" => false, "message" => "เกิดข้อผิดพลาดในการลงทะเบียน"];
-        } catch (PDOException $e) {
-            error_log("[Device.php][registerHost][E301] " . $e->getMessage());
-            return ["success" => false, "message" => "Database error"];
-        }
-    }
-
-    // ✅ ลงทะเบียน iBeacon
-    public function registerIBeacon($mac, $uuid) {
-        try {
-            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM {$this->table_ibeacons} WHERE macaddress = :mac");
-            $stmt->bindParam(":mac", $mac);
-            $stmt->execute();
-            if ($stmt->fetchColumn() > 0) {
-                return ["success" => false, "message" => "MAC Address นี้มีอยู่แล้ว"];
-            }
-
-            $stmt = $this->conn->prepare("INSERT INTO {$this->table_ibeacons} (macaddress, uuid) VALUES (:mac, :uuid)");
-            $stmt->bindParam(":mac", $mac);
-            $stmt->bindParam(":uuid", $uuid);
-            if ($stmt->execute()) {
-                return ["success" => true, "message" => "ลงทะเบียน iBeacon สำเร็จ"];
-            }
-
-            return ["success" => false, "message" => "เกิดข้อผิดพลาดในการลงทะเบียน"];
-        } catch (PDOException $e) {
-            error_log("[Device.php][registerIBeacon][E302] " . $e->getMessage());
             return ["success" => false, "message" => "Database error"];
         }
     }

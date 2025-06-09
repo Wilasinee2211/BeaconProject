@@ -11,6 +11,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
+// สำหรับ preflight request ของ CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
@@ -29,6 +30,8 @@ switch ($method) {
             $data = $device->getAllHosts();
         } elseif ($type === 'ibeacon') {
             $data = $device->getAllIBeacons();
+        } elseif ($type === 'beacon_hosts') {
+            $data = $device->getUniqueHostsFromBeaconAverages(); // ✅ เรียกฟังก์ชันใหม่
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid device type']);
@@ -57,7 +60,6 @@ switch ($method) {
             $uuid = $input['uuid'] ?? '';
             $name = $input['device_name'] ?? '';
             $result = $device->updateIBeacon($id, $mac, $uuid);
-            
         } else {
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid device type']);
