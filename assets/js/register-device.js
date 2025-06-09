@@ -86,13 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (result.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: '✅ ลงทะเบียน Host สำเร็จ',
+                            title: 'ลงทะเบียน Host สำเร็จ',
                             showConfirmButton: false,
                             timer: 1500
                         });
                         hostNameInput.value = '';
                     } else {
-                        Swal.fire('❌ ลงทะเบียน Host ไม่สำเร็จ', result.message, 'error');
+                        Swal.fire('ลงทะเบียน Host ไม่สำเร็จ', result.message, 'error');
                     }
                 } catch (error) {
                     Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
@@ -122,14 +122,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (result.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: '✅ ลงทะเบียน iBeacon สำเร็จ',
+                            title: 'ลงทะเบียน iBeacon สำเร็จ',
                             showConfirmButton: false,
                             timer: 1500
                         });
                         macInput.value = '';
                         uuidInput.value = '';
                     } else {
-                        Swal.fire('❌ ลงทะเบียน iBeacon ไม่สำเร็จ', result.message, 'error');
+                        Swal.fire('ลงทะเบียน iBeacon ไม่สำเร็จ', result.message, 'error');
                     }
                 } catch (error) {
                     Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
