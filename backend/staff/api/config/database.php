@@ -1,8 +1,8 @@
 <?php
 class Database {
     private $host = "localhost";
-    private $port = "8889"; 
-    private $db_name = "beacon_db";
+    private $port = "8889"; // ✅ เพิ่ม port ที่ MAMP ใช้
+    private $db_name = "sirin_museum";
     private $username = "root";
     private $password = "root";
     public $conn;
