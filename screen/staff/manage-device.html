@@ -1,74 +1,39 @@
 <!DOCTYPE html>
-<html lang="th" class="manage-device-page">
+<html lang="th">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>จัดการอุปกรณ์ที่ลงทะเบียน</title>
+  <title>จัดการอุปกรณ์ Host</title>
   <link rel="stylesheet" href="../../assets/css/staff_styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
-
 </head>
 
-<body class="manage-device-page">
-  <div class="manage-device-container">
-    <h2 class="manage-device-header">จัดการอุปกรณ์ที่ลงทะเบียน</h2>
+<body class="manage-device">
+  <div class="manage-device__container">
+    <h2 class="manage-device__title">จัดการอุปกรณ์ Host</h2>
 
-    <div class="manage-device-group">
-      <label for="device-type">ประเภทอุปกรณ์</label>
-      <select id="device-type">
-        <option value="host" selected>ESP32 Host</option>
-        <option value="ibeacon">iBeacon Tag</option>
-      </select>
+    <table class="manage-device__table">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="select-all" /></th>
+          <th>ชื่ออุปกรณ์</th>
+          <th>จัดการ</th>
+        </tr>
+      </thead>
+      <tbody id="hostTableBody">
+        <!-- JS will render rows here -->
+      </tbody>
+    </table>
+
+    <div class="manage-device__actions">
+      <button class="manage-device__confirm-btn" id="confirmBtn">ยืนยันการเปลี่ยนแปลง</button>
+      <button class="manage-device__cancel-btn" id="cancelBtn">ยกเลิก</button>
     </div>
-
-    <!-- Host Section -->
-    <div id="host-section" class="device-section">
-      <table class="manage-device-table">
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="select-all-host" /></th>
-            <th>Device ID</th>
-            <th>ชื่ออุปกรณ์</th>
-            <th>จัดการ</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div class="manage-device-actions delete-selected-wrapper" id="delete-selected-host" style="display: none;">
-        <button class="btn-delete" onclick="deleteSelected()">ลบรายการที่เลือก</button>
-      </div>
-    </div>
-
-    <!-- ตารางแสดงข้อมูล iBeacon -->
-    <div id="ibeacon-section" class="device-section" style="display:none;">
-      <table class="manage-device-table">
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="select-all-ibeacon" /></th>
-            <th>Device ID</th>
-            <th>Mac Address</th>
-            <th>UUID (8 ตัวหลัง)</th>
-            <th>จัดการ</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div class="manage-device-actions delete-selected-wrapper" id="delete-selected-ibeacon" style="display: none;">
-        <button class="btn-delete" onclick="deleteSelected()">ลบรายการที่เลือก</button>
-      </div>
-    </div>
-
-    <div class="manage-device-footer-inside">
-      <a href="/BeaconProject/screen/staff/register-device.html" class="footer-btn btn-add">เพิ่มอุปกรณ์</a>
-      <a href="/BeaconProject/screen/staff/staff-menu.html" class="footer-btn btn-back">กลับไปหน้าเมนู</a>
-    </div>
-
   </div>
 
-  <script src="/BeaconProject/assets/js/manage-device.js"></script>
+  <script src="../../assets/js/manage-device.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 </body>
 
 </html>
