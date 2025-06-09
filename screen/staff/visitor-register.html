@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="../../assets/css/styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -25,7 +28,7 @@
       <div class="visitor-register-box-wrapper">
         <div class="visitor-register-box-shadow"></div>
         <form id="visitorRegisterForm" class="visitor-register-box">
-          <h2>ลงทะเบียน</h2>
+          <h2>ลงทะเบียนผู้เยี่ยมชม</h2>
 
           <div class="visitor-register-input-group">
             <i class="fas fa-user icon"></i>
@@ -39,8 +42,10 @@
 
           <div class="visitor-register-input-group">
             <i class="fas fa-birthday-cake icon"></i>
-            <input type="number" name="age" placeholder="อายุ" min="1" max="120" required />
+            <input type="text" id="birthdate" name="birthdate" placeholder="วันเกิด (วัน/เดือน/ปี)" required />
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
           </div>
+
 
           <div class="visitor-register-input-group">
             <i class="fas fa-venus-mars icon"></i>
@@ -51,6 +56,11 @@
               <option value="other">อื่นๆ</option>
             </select>
             <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </div>
+
+          <div class="visitor-register-input-group">
+            <i class="fas fa-id-card icon"></i>
+            <input type="text" name="uuid" placeholder="UUID" required />
           </div>
 
           <button type="submit" class="visitor-register-button">ลงทะเบียน</button>
