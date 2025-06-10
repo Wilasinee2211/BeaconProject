@@ -11,24 +11,88 @@
 
 <body class="manage-device">
   <div class="manage-device__container">
-    <h2 class="manage-device__title">จัดการอุปกรณ์ Host</h2>
+    <!-- Header with Stats -->
+    <div class="manage-device__header">
+      <h2 class="manage-device__title">จัดการอุปกรณ์ Host</h2>
+      <div class="manage-device__stats">
+        <div class="stat-badge stat-badge--online">
+          <i class="fas fa-circle"></i>
+          Online: <span id="onlineCount">0</span>
+        </div>
+        <div class="stat-badge stat-badge--offline">
+          <i class="fas fa-circle"></i>
+          Offline: <span id="offlineCount">0</span>
+        </div>
+        <div class="stat-badge stat-badge--total">
+          <i class="fas fa-microchip"></i>
+          Total: <span id="totalCount">0</span>
+        </div>
+      </div>
+    </div>
 
+    <!-- Controls -->
+    <div class="manage-device__controls">
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="ค้นหาอุปกรณ์..." id="searchInput">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+      <button class="refresh-btn" id="refreshBtn">
+        <i class="fas fa-sync-alt"></i>
+        รีเฟรช
+      </button>
+    </div>
+
+    <!-- Main Table -->
     <table class="manage-device__table">
       <thead>
         <tr>
           <th><input type="checkbox" id="select-all" /></th>
           <th>ชื่ออุปกรณ์</th>
+          <th>Device ID</th>
+          <th>สถานะ</th>
+          <th>อัปเดตล่าสุด</th>
+          <th>จำนวนข้อมูล</th>
           <th>จัดการ</th>
         </tr>
       </thead>
       <tbody id="hostTableBody">
-        <!-- JS will render rows here -->
+        <tr id="noDataRow">
+          <td colspan="7" style="text-align: center;">กำลังโหลดข้อมูล...</td>
+        </tr>
       </tbody>
     </table>
 
+    <!-- Selection Info -->
+    <div class="selection-info">
+      <div class="selection-count">
+        เลือกแล้ว: <span id="selectedCount">0</span> รายการ
+      </div>
+      <div class="bulk-actions">
+        <button class="bulk-btn select-all-btn" id="selectAllBtn">
+          <i class="fas fa-check-square"></i>
+          เลือกทั้งหมด
+        </button>
+        <button class="bulk-btn clear-selection-btn" id="clearSelectionBtn">
+          <i class="fas fa-times"></i>
+          ยกเลิกการเลือก
+        </button>
+        <button class="bulk-btn bulk-delete-btn" id="bulkDeleteBtn">
+          <i class="fas fa-trash-alt"></i>
+          ลบที่เลือก
+        </button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
     <div class="manage-device__actions">
-      <button class="manage-device__confirm-btn" id="confirmBtn">ยืนยันการเปลี่ยนแปลง</button>
-      <button class="manage-device__cancel-btn" id="cancelBtn">ยกเลิก</button>
+      <button class="manage-device__confirm-btn" id="confirmBtn">
+        <i class="fas fa-save"></i>
+        ยืนยันการเปลี่ยนแปลง
+      </button>
+      <button class="manage-device__cancel-btn" id="cancelBtn">
+        <i class="fas fa-times"></i>
+        ยกเลิก
+      </button>
     </div>
   </div>
 
