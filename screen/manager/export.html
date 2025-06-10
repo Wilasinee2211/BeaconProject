@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>นำออกข้อมูล</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/manager_styles.css">
+  <style>
+    .export-file-types button.selected {
+      background-color: #2d5a5e;
+      color: #fff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="export-page">
+
+<div class="export-container">
+  <div class="export-icon">📤</div>
+  <h2>นำออกข้อมูล</h2>
+
+  <div class="export-database-select">
+    <label for="database-name">เลือกฐานข้อมูล</label>
+    <select id="database-name" required>
+      <option value="" disabled selected>-- กรุณาเลือก --</option>
+      <option value="beacons">beacons</option>
+      <option value="beacon_averages">beacon_averages</option>
+      <option value="beacon_visits">beacon_visits</option>
+      <option value="visitors">visitors</option>
+    </select>
+  </div>
+
+  <div class="export-date-inputs">
+    <div>
+      <label for="start-date">วันที่เริ่มต้น</label>
+      <input type="date" id="start-date" required>
+    </div>
+    <div>
+      <label for="end-date">วันที่สิ้นสุด</label>
+      <input type="date" id="end-date" required>
+    </div>
+  </div>
+
+  <div class="export-file-types">
+    <button onclick="selectFileType('csv', this)">CSV</button>
+    <button onclick="selectFileType('excel', this)">Excel</button>
+    <button onclick="selectFileType('pdf', this)">PDF</button>
+    <button onclick="selectFileType('json', this)">JSON</button>
+  </div>
+
+  <button class="export-download-button" id="export-button" onclick="exportData()">ส่งออกข้อมูล</button>
+</div>
+
+<!-- SweetAlert ก่อน script หลัก -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../../assets/js/export.js"></script>
+
+</body>
+</html>

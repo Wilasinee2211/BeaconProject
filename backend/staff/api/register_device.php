@@ -70,10 +70,17 @@ try {
         }
 
         $result = $device->registerHost($host_name);
-
+        
         if ($result['success']) {
+        ob_start();  // ดัก output เผื่อมีอะไรแอบ echo ออกมา
         require_once __DIR__ . '/mqtt/send_rename.php';
         sendRenameCommand($host_name);
+        $output = ob_get_clean();
+
+        if (!empty($output)) {
+            error_log("[register_device.php][E200] Unexpected output from sendRenameCommand: $output");
+        }
+
         }
 
     echo json_encode($result);
