@@ -1,0 +1,17 @@
+{
+    "name": "wilasinee/mqtt",
+    "autoload": {
+        "psr-4": {
+            "Wilasinee\\Mqtt\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Wilasinee2211",
+            "email": "antsamui123@gmail.com"
+        }
+    ],
+    "require": {
+        "php-mqtt/client": "^2.2"
+    }
+}
