@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 header("Content-Type: application/json");
 
 $host = "localhost";
-$port = 8889;
+$port = 3306;
 $dbname = "beacon_db";
 $username = "root";
 $password = "root";

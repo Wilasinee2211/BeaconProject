@@ -78,7 +78,7 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
 
   const formData = new FormData(form);
 
-  fetch("http://localhost:8888/BeaconProject/backend/admin/register.php", {
+  fetch("http://localhost:80/BeaconProject/backend/admin/register.php", {
     method: "POST",
     body: formData
   })
