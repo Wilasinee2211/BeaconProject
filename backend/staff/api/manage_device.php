@@ -51,7 +51,44 @@ switch ($method) {
 
         $type = $input['type'];
 
-        if ($type === 'update_beacon_hosts') {
+        if ($type === 'update_beacon_hosts_by_name') {
+            $deleted = $input['deleted'] ?? [];
+            $modified = $input['modified'] ?? [];
+            
+            try {
+                $db->beginTransaction();
+                
+                // Handle deletions - ลบทุก record ที่มี host_name ตรงกัน
+                if (!empty($deleted)) {
+                    $result = $device->deleteBeaconHostsByName($deleted);
+                    if (!$result['success']) {
+                        $db->rollBack();
+                        echo json_encode($result);
+                        exit;
+                    }
+                }
+                
+                // Handle modifications - อัปเดททุก record ที่มี host_name ตรงกัน
+                if (!empty($modified)) {
+                    $result = $device->updateBeaconHostsByName($modified);
+                    if (!$result['success']) {
+                        $db->rollBack();
+                        echo json_encode($result);
+                        exit;
+                    }
+                }
+                
+                $db->commit();
+                echo json_encode(['success' => true, 'message' => 'อัปเดตสำเร็จ']);
+                
+            } catch (Exception $e) {
+                $db->rollBack();
+                error_log("Transaction failed: " . $e->getMessage());
+                http_response_code(500);
+                echo json_encode(['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปเดต']);
+            }
+        } elseif ($type === 'update_beacon_hosts') {
+            // เก็บไว้สำหรับ backward compatibility
             $deleted = $input['deleted'] ?? [];
             $modified = $input['modified'] ?? [];
             

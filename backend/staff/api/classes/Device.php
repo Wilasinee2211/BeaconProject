@@ -20,135 +20,224 @@ class Device {
         }
     }
 
-   public function getUniqueHostsFromBeaconAverages() {
-    try {
-        // วิธีที่ 1: ใช้ subquery
-        $stmt = $this->conn->prepare("
-            SELECT 
-                MAX(id) as id,
-                host_name,
-                uuid,
-                MAX(window_end) as window_end,
-                COUNT(*) as count
-            FROM beacon_averages
-            WHERE host_name IS NOT NULL AND host_name != ''
-            GROUP BY host_name, uuid
-            ORDER BY MAX(window_end) DESC
-        ");
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Debug: ดูผลลัพธ์
-        error_log("Beacon query result: " . json_encode($result));
-        
-        return $result;
-    } catch (PDOException $e) {
-        error_log("[Device.php][getUniqueHostsFromBeaconAverages][E509] " . $e->getMessage());
-        return [];
-    }
-}
+    public function getUniqueHostsFromBeaconAverages() {
+        try {
+            // แก้ไข: ดึงข้อมูลทั้งหมดที่มี host_name เดียวกัน พร้อมกับข้อมูลล่าสุด
+            $stmt = $this->conn->prepare("
+                SELECT 
+                    ba1.host_name,
+                    ba1.window_end,
+                    (SELECT COUNT(*) 
+                     FROM beacon_averages ba2 
+                     WHERE ba2.host_name = ba1.host_name 
+                       AND ba2.host_name IS NOT NULL 
+                       AND ba2.host_name != ''
+                    ) as count
+                FROM beacon_averages ba1
+                WHERE ba1.host_name IS NOT NULL 
+                  AND ba1.host_name != ''
+                  AND ba1.window_end = (
+                      SELECT MAX(ba3.window_end) 
+                      FROM beacon_averages ba3 
+                      WHERE ba3.host_name = ba1.host_name
+                  )
+                GROUP BY ba1.host_name, ba1.window_end
+                ORDER BY ba1.window_end DESC
+            ");
 
-public function deleteBeaconHosts($ids) {
-    try {
-        if (empty($ids)) {
-            return ['success' => true, 'message' => 'ไม่มีรายการที่จะลบ'];
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug: ดูผลลัพธ์
+            error_log("Beacon query result: " . json_encode($result));
+            
+            return $result;
+        } catch (PDOException $e) {
+            error_log("[Device.php][getUniqueHostsFromBeaconAverages][E509] " . $e->getMessage());
+            return [];
         }
-
-        // สร้าง placeholders สำหรับ IN clause
-        $placeholders = str_repeat('?,', count($ids) - 1) . '?';
-        
-        $stmt = $this->conn->prepare("
-            DELETE FROM beacon_averages 
-            WHERE id IN ($placeholders)
-        ");
-        
-        $stmt->execute($ids);
-        
-        return [
-            'success' => true, 
-            'message' => 'ลบข้อมูลสำเร็จ',
-            'affected_rows' => $stmt->rowCount()
-        ];
-        
-    } catch (PDOException $e) {
-        error_log("[Device.php][deleteBeaconHosts][E510] " . $e->getMessage());
-        return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการลบข้อมูล'];
     }
-}
 
-public function updateBeaconHosts($modifiedData) {
-    try {
-        if (empty($modifiedData)) {
-            return ['success' => true, 'message' => 'ไม่มีข้อมูลที่จะอัปเดต'];
-        }
-
-        $stmt = $this->conn->prepare("
-            UPDATE beacon_averages 
-            SET host_name = ? 
-            WHERE id = ?
-        ");
-
-        $updated = 0;
-        foreach ($modifiedData as $item) {
-            if (isset($item['id']) && isset($item['host_name'])) {
-                $stmt->execute([$item['host_name'], $item['id']]);
-                $updated += $stmt->rowCount();
+    public function deleteBeaconHostsByName($hostNames) {
+        try {
+            if (empty($hostNames)) {
+                return ['success' => true, 'message' => 'ไม่มีรายการที่จะลบ'];
             }
-        }
 
-        return [
-            'success' => true, 
-            'message' => 'อัปเดตข้อมูลสำเร็จ',
-            'updated_rows' => $updated
-        ];
-        
-    } catch (PDOException $e) {
-        error_log("[Device.php][updateBeaconHosts][E511] " . $e->getMessage());
-        return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล'];
-    }
-}
-
-public function updateBeaconHost($id, $host_name) {
-    try {
-        $stmt = $this->conn->prepare("
-            UPDATE beacon_averages 
-            SET host_name = ? 
-            WHERE id = ?
-        ");
-        
-        $stmt->execute([$host_name, $id]);
-        
-        if ($stmt->rowCount() > 0) {
-            return ['success' => true, 'message' => 'อัปเดตสำเร็จ'];
-        } else {
-            return ['success' => false, 'message' => 'ไม่พบข้อมูลที่จะอัปเดต'];
+            // สร้าง placeholders สำหรับ IN clause
+            $placeholders = str_repeat('?,', count($hostNames) - 1) . '?';
+            
+            $stmt = $this->conn->prepare("
+                DELETE FROM beacon_averages 
+                WHERE host_name IN ($placeholders)
+            ");
+            
+            $stmt->execute($hostNames);
+            
+            return [
+                'success' => true, 
+                'message' => 'ลบข้อมูลสำเร็จ',
+                'affected_rows' => $stmt->rowCount()
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("[Device.php][deleteBeaconHostsByName][E510] " . $e->getMessage());
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการลบข้อมูล'];
         }
-        
-    } catch (PDOException $e) {
-        error_log("[Device.php][updateBeaconHost][E512] " . $e->getMessage());
-        return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปเดต'];
     }
-}
 
-public function deleteBeaconHost($id) {
-    try {
-        $stmt = $this->conn->prepare("
-            DELETE FROM beacon_averages 
-            WHERE id = ?
-        ");
-        
-        $stmt->execute([$id]);
-        
-        if ($stmt->rowCount() > 0) {
-            return ['success' => true, 'message' => 'ลบสำเร็จ'];
-        } else {
-            return ['success' => false, 'message' => 'ไม่พบข้อมูลที่จะลบ'];
+    public function updateBeaconHostsByName($modifiedData) {
+        try {
+            if (empty($modifiedData)) {
+                return ['success' => true, 'message' => 'ไม่มีข้อมูลที่จะอัปเดต'];
+            }
+
+            $updated = 0;
+            
+            foreach ($modifiedData as $item) {
+                if (isset($item['old_name']) && isset($item['new_name'])) {
+                    // ขั้นตอนที่ 1: หา record ล่าสุดของ host_name นั้นๆ
+                    $findStmt = $this->conn->prepare("
+                        SELECT id, window_end 
+                        FROM beacon_averages 
+                        WHERE host_name = ? 
+                        ORDER BY window_end DESC 
+                        LIMIT 1
+                    ");
+                    $findStmt->execute([$item['old_name']]);
+                    $latestRecord = $findStmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($latestRecord) {
+                        // ขั้นตอนที่ 2: อัปเดตเฉพาะ record ล่าสุด
+                        $updateStmt = $this->conn->prepare("
+                            UPDATE beacon_averages 
+                            SET host_name = ? 
+                            WHERE id = ?
+                        ");
+                        $updateStmt->execute([$item['new_name'], $latestRecord['id']]);
+                        $updated += $updateStmt->rowCount();
+                        
+                        // Debug log
+                        error_log("Updated record ID: {$latestRecord['id']} from {$item['old_name']} to {$item['new_name']}");
+                    } else {
+                        error_log("No record found for host_name: {$item['old_name']}");
+                    }
+                }
+            }
+
+            return [
+                'success' => true, 
+                'message' => 'อัปเดตข้อมูลสำเร็จ',
+                'updated_rows' => $updated
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("[Device.php][updateBeaconHostsByName][E511] " . $e->getMessage());
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล: ' . $e->getMessage()];
         }
-        
-    } catch (PDOException $e) {
-        error_log("[Device.php][deleteBeaconHost][E513] " . $e->getMessage());
-        return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการลบ'];
     }
-}
+
+    // เก็บฟังก์ชันเดิมไว้สำหรับ backward compatibility
+    public function deleteBeaconHosts($ids) {
+        try {
+            if (empty($ids)) {
+                return ['success' => true, 'message' => 'ไม่มีรายการที่จะลบ'];
+            }
+
+            $placeholders = str_repeat('?,', count($ids) - 1) . '?';
+            
+            $stmt = $this->conn->prepare("
+                DELETE FROM beacon_averages 
+                WHERE id IN ($placeholders)
+            ");
+            
+            $stmt->execute($ids);
+            
+            return [
+                'success' => true, 
+                'message' => 'ลบข้อมูลสำเร็จ',
+                'affected_rows' => $stmt->rowCount()
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("[Device.php][deleteBeaconHosts][E510] " . $e->getMessage());
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการลบข้อมูล'];
+        }
+    }
+
+    public function updateBeaconHosts($modifiedData) {
+        try {
+            if (empty($modifiedData)) {
+                return ['success' => true, 'message' => 'ไม่มีข้อมูลที่จะอัปเดต'];
+            }
+
+            $stmt = $this->conn->prepare("
+                UPDATE beacon_averages 
+                SET host_name = ? 
+                WHERE id = ?
+            ");
+
+            $updated = 0;
+            foreach ($modifiedData as $item) {
+                if (isset($item['id']) && isset($item['host_name'])) {
+                    $stmt->execute([$item['host_name'], $item['id']]);
+                    $updated += $stmt->rowCount();
+                }
+            }
+
+            return [
+                'success' => true, 
+                'message' => 'อัปเดตข้อมูลสำเร็จ',
+                'updated_rows' => $updated
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("[Device.php][updateBeaconHosts][E511] " . $e->getMessage());
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล'];
+        }
+    }
+
+    public function updateBeaconHost($id, $host_name) {
+        try {
+            $stmt = $this->conn->prepare("
+                UPDATE beacon_averages 
+                SET host_name = ? 
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([$host_name, $id]);
+            
+            if ($stmt->rowCount() > 0) {
+                return ['success' => true, 'message' => 'อัปเดตสำเร็จ'];
+            } else {
+                return ['success' => false, 'message' => 'ไม่พบข้อมูลที่จะอัปเดต'];
+            }
+            
+        } catch (PDOException $e) {
+            error_log("[Device.php][updateBeaconHost][E512] " . $e->getMessage());
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการอัปเดต'];
+        }
+    }
+
+    public function deleteBeaconHost($id) {
+        try {
+            $stmt = $this->conn->prepare("
+                DELETE FROM beacon_averages 
+                WHERE id = ?
+            ");
+            
+            $stmt->execute([$id]);
+            
+            if ($stmt->rowCount() > 0) {
+                return ['success' => true, 'message' => 'ลบสำเร็จ'];
+            } else {
+                return ['success' => false, 'message' => 'ไม่พบข้อมูลที่จะลบ'];
+            }
+            
+        } catch (PDOException $e) {
+            error_log("[Device.php][deleteBeaconHost][E513] " . $e->getMessage());
+            return ['success' => false, 'message' => 'เกิดข้อผิดพลาดในการลบ'];
+        }
+    }
 }
 ?>
