@@ -253,3 +253,49 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* User Profile Section in Sidebar */
+.user-profile {
+  padding: 20px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  margin: 0 20px 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-profile .profile-avatar {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #4ecdc4, #20c997);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  font-size: 24px;
+  color: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-profile .profile-name {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.user-profile .profile-role {
+  font-size: 12px;
+  opacity: 0.9;
+  color: #4ecdc4;
+  font-weight: 500;
+}
+
+.user-profile .profile-time {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.8);
+}

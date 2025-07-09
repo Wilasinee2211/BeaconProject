@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIRIN MUSEUM - ลงทะเบียนผู้เยี่ยมชม</title>
   <link rel="stylesheet" href="../../assets/css/staff-sidebar.css" />
-  <link rel="stylesheet" href="../../assets/css/staff_styles.css" />
+  <link rel="stylesheet" href="../../assets/css/manage_device.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
@@ -15,18 +15,28 @@
 </head>
 <body>
   <div class="dashboard-layout active">
-    <!-- Sidebar -->
-    <div class="sidebar">
+  <!-- Sidebar -->
+  <div class="sidebar">
       <div class="sidebar-header">
-        <h2>🏛️ SIRIN MUSEUM</h2>
+        <h2>SIRIN MUSEUM</h2>
         <div class="role">เจ้าหน้าที่</div>
       </div>
-      <ul class="nav-menu">
-        <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
-        <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
-      </ul>
-      <button class="logout-btn">🚪 ออกจากระบบ</button>
+    <!-- ✅ เพิ่ม User Profile Section -->
+    <div class="user-profile">
+      <div class="profile-avatar">
+        <i class="fas fa-user"></i>
+      </div>
+      <div class="profile-name" id="sidebarUserName">คุณสมชาย ใจดี</div>
+      <div class="profile-role" id="sidebarUserRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
+      <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 09:30</div>
     </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
+      <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+    </ul>
+    <button class="logout-btn">🚪 ออกจากระบบ</button>
+  </div>
 
     <!-- Main Content -->
     <div class="main-content">

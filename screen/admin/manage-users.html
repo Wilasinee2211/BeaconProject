@@ -5,37 +5,105 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>จัดการสิทธิ์</title>
+  <link rel="stylesheet" href="../../assets/css/register.css" />
   <link rel="stylesheet" href="../../assets/css/styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 
-<body class="manage-users">
-  <div class="manage-users__container">
-    <h2 class="manage-users__title">จัดการสิทธิ์</h2>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>SIRIN MUSEUM</h2>
+        <div class="role">ผู้ดูแลระบบ</div>
+      </div>
 
-    <div id="loadingStatus" style="margin-bottom: 20px; color: #666; text-align: center; font-size: 16px;"></div>
+      <div class="user-profile">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div class="profile-name">คุณแอดมิน</div>
+        <div class="profile-role">ผู้ดูแลระบบ</div>
+        <div class="profile-time">เข้าสู่ระบบ: 19:52</div>
+      </div>
 
-    <table class="manage-users__table">
-      <thead>
-        <tr>
-          <th>รหัสบัตรประชาชน</th>
-          <th>ชื่อ</th>
-          <th>นามสกุล</th>
-          <th>ตำแหน่ง</th>
-          <th>จัดการ</th>
-        </tr>
-      </thead>
-      <tbody id="userTableBody"></tbody>
-    </table>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="register.html" class="nav-link"><i class="fas fa-users"></i> ลงทะเบียนพนักงาน</a>
+        </li>
+        <li class="nav-item">
+          <a href="manage-users.html" class="nav-link active"><i class="fas fa-key"></i> จัดการสิทธิ์</a>
+        </li>
+      </ul>
 
-    <div class="manage-users__actions">
-      <button class="manage-users__confirm-btn" id="confirmBtn">ยืนยันสิทธิ์</button>
-      <button class="manage-users__cancel-btn" id="cancelBtn">ยกเลิก</button>
+      <button class="logout-btn">ออกจากระบบ</button>
     </div>
-  </div>
 
-  <script src="../../assets/js/manage-users.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-header">
+        <h1>จัดการสิทธิ์</h1>
+        <p>กำหนดสิทธิ์การเข้าถึงของผู้ใช้งานในระบบ</p>
+      </div>
+
+      <div id="loadingStatus" style="margin-bottom: 20px; color: #666; text-align: center; font-size: 16px;"></div>
+
+      <!-- เพิ่มกล่องพื้นหลังขาว -->
+      <div class="form-container">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>รหัสบัตรประชาชน</th>
+                <th>ชื่อ</th>
+                <th>นามสกุล</th>
+                <th>ตำแหน่ง</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr>
+                <td>1234567890123</td>
+                <td>สมชาย</td>
+                <td>ใจดี</td>
+                <td>เจ้าหน้าที่</td>
+                <td>
+                  <select class="role-dropdown">
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="staff" selected>เจ้าหน้าที่</option>
+                    <option value="manager">ผู้บริหาร</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>9876543210987</td>
+                <td>สมหญิง</td>
+                <td>แสนดี</td>
+                <td>เจ้าหน้าที่</td>
+                <td>
+                  <select class="role-dropdown">
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="staff" selected>เจ้าหน้าที่</option>
+                    <option value="manager">ผู้บริหาร</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ปุ่มยืนยัน/ยกเลิก อยู่ในกล่องเดียวกัน -->
+        <div style="margin-top: 20px; display: flex; gap: 15px;">
+          <button class="btn">ยืนยันสิทธิ์</button>
+          <button class="btn btn-return">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="../../assets/js/manage-users.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

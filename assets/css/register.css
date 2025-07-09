@@ -39,6 +39,10 @@ body {
     font-weight: 600;
 }
 
+.form-container h2 {
+  color: #2a8c78;
+}
+
 .sidebar-header .role {
     font-size: 0.9rem;
     opacity: 0.8;

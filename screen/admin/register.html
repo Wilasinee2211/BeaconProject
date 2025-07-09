@@ -1,78 +1,264 @@
 <!DOCTYPE html>
-<html lang="th" class="register-page">
+<html lang="th">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIRIN MUSEUM - Register</title>
-  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <title>SIRIN MUSEUM - ลงทะเบียนพนักงาน</title>
+  <link rel="stylesheet" href="../../assets/css/register.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
 </head>
 
-<body class="register-page">
-  <div class="register-container">
-    <div class="register-left">
-      <img src="https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132393.jpg" alt="Register Image" />
-      <div class="register-overlay-center">
-        <h1>SIRIN MUSEUM</h1>
-        <p>พิพิธภัณฑ์ธรรมชาติวิทยาเทพรัตน์ฯ มหาวิทยาลัยวลัยลักษณ์</p>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>SIRIN MUSEUM</h2>
+        <div class="role">ผู้ดูแลระบบ</div>
       </div>
+      <div class="user-profile">
+        <div class="profile-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="profile-name">คุณแอดมิน</div>
+        <div class="profile-role">ผู้ดูแลระบบ</div>
+        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="register.html" class="nav-link active"><i class="fas fa-users"></i> ลงทะเบียนพนักงาน</a>
+        </li>
+        <li class="nav-item">
+          <a href="manage-users.html" class="nav-link"><i class="fas fa-key"></i> จัดการสิทธิ์</a>
+        </li>
+      </ul>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
-    <div class="register-right">
-      <div class="register-box-wrapper">
-        <div class="register-box-shadow"></div>
-        <form id="registerForm" class="register-box">
-          <h2>ลงทะเบียน</h2>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container">
+        <div class="content-header">
+          <h1>ลงทะเบียนพนักงาน</h1>
+          <p>เพิ่มบัญชีผู้ใช้งานของพนักงานพิพิธภัณฑ์</p>
+        </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-id-card icon"></i>
-            <input type="text" id="citizenId" name="citizenId" placeholder="เลขบัตรประชาชน" maxlength="13" required
-              oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-          </div>
-
-          <div class="register-input-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" name="firstName" placeholder="ชื่อ" required />
-          </div>
-
-          <div class="register-input-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" name="lastName" placeholder="นามสกุล" required />
-          </div>
-
-          <div class="register-input-group">
-            <i class="fas fa-lock icon"></i>
-            <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required />
-            <i class="fas fa-eye-slash eye" onclick="togglePassword('password', this)"></i>
-          </div>
-
-          <div class="register-input-group">
-            <i class="fas fa-lock icon"></i>
-            <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required />
-            <i class="fas fa-eye-slash eye" onclick="togglePassword('confirmPassword', this)"></i>
-          </div>
-
-          <div class="register-input-group">
-            <i class="fas fa-users icon"></i>
-            <select name="role" required>
-              <option value="" hidden disabled selected>-- เลือกตำแหน่ง --</option>
-              <option value="admin">ผู้ดูแลระบบ</option>
-              <option value="manager">ผู้บริหาร</option>
-              <option value="staff">เจ้าหน้าที่</option>
-            </select>
-          </div>
-
-          <button type="submit" class="register-button">ลงทะเบียน</button>
-        </form>
+        <div class="form-container">
+          <h2><i class="fas fa-user-friends"></i> ลงทะเบียนพนักงาน</h2>
+          <form id="employeeForm" action="process_register.php" method="POST">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="national_id">เลขบัตรประชาชน: <span style="color: red;">*</span></label>
+                <input type="text" id="national_id" name="national_id" placeholder="กรอกเลขบัตรประชาชน 13 หลัก" 
+                       maxlength="13" pattern="[0-9]{13}" required>
+                <div class="error-message" id="national_id_error"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="firstname">ชื่อ: <span style="color: red;">*</span></label>
+                <input type="text" id="firstname" name="firstname" placeholder="กรอกชื่อ" required>
+                <div class="error-message" id="firstname_error"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="lastname">นามสกุล: <span style="color: red;">*</span></label>
+                <input type="text" id="lastname" name="lastname" placeholder="กรอกนามสกุล" required>
+                <div class="error-message" id="lastname_error"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="password">รหัสผ่าน: <span style="color: red;">*</span></label>
+                <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)" 
+                       minlength="6" required>
+                <div class="error-message" id="password_error"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="confirm_password">ยืนยันรหัสผ่าน: <span style="color: red;">*</span></label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="กรอกรหัสผ่านอีกครั้ง" 
+                       minlength="6" required>
+                <div class="error-message" id="confirm_password_error"></div>
+              </div>
+              
+              <div class="form-group">
+                <label for="role">ตำแหน่ง: <span style="color: red;">*</span></label>
+                <select id="role" name="role" required>
+                  <option value="">-- เลือกตำแหน่ง --</option>
+                  <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ</option>
+                  <option value="เจ้าหน้าที่">เจ้าหน้าที่</option>
+                  <option value="ผู้บริหาร">หัวหน้าแผนก</option>
+                </select>
+                <div class="error-message" id="role_error"></div>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">
+              <i class="fas fa-user-plus"></i> เพิ่มผู้ใช้
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 
-  <script src="../../assets/js/register.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function logout() {
+      if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+        window.location.href = '../login.html';
+      }
+    }
 
+    // ตรวจสอบเลขบัตรประชาชน
+    function validateNationalID(id) {
+      if (id.length !== 13) return false;
+      
+      let sum = 0;
+      for (let i = 0; i < 12; i++) {
+        sum += parseInt(id[i]) * (13 - i);
+      }
+      
+      let remainder = sum % 11;
+      let checkDigit = (11 - remainder) % 10;
+      
+      return checkDigit === parseInt(id[12]);
+    }
+
+    // ตรวจสอบข้อมูลแบบ Real-time
+    document.getElementById('national_id').addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\D/g, ''); // เอาตัวอักษรออก
+      e.target.value = value;
+      
+      const errorElement = document.getElementById('national_id_error');
+      
+      if (value.length > 0 && value.length !== 13) {
+        errorElement.textContent = 'เลขบัตรประชาชนต้องมี 13 หลัก';
+        e.target.classList.add('error');
+      } else if (value.length === 13 && !validateNationalID(value)) {
+        errorElement.textContent = 'เลขบัตรประชาชนไม่ถูกต้อง';
+        e.target.classList.add('error');
+      } else {
+        errorElement.textContent = '';
+        e.target.classList.remove('error');
+      }
+    });
+
+    // ตรวจสอบรหัสผ่านตรงกัน
+    document.getElementById('confirm_password').addEventListener('input', function(e) {
+      const password = document.getElementById('password').value;
+      const confirmPassword = e.target.value;
+      const errorElement = document.getElementById('confirm_password_error');
+      
+      if (confirmPassword && password !== confirmPassword) {
+        errorElement.textContent = 'รหัสผ่านไม่ตรงกัน';
+        e.target.classList.add('error');
+      } else {
+        errorElement.textContent = '';
+        e.target.classList.remove('error');
+      }
+    });
+
+    // ตรวจสอบรหัสผ่านเมื่อเปลี่ยนรหัสผ่านหลัก
+    document.getElementById('password').addEventListener('input', function(e) {
+      const confirmPassword = document.getElementById('confirm_password').value;
+      const errorElement = document.getElementById('confirm_password_error');
+      
+      if (confirmPassword && e.target.value !== confirmPassword) {
+        errorElement.textContent = 'รหัสผ่านไม่ตรงกัน';
+        document.getElementById('confirm_password').classList.add('error');
+      } else {
+        errorElement.textContent = '';
+        document.getElementById('confirm_password').classList.remove('error');
+      }
+    });
+
+    // ตรวจสอบฟอร์มก่อนส่ง
+    document.getElementById('employeeForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      let isValid = true;
+      const nationalId = document.getElementById('national_id').value;
+      const username = document.getElementById('username').value.trim();
+      const firstname = document.getElementById('firstname').value.trim();
+      const lastname = document.getElementById('lastname').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      const role = document.getElementById('role').value;
+
+      // เคลียร์ข้อความผิดพลาดเดิม
+      document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+      document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+
+      // ตรวจสอบเลขบัตรประชาชน
+      if (!nationalId || nationalId.length !== 13) {
+        document.getElementById('national_id_error').textContent = 'กรุณากรอกเลขบัตรประชาชน 13 หลัก';
+        document.getElementById('national_id').classList.add('error');
+        isValid = false;
+      } else if (!validateNationalID(nationalId)) {
+        document.getElementById('national_id_error').textContent = 'เลขบัตรประชาชนไม่ถูกต้อง';
+        document.getElementById('national_id').classList.add('error');
+        isValid = false;
+      }
+
+      // ตรวจสอบข้อมูลอื่นๆ
+      if (!username) {
+        document.getElementById('username_error').textContent = 'กรุณากรอกชื่อผู้ใช้';
+        document.getElementById('username').classList.add('error');
+        isValid = false;
+      }
+
+      if (!firstname) {
+        document.getElementById('firstname_error').textContent = 'กรุณากรอกชื่อ';
+        document.getElementById('firstname').classList.add('error');
+        isValid = false;
+      }
+
+      if (!lastname) {
+        document.getElementById('lastname_error').textContent = 'กรุณากรอกนามสกุล';
+        document.getElementById('lastname').classList.add('error');
+        isValid = false;
+      }
+
+      if (!password || password.length < 6) {
+        document.getElementById('password_error').textContent = 'กรุณากรอกรหัสผ่านอย่างน้อย 6 ตัวอักษร';
+        document.getElementById('password').classList.add('error');
+        isValid = false;
+      }
+
+      if (password !== confirmPassword) {
+        document.getElementById('confirm_password_error').textContent = 'รหัสผ่านไม่ตรงกัน';
+        document.getElementById('confirm_password').classList.add('error');
+        isValid = false;
+      }
+
+      if (!role) {
+        document.getElementById('role_error').textContent = 'กรุณาเลือกตำแหน่ง';
+        document.getElementById('role').classList.add('error');
+        isValid = false;
+      }
+
+      if (isValid) {
+        // แสดงข้อความสำเร็จ
+        alert('ลงทะเบียนพนักงานสำเร็จ!\n\nข้อมูลพนักงาน:\n' + 
+              'เลขบัตรประชาชน: ' + nationalId + '\n' +
+              'ชื่อผู้ใช้: ' + username + '\n' +
+              'ชื่อ-นามสกุล: ' + firstname + ' ' + lastname + '\n' +
+              'ตำแหน่ง: ' + role);
+        
+        // เคลียร์ฟอร์ม
+        document.getElementById('employeeForm').reset();
+      }
+    });
+
+    // อัปเดตเวลาบน Sidebar
+    document.addEventListener('DOMContentLoaded', function () {
+      document.getElementById('sidebarLoginTime').textContent = `เข้าสู่ระบบ: ${new Date().toLocaleTimeString('th-TH', {
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`;
+    });
+  </script>
 </body>
 
 </html>
