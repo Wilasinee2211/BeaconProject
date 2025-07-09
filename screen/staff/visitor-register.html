@@ -1,75 +1,257 @@
 <!DOCTYPE html>
-<html lang="th" class="visitor-register-page">
-
+<html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIRIN MUSEUM - ลงทะเบียนผู้เยี่ยมชม</title>
-  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <link rel="stylesheet" href="../../assets/css/staff-sidebar.css" />
+  <link rel="stylesheet" href="../../assets/css/staff_styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-
-<body class="visitor-register-page">
-  <div class="visitor-register-container">
-    <div class="visitor-register-left">
-      <img src="https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132381.jpg" alt="Museum Interior" style="object-position: right center;" />
-      <div class="visitor-register-overlay-center">
-        <h1>SIRIN MUSEUM</h1>
-        <p>พิพิธภัณฑ์ธรรมชาติวิทยาเทพรัตน์ฯ มหาวิทยาลัยวลัยลักษณ์</p>
+<body>
+  <div class="dashboard-layout active">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>🏛️ SIRIN MUSEUM</h2>
+        <div class="role">เจ้าหน้าที่</div>
       </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
+        <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+      </ul>
+      <button class="logout-btn">🚪 ออกจากระบบ</button>
     </div>
-    
-    <div class="visitor-register-right">
-      <div class="visitor-register-box-wrapper">
-        <div class="visitor-register-box-shadow"></div>
-        <form id="visitorRegisterForm" class="visitor-register-box">
-          <h2>ลงทะเบียนผู้เยี่ยมชม</h2>
 
-          <div class="visitor-register-input-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" name="firstName" placeholder="ชื่อ" required />
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-header">
+        <h1>ลงทะเบียนผู้เยี่ยมชม</h1>
+        <p>กรอกข้อมูลผู้เยี่ยมชมเพื่อจัดการอุปกรณ์</p>
+      </div>
+
+      <div class="form-container">
+        <h2 style="margin-bottom: 20px; color: #2a8c78;">➕ ลงทะเบียนผู้เยี่ยมชม</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ชื่อ:</label>
+            <input type="text" id="visitorFirstName" placeholder="กรอกชื่อ">
           </div>
-
-          <div class="visitor-register-input-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" name="lastName" placeholder="นามสกุล" required />
+          <div class="form-group">
+            <label>นามสกุล:</label>
+            <input type="text" id="visitorLastName" placeholder="กรอกนามสกุล">
           </div>
-
-          <div class="visitor-register-input-group">
-            <i class="fas fa-birthday-cake icon"></i>
-            <input type="text" id="birthdate" name="birthdate" placeholder="วันเกิด (วัน/เดือน/ปี)" required />
-            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          <div class="form-group">
+            <label>วันเกิด:</label>
+            <input type="date" id="visitorBirthdate" placeholder="เลือกวันเกิด">
+            <div class="age-display" id="ageDisplay"></div>
           </div>
-
-
-          <div class="visitor-register-input-group">
-            <i class="fas fa-venus-mars icon"></i>
-            <select name="gender" required>
-              <option value="" hidden disabled selected>เพศ</option>
+          <div class="form-group">
+            <label>เพศ:</label>
+            <select id="visitorGender">
+              <option value="">เลือกเพศ</option>
               <option value="male">ชาย</option>
               <option value="female">หญิง</option>
-              <option value="other">อื่นๆ</option>
             </select>
-            <i class="fas fa-chevron-down dropdown-arrow"></i>
           </div>
-
-          <div class="visitor-register-input-group">
-            <i class="fas fa-id-card icon"></i>
-            <input type="text" name="uuid" placeholder="UUID" required />
+          <div class="form-group">
+            <label>กลุ่ม:</label>
+            <input type="text" id="visitorGroup" placeholder="ชื่อกลุ่ม (ถ้ามี)">
           </div>
+          <div class="form-group">
+            <label>iBeacon Tag:</label>
+            <select id="visitorBeacon">
+              <option value="">เลือก iBeacon</option>
+              <option value="TAG001">TAG001 - เด็กชาย 1</option>
+              <option value="TAG002">TAG002 - เด็กหญิง 1</option>
+              <option value="TAG003">TAG003 - ผู้ใหญ่ 1</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" onclick="addVisitor()">เพิ่มผู้เยี่ยมชม</button>
+      </div>
 
-          <button type="submit" class="visitor-register-button">ลงทะเบียน</button>
-        </form>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>ชื่อ</th>
+              <th>นามสกุล</th>
+              <th>อายุ</th>
+              <th>เพศ</th>
+              <th>กลุ่ม</th>
+              <th>iBeacon</th>
+              <th>เข้าชม</th>
+              <th>ออก</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="visitorsTable">
+            <!-- ข้อมูลจะแสดงจากฐานข้อมูลที่นี่ -->
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <script src="../../assets/js/visitor-register.js"></script>
-</body>
+  <script>
+    // ฟังก์ชันคำนวณอายุจากวันเกิด
+    function calculateAge(birthDate) {
+      const today = new Date();
+      const birth = new Date(birthDate);
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      
+      return age;
+    }
 
+    // อัปเดตอายุเมื่อเลือกวันเกิด
+    document.getElementById('visitorBirthdate').addEventListener('change', function() {
+      const birthDate = this.value;
+      const ageDisplay = document.getElementById('ageDisplay');
+      
+      if (birthDate) {
+        const age = calculateAge(birthDate);
+        ageDisplay.textContent = `อายุ: ${age} ปี`;
+        ageDisplay.style.color = '#2a8c78';
+      } else {
+        ageDisplay.textContent = '';
+      }
+    });
+
+    function addVisitor() {
+      const firstName = document.getElementById('visitorFirstName').value;
+      const lastName = document.getElementById('visitorLastName').value;
+      const birthDate = document.getElementById('visitorBirthdate').value;
+      const gender = document.getElementById('visitorGender').value;
+      const group = document.getElementById('visitorGroup').value;
+      const beacon = document.getElementById('visitorBeacon').value;
+
+      if (!firstName || !lastName || !birthDate || !gender || !beacon) {
+        Swal.fire('กรอกข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่องที่จำเป็น', 'warning');
+        return;
+      }
+
+      const age = calculateAge(birthDate);
+
+      // ที่นี่จะเชื่อมต่อกับฐานข้อมูลเพื่อบันทึกข้อมูล
+      // สร้าง object ข้อมูลที่จะส่งไปฐานข้อมูล
+      const visitorData = {
+        firstName: firstName,
+        lastName: lastName,
+        birthDate: birthDate,
+        age: age,
+        gender: gender,
+        group: group || '-',
+        beacon: beacon,
+        checkIn: new Date().toLocaleString('th-TH'),
+        checkOut: '-'
+      };
+
+      console.log('ข้อมูลที่จะบันทึก:', visitorData);
+      
+      Swal.fire('สำเร็จ!', `ลงทะเบียนผู้เยี่ยมชม ${firstName} ${lastName} (อายุ ${age} ปี) เรียบร้อยแล้ว`, 'success');
+      
+      // ล้างฟอร์ม
+      document.getElementById('visitorFirstName').value = '';
+      document.getElementById('visitorLastName').value = '';
+      document.getElementById('visitorBirthdate').value = '';
+      document.getElementById('visitorGender').value = '';
+      document.getElementById('visitorGroup').value = '';
+      document.getElementById('visitorBeacon').value = '';
+      document.getElementById('ageDisplay').textContent = '';
+      
+      // เรียกใช้ฟังก์ชันโหลดข้อมูลใหม่
+      loadVisitors();
+    }
+
+    function editVisitor(visitorId) {
+      Swal.fire('แก้ไขข้อมูล', `แก้ไขข้อมูลผู้เยี่ยมชม ID: ${visitorId}`, 'info');
+    }
+
+    function deleteVisitor(visitorId) {
+      Swal.fire({
+        title: 'ยืนยันการลบ',
+        text: `คุณต้องการลบผู้เยี่ยมชม ID: ${visitorId} ใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ลบเลย!',
+        cancelButtonText: 'ยกเลิก'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire('ลบแล้ว!', 'ลบข้อมูลผู้เยี่ยมชมเรียบร้อยแล้ว', 'success');
+          loadVisitors();
+        }
+      });
+    }
+
+    // ฟังก์ชันสำหรับโหลดข้อมูลจากฐานข้อมูล
+    function loadVisitors() {
+      // ข้อมูลตัวอย่างสำหรับการแสดงผล
+      const sampleData = [
+        {
+          id: 1,
+          firstName: 'สมชาย',
+          lastName: 'ใจดี',
+          age: 25,
+          gender: 'ชาย',
+          group: 'กลุ่ม A',
+          beacon: 'TAG001',
+          checkIn: '09:30',
+          checkOut: '-'
+        },
+        {
+          id: 2,
+          firstName: 'สมหญิง',
+          lastName: 'รักเรียน',
+          age: 30,
+          gender: 'หญิง',
+          group: 'กลุ่ม B',
+          beacon: 'TAG002',
+          checkIn: '10:15',
+          checkOut: '14:30'
+        }
+      ];
+
+      const tableBody = document.getElementById('visitorsTable');
+      tableBody.innerHTML = '';
+
+      sampleData.forEach(visitor => {
+        const row = `
+          <tr>
+            <td>${visitor.id}</td>
+            <td>${visitor.firstName}</td>
+            <td>${visitor.lastName}</td>
+            <td>${visitor.age}</td>
+            <td>${visitor.gender}</td>
+            <td>${visitor.group}</td>
+            <td>${visitor.beacon}</td>
+            <td>${visitor.checkIn}</td>
+            <td>${visitor.checkOut}</td>
+            <td>
+              <button class="btn-edit" onclick="editVisitor(${visitor.id})">แก้ไข</button>
+              <button class="btn-danger" onclick="deleteVisitor(${visitor.id})">ลบ</button>
+            </td>
+          </tr>
+        `;
+        tableBody.innerHTML += row;
+      });
+    }
+
+    // เรียกใช้เมื่อโหลดหน้าเว็บ
+    document.addEventListener('DOMContentLoaded', function() {
+      loadVisitors();
+    });
+  </script>
+</body>
 </html>
