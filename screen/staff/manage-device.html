@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SIRIN MUSEUM - จัดการอุปกรณ์</title>
   <link rel="stylesheet" href="../../assets/css/staff-sidebar.css" />
-  <link rel="stylesheet" href="../../assets/css/staff_styles.css" />
+  <link rel="stylesheet" href="../../assets/css/manage_device.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
 </head>
@@ -24,66 +24,273 @@
       <button class="logout-btn">🚪 ออกจากระบบ</button>
     </div>
 
-    <!-- Content -->
+    <!-- Main Content -->
     <div class="main-content">
       <div class="content-header">
         <h1>จัดการอุปกรณ์</h1>
-        <p>รายการอุปกรณ์ที่ลงทะเบียน</p>
+        <p>ค้นหาและจัดการการคืนอุปกรณ์ผู้เยี่ยมชม</p>
       </div>
 
-      <div class="manage-device__container">
-        <div class="manage-device__header">
-          <h2 class="manage-device__title">จัดการอุปกรณ์ Host</h2>
-          <div class="manage-device__stats">
-            <div class="stat-badge stat-badge--online"><i class="fas fa-circle"></i> Online: <span id="onlineCount">0</span></div>
-            <div class="stat-badge stat-badge--offline"><i class="fas fa-circle"></i> Offline: <span id="offlineCount">0</span></div>
-            <div class="stat-badge stat-badge--total"><i class="fas fa-microchip"></i> Total: <span id="totalCount">0</span></div>
+      <!-- Search Form -->
+      <div class="form-container">
+        <h2 style="margin-bottom: 20px; color: #2a8c78;">🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>ค้นหาจาก:</label>
+            <select id="searchType">
+              <option value="name">ชื่อ-นามสกุล</option>
+              <option value="beacon">รหัส iBeacon Tag</option>
+              <option value="group">ชื่อกลุ่ม</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>ค้นหา:</label>
+            <input type="text" id="searchValue" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
           </div>
         </div>
+        <button class="btn" onclick="searchVisitors()">ค้นหา</button>
+      </div>
 
-        <div class="manage-device__controls">
-          <div class="search-container">
-            <input type="text" class="search-input" placeholder="ค้นหาอุปกรณ์.." id="searchInput">
-            <i class="fas fa-search search-icon"></i>
+      <!-- Statistics Cards -->
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">✅</div>
+            <h3 class="card-title">คืนแล้ว</h3>
           </div>
-          <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> รีเฟรช</button>
+          <div class="stat-number" id="returnedCount">2</div>
+          <div class="stat-label">ชุด</div>
         </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background: linear-gradient(45deg, #f39c12, #e67e22);">⏳</div>
+            <h3 class="card-title">ยังไม่คืน</h3>
+          </div>
+          <div class="stat-number" id="activeCount">3</div>
+          <div class="stat-label">ชุด</div>
+        </div>
+      </div>
 
-        <table class="manage-device__table">
+      <!-- Visitors Table -->
+      <div class="table-container">
+        <table class="table">
           <thead>
             <tr>
-              <th><input type="checkbox" id="select-all" /></th>
-              <th>ชื่ออุปกรณ์</th>
+              <th>รหัส</th>
+              <th>ชื่อ-นามสกุล</th>
+              <th>กลุ่ม</th>
+              <th>iBeacon Tag</th>
+              <th>เวลาเข้าชม</th>
               <th>สถานะ</th>
-              <th>อัปเดตล่าสุด</th>
-              <th>จำนวนข้อมูล</th>
-              <th>จัดการ</th>
+              <th>การดำเนินการ</th>
             </tr>
           </thead>
-          <tbody id="hostTableBody">
-            <tr id="noDataRow">
-              <td colspan="6" style="text-align: center;">กำลังโหลดข้อมูล...</td>
-            </tr>
+          <tbody id="visitorsTable">
+            <!-- ข้อมูลจะถูกโหลดที่นี่ -->
           </tbody>
         </table>
-
-        <div class="selection-info">
-          <div class="selection-count">เลือกแล้ว: <span id="selectedCount">0</span> รายการ</div>
-          <div class="bulk-actions">
-            <button class="bulk-btn select-all-btn" id="selectAllBtn"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
-            <button class="bulk-btn clear-selection-btn" id="clearSelectionBtn"><i class="fas fa-times"></i> ยกเลิกการเลือก</button>
-            <button class="bulk-btn bulk-delete-btn" id="bulkDeleteBtn"><i class="fas fa-trash-alt"></i> ลบที่เลือก</button>
-          </div>
-        </div>
-
-        <div class="manage-device__actions">
-          <button class="manage-device__confirm-btn" id="confirmBtn"><i class="fas fa-save"></i> ยืนยันการเปลี่ยนแปลง</button>
-          <button class="manage-device__cancel-btn" id="cancelBtn"><i class="fas fa-times"></i> ยกเลิก</button>
-        </div>
       </div>
     </div>
   </div>
-  <script src="../../assets/js/manage-device.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    // ข้อมูลตัวอย่าง
+    let visitorsData = [
+      {
+        id: 'V001',
+        firstName: 'น้องมินิ',
+        lastName: 'สุขใส',
+        group: 'โรงเรียนสายน้ำ',
+        beacon: 'TAG001',
+        checkIn: '09:30',
+        checkOut: null,
+        status: 'active'
+      },
+      {
+        id: 'V002',
+        firstName: 'เด็กชายบอม',
+        lastName: 'วิ่งเร็ว',
+        group: 'โรงเรียนสายน้ำ',
+        beacon: 'TAG002',
+        checkIn: '09:45',
+        checkOut: null,
+        status: 'active'
+      },
+      {
+        id: 'V003',
+        firstName: 'สมชาย',
+        lastName: 'ใจดี',
+        group: 'กลุ่ม A',
+        beacon: 'TAG003',
+        checkIn: '10:00',
+        checkOut: '14:30',
+        status: 'returned'
+      },
+      {
+        id: 'V004',
+        firstName: 'สมหญิง',
+        lastName: 'รักเรียน',
+        group: 'กลุ่ม B',
+        beacon: 'TAG004',
+        checkIn: '10:15',
+        checkOut: null,
+        status: 'active'
+      },
+      {
+        id: 'V005',
+        firstName: 'น้องแอม',
+        lastName: 'ฉลาด',
+        group: 'โรงเรียนดอกไม้',
+        beacon: 'TAG005',
+        checkIn: '11:00',
+        checkOut: '15:00',
+        status: 'returned'
+      }
+    ];
+
+    // ฟังก์ชันแสดงสถานะ
+    function getStatusBadge(status) {
+      switch(status) {
+        case 'returned':
+          return '<span class="status-badge status-returned">ว่าง</span>';
+        case 'active':
+          return '<span class="status-badge status-active">ยังไม่คืน</span>';
+        default:
+          return '<span class="status-badge status-active">ยังไม่คืน</span>';
+      }
+    }
+
+    // ฟังก์ชันโหลดข้อมูลในตาราง
+    function loadVisitorsTable(data = visitorsData) {
+      const tableBody = document.getElementById('visitorsTable');
+      
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="no-data">ไม่พบข้อมูลผู้เยี่ยมชม</td></tr>';
+        return;
+      }
+      
+      tableBody.innerHTML = data.map(visitor => {
+        return `
+          <tr>
+            <td>${visitor.id}</td>
+            <td>${visitor.firstName} ${visitor.lastName}</td>
+            <td>${visitor.group}</td>
+            <td>${visitor.beacon}</td>
+            <td>${visitor.checkIn}</td>
+            <td>${getStatusBadge(visitor.status)}</td>
+            <td>
+              ${visitor.status !== 'returned' ? 
+                `<button class="btn btn-return" onclick="returnEquipment('${visitor.id}')">
+                  <i class="fas fa-undo"></i> คืนอุปกรณ์
+                </button>` : 
+                '<span style="color: #28a745;">✓ คืนแล้ว</span>'
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ฟังก์ชันอัปเดตสถิติ
+    function updateStatistics() {
+      const returned = visitorsData.filter(v => v.status === 'returned').length;
+      const active = visitorsData.filter(v => v.status === 'active').length;
+      
+      document.getElementById('returnedCount').textContent = returned;
+      document.getElementById('activeCount').textContent = active;
+    }
+
+    // ฟังก์ชันค้นหา
+    function searchVisitors() {
+      const searchType = document.getElementById('searchType').value;
+      const searchValue = document.getElementById('searchValue').value.toLowerCase().trim();
+      
+      if (!searchValue) {
+        loadVisitorsTable();
+        return;
+      }
+      
+      const filteredData = visitorsData.filter(visitor => {
+        switch(searchType) {
+          case 'name':
+            return (visitor.firstName + ' ' + visitor.lastName).toLowerCase().includes(searchValue);
+          case 'beacon':
+            return visitor.beacon.toLowerCase().includes(searchValue);
+          case 'group':
+            return visitor.group.toLowerCase().includes(searchValue);
+          default:
+            return false;
+        }
+      });
+      
+      loadVisitorsTable(filteredData);
+      
+      if (filteredData.length === 0) {
+        Swal.fire('ไม่พบข้อมูล', 'ไม่พบข้อมูลที่ค้นหา', 'info');
+      }
+    }
+
+    // ฟังก์ชันคืนอุปกรณ์
+    function returnEquipment(visitorId) {
+      Swal.fire({
+        title: 'ยืนยันการคืนอุปกรณ์',
+        text: `คุณต้องการคืนอุปกรณ์ของผู้เยี่ยมชม ${visitorId} ใช่หรือไม่?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, คืนอุปกรณ์',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#28a745'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // อัปเดตสถานะในข้อมูล
+          const visitor = visitorsData.find(v => v.id === visitorId);
+          if (visitor) {
+            visitor.status = 'returned';
+            visitor.checkOut = new Date().toLocaleTimeString('th-TH', { 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            });
+            
+            // อัปเดตตารางและสถิติ
+            loadVisitorsTable();
+            updateStatistics();
+            
+            Swal.fire(
+              'คืนอุปกรณ์สำเร็จ!',
+              `คืนอุปกรณ์ของ ${visitor.firstName} ${visitor.lastName} เรียบร้อยแล้ว`,
+              'success'
+            );
+          }
+        }
+      });
+    }
+
+    // ฟังก์ชันรีเซ็ตการค้นหา
+    function resetSearch() {
+      document.getElementById('searchType').value = 'name';
+      document.getElementById('searchValue').value = '';
+      loadVisitorsTable();
+    }
+
+    // Event listener สำหรับการค้นหาแบบ real-time
+    document.getElementById('searchValue').addEventListener('input', function(e) {
+      if (e.target.value === '') {
+        loadVisitorsTable();
+      }
+    });
+
+    // Event listener สำหรับ Enter key
+    document.getElementById('searchValue').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchVisitors();
+      }
+    });
+
+    // เรียกใช้เมื่อโหลดหน้า
+    document.addEventListener('DOMContentLoaded', function() {
+      loadVisitorsTable();
+      updateStatistics();
+    });
+  </script>
 </body>
 </html>
