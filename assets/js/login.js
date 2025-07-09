@@ -35,7 +35,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 
   const formData = new FormData(this);
 
-  fetch("http://localhost:8888/BeaconProject/backend/login.php", {
+  fetch("http://localhost:80/BeaconProject/backend/login.php", {
     method: "POST",
     body: formData
   })
@@ -56,7 +56,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
           } else if (data.role === "staff") {
             window.location.href = "../screen/staff/staff-menu.html";
           } else if (data.role === "manager") {
-            window.location.href = "../screen/manager/index.html";
+            window.location.href = "../screen/manager/dashboard.html";
           } else {
             Swal.fire({
               icon: 'error',

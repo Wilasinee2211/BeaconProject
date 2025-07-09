@@ -1,102 +1,89 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>จัดการอุปกรณ์ Host</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIRIN MUSEUM - จัดการอุปกรณ์</title>
+  <link rel="stylesheet" href="../../assets/css/staff-sidebar.css" />
   <link rel="stylesheet" href="../../assets/css/staff_styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
 </head>
-
-<body class="manage-device">
-  <div class="manage-device__container">
-    <!-- Header with Stats -->
-    <div class="manage-device__header">
-      <h2 class="manage-device__title">จัดการอุปกรณ์ Host</h2>
-      <div class="manage-device__stats">
-        <div class="stat-badge stat-badge--online">
-          <i class="fas fa-circle"></i>
-          Online: <span id="onlineCount">0</span>
-        </div>
-        <div class="stat-badge stat-badge--offline">
-          <i class="fas fa-circle"></i>
-          Offline: <span id="offlineCount">0</span>
-        </div>
-        <div class="stat-badge stat-badge--total">
-          <i class="fas fa-microchip"></i>
-          Total: <span id="totalCount">0</span>
-        </div>
+<body>
+  <div class="dashboard-layout active">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>🏛️ SIRIN MUSEUM</h2>
+        <div class="role">เจ้าหน้าที่</div>
       </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
+        <li class="nav-item"><a class="nav-link active" href="#">🛠️ จัดการอุปกรณ์</a></li>
+      </ul>
+      <button class="logout-btn">🚪 ออกจากระบบ</button>
     </div>
 
-    <!-- Controls -->
-    <div class="manage-device__controls">
-      <div class="search-container">
-        <input type="text" class="search-input" placeholder="ค้นหาอุปกรณ์..." id="searchInput">
-        <i class="fas fa-search search-icon"></i>
+    <!-- Content -->
+    <div class="main-content">
+      <div class="content-header">
+        <h1>จัดการอุปกรณ์</h1>
+        <p>รายการอุปกรณ์ที่ลงทะเบียน</p>
       </div>
-      <button class="refresh-btn" id="refreshBtn">
-        <i class="fas fa-sync-alt"></i>
-        รีเฟรช
-      </button>
-    </div>
 
-    <!-- Main Table -->
-    <table class="manage-device__table">
-      <thead>
-        <tr>
-          <th><input type="checkbox" id="select-all" /></th>
-          <th>ชื่ออุปกรณ์</th>
-          <th>สถานะ</th>
-          <th>อัปเดตล่าสุด</th>
-          <th>จำนวนข้อมูล</th>
-          <th>จัดการ</th>
-        </tr>
-      </thead>
-      <tbody id="hostTableBody">
-        <tr id="noDataRow">
-          <td colspan="6" style="text-align: center;">กำลังโหลดข้อมูล...</td>
-        </tr>
-      </tbody>
-    </table>
+      <div class="manage-device__container">
+        <div class="manage-device__header">
+          <h2 class="manage-device__title">จัดการอุปกรณ์ Host</h2>
+          <div class="manage-device__stats">
+            <div class="stat-badge stat-badge--online"><i class="fas fa-circle"></i> Online: <span id="onlineCount">0</span></div>
+            <div class="stat-badge stat-badge--offline"><i class="fas fa-circle"></i> Offline: <span id="offlineCount">0</span></div>
+            <div class="stat-badge stat-badge--total"><i class="fas fa-microchip"></i> Total: <span id="totalCount">0</span></div>
+          </div>
+        </div>
 
-    <!-- Selection Info -->
-    <div class="selection-info">
-      <div class="selection-count">
-        เลือกแล้ว: <span id="selectedCount">0</span> รายการ
+        <div class="manage-device__controls">
+          <div class="search-container">
+            <input type="text" class="search-input" placeholder="ค้นหาอุปกรณ์.." id="searchInput">
+            <i class="fas fa-search search-icon"></i>
+          </div>
+          <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> รีเฟรช</button>
+        </div>
+
+        <table class="manage-device__table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="select-all" /></th>
+              <th>ชื่ออุปกรณ์</th>
+              <th>สถานะ</th>
+              <th>อัปเดตล่าสุด</th>
+              <th>จำนวนข้อมูล</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="hostTableBody">
+            <tr id="noDataRow">
+              <td colspan="6" style="text-align: center;">กำลังโหลดข้อมูล...</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="selection-info">
+          <div class="selection-count">เลือกแล้ว: <span id="selectedCount">0</span> รายการ</div>
+          <div class="bulk-actions">
+            <button class="bulk-btn select-all-btn" id="selectAllBtn"><i class="fas fa-check-square"></i> เลือกทั้งหมด</button>
+            <button class="bulk-btn clear-selection-btn" id="clearSelectionBtn"><i class="fas fa-times"></i> ยกเลิกการเลือก</button>
+            <button class="bulk-btn bulk-delete-btn" id="bulkDeleteBtn"><i class="fas fa-trash-alt"></i> ลบที่เลือก</button>
+          </div>
+        </div>
+
+        <div class="manage-device__actions">
+          <button class="manage-device__confirm-btn" id="confirmBtn"><i class="fas fa-save"></i> ยืนยันการเปลี่ยนแปลง</button>
+          <button class="manage-device__cancel-btn" id="cancelBtn"><i class="fas fa-times"></i> ยกเลิก</button>
+        </div>
       </div>
-      <div class="bulk-actions">
-        <button class="bulk-btn select-all-btn" id="selectAllBtn">
-          <i class="fas fa-check-square"></i>
-          เลือกทั้งหมด
-        </button>
-        <button class="bulk-btn clear-selection-btn" id="clearSelectionBtn">
-          <i class="fas fa-times"></i>
-          ยกเลิกการเลือก
-        </button>
-        <button class="bulk-btn bulk-delete-btn" id="bulkDeleteBtn">
-          <i class="fas fa-trash-alt"></i>
-          ลบที่เลือก
-        </button>
-      </div>
-    </div>
-
-    <!-- Action Buttons -->
-    <div class="manage-device__actions">
-      <button class="manage-device__confirm-btn" id="confirmBtn">
-        <i class="fas fa-save"></i>
-        ยืนยันการเปลี่ยนแปลง
-      </button>
-      <button class="manage-device__cancel-btn" id="cancelBtn">
-        <i class="fas fa-times"></i>
-        ยกเลิก
-      </button>
     </div>
   </div>
-
   <script src="../../assets/js/manage-device.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
-
 </html>
