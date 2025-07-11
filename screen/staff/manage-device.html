@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SIRIN MUSEUM - จัดการอุปกรณ์</title>
-  <link rel="stylesheet" href="../../assets/css/staff-sidebar.css" />
+  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
   <link rel="stylesheet" href="../../assets/css/manage_device.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <div class="dashboard-layout active">
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-header">
         <h2>SIRIN MUSEUM</h2>
-        <div class="role">เจ้าหน้าที่</div>
+        <div class="role">STAFF</div>
       </div>
-      
-      <!-- User Profile Section -->
+
       <div class="user-profile">
-        <div class="profile-avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div class="profile-name" id="sidebarUserName">คุณสมชาย ใจดี</div>
-        <div class="profile-role" id="sidebarUserRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
-        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 09:30</div>
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div class="profile-name" id="profileName">คุณสมสวย</div>
+        <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
+        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
       </div>
-      
+
       <ul class="nav-menu">
         <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
         <li class="nav-item"><a class="nav-link active" href="#">🛠️ จัดการอุปกรณ์</a></li>
       </ul>
-      <button class="logout-btn" onclick="logout()">🚪 ออกจากระบบ</button>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
     <!-- Main Content -->
@@ -112,9 +111,9 @@
     const currentUser = {
       name: 'คุณสมชาย ใจดี',
       role: 'เจ้าหน้าที่พิพิธภัณฑ์',
-      loginTime: new Date().toLocaleTimeString('th-TH', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      loginTime: new Date().toLocaleTimeString('th-TH', {
+        hour: '2-digit',
+        minute: '2-digit'
       })
     };
 
@@ -174,7 +173,7 @@
 
     // ฟังก์ชันแสดงสถานะ
     function getStatusBadge(status) {
-      switch(status) {
+      switch (status) {
         case 'returned':
           return '<span class="status-badge status-returned">ว่าง</span>';
         case 'active':
@@ -187,12 +186,12 @@
     // ฟังก์ชันโหลดข้อมูลในตาราง
     function loadVisitorsTable(data = visitorsData) {
       const tableBody = document.getElementById('visitorsTable');
-      
+
       if (data.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="7" class="no-data">ไม่พบข้อมูลผู้เยี่ยมชม</td></tr>';
         return;
       }
-      
+
       tableBody.innerHTML = data.map(visitor => {
         return `
           <tr>
@@ -203,12 +202,12 @@
             <td>${visitor.checkIn}</td>
             <td>${getStatusBadge(visitor.status)}</td>
             <td>
-              ${visitor.status !== 'returned' ? 
-                `<button class="btn btn-return" onclick="returnEquipment('${visitor.id}')">
+              ${visitor.status !== 'returned' ?
+            `<button class="btn btn-return" onclick="returnEquipment('${visitor.id}')">
                   <i class="fas fa-undo"></i> คืนอุปกรณ์
-                </button>` : 
-                '<span style="color: #28a745;">✓ คืนแล้ว</span>'
-              }
+                </button>` :
+            '<span style="color: #28a745;">✓ คืนแล้ว</span>'
+          }
             </td>
           </tr>
         `;
@@ -221,7 +220,7 @@
       const sidebarUserName = document.getElementById('sidebarUserName');
       const sidebarUserRole = document.getElementById('sidebarUserRole');
       const sidebarLoginTime = document.getElementById('sidebarLoginTime');
-      
+
       if (sidebarUserName) {
         sidebarUserName.textContent = currentUser.name;
       }
@@ -237,7 +236,7 @@
     function updateStatistics() {
       const returned = visitorsData.filter(v => v.status === 'returned').length;
       const active = visitorsData.filter(v => v.status === 'active').length;
-      
+
       document.getElementById('returnedCount').textContent = returned;
       document.getElementById('activeCount').textContent = active;
     }
@@ -246,14 +245,14 @@
     function searchVisitors() {
       const searchType = document.getElementById('searchType').value;
       const searchValue = document.getElementById('searchValue').value.toLowerCase().trim();
-      
+
       if (!searchValue) {
         loadVisitorsTable();
         return;
       }
-      
+
       const filteredData = visitorsData.filter(visitor => {
-        switch(searchType) {
+        switch (searchType) {
           case 'name':
             return (visitor.firstName + ' ' + visitor.lastName).toLowerCase().includes(searchValue);
           case 'beacon':
@@ -264,9 +263,9 @@
             return false;
         }
       });
-      
+
       loadVisitorsTable(filteredData);
-      
+
       if (filteredData.length === 0) {
         Swal.fire('ไม่พบข้อมูล', 'ไม่พบข้อมูลที่ค้นหา', 'info');
       }
@@ -288,15 +287,15 @@
           const visitor = visitorsData.find(v => v.id === visitorId);
           if (visitor) {
             visitor.status = 'returned';
-            visitor.checkOut = new Date().toLocaleTimeString('th-TH', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
+            visitor.checkOut = new Date().toLocaleTimeString('th-TH', {
+              hour: '2-digit',
+              minute: '2-digit'
             });
-            
+
             // อัปเดตตารางและสถิติ
             loadVisitorsTable();
             updateStatistics();
-            
+
             Swal.fire(
               'คืนอุปกรณ์สำเร็จ!',
               `คืนอุปกรณ์ของ ${visitor.firstName} ${visitor.lastName} เรียบร้อยแล้ว`,
@@ -332,25 +331,56 @@
     }
 
     // Event listener สำหรับการค้นหาแบบ real-time
-    document.getElementById('searchValue').addEventListener('input', function(e) {
+    document.getElementById('searchValue').addEventListener('input', function (e) {
       if (e.target.value === '') {
         loadVisitorsTable();
       }
     });
 
     // Event listener สำหรับ Enter key
-    document.getElementById('searchValue').addEventListener('keypress', function(e) {
+    document.getElementById('searchValue').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') {
         searchVisitors();
       }
     });
 
     // เรียกใช้เมื่อโหลดหน้า
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       updateUserInfo();
       loadVisitorsTable();
       updateStatistics();
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const firstname = localStorage.getItem("firstname");
+      const lastname = localStorage.getItem("lastname");
+      const role = localStorage.getItem("role");
+      const loginTime = localStorage.getItem("loginTime");
+
+      if (firstname && lastname) {
+        document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
+      }
+
+      if (role) {
+        const roleText = {
+          admin: "ผู้ดูแลระบบ",
+          manager: "ผู้บริหาร",
+          staff: "เจ้าหน้าที่"
+        };
+        document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
+      }
+
+      if (loginTime) {
+        document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
+      }
+    });
+
+    // ฟังก์ชัน logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = '../login.html';
+    }
   </script>
 </body>
+
 </html>

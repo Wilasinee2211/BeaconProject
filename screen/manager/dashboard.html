@@ -1,66 +1,286 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
-  <link rel="stylesheet" href="../../assets/css/manager_styles.css"> 
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+  <link rel="stylesheet" href="../../assets/css/dashboard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body class="dashboard-body">
-  <div class="dashboard-card">
-    <h1>สถิติระบบ</h1>
-    
-    <div class="dashboard-grid">
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 1 ห้องเกริกไกรเจ้าฟ้านักอนุรักษ์</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=16&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
+
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>SIRIN MUSEUM</h2>
+        <div class="role">MANAGER</div>
       </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 2 หอวัตถุทรัพย์สิ่งล้นตน</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=19&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
+
+      <div class="user-profile">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div class="profile-name" id="profileName">คุณผู้บริหาร</div>
+        <div class="profile-role" id="profileRole">ผู้บริหารพิพิธภัณฑ์</div>
+        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
       </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 3 เขาหลวงทรัพยากรมากมี</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=20&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
-      </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 4 ศักยภาพมากล้นมีให้เห็น</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=22&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
-      </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 5 ทรัพยากรลุ่มน้ำปากพนัง</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=23&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
-      </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 6 ชายฝั่งอุดมสมบูรณ์</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=24&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
-      </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 7 บริบูรณ์ทรัพยากรอ่าวไทย</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=25&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
-      </div>
-      
-      <div class="dashboard-chart-box dashboard-card-item">
-        <h2>ห้องที่ 8 ประโยชน์แท้แก่มหาชน</h2>
-        <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=26&__feature.dashboardSceneSolo" width="600" height="400" frameborder="0"></iframe>
-      </div>
+
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active">📊 แดชบอร์ด</a>
+        </li>
+        <li class="nav-item">
+          <a href="export.html" class="nav-link">📈 รายงาน</a>
+        </li>
+      </ul>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
-    <div class="dashboard-chart-box2">
-      <h2>จำนวนคนทั้งหมดในวันนี้</h2>
-      <iframe src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1748059139091&to=1748080739091&timezone=browser&panelId=6&__feature.dashboardSceneSolo" style="width:100%; height:300px; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 6px; background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);"></iframe>
-    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-header">
+        <h1>แดชบอร์ด</h1>
+        <p>ภาพรวมระบบติดตามผู้เยี่ยมชม</p>
+      </div>
 
-    <div style="text-align: center; margin-top: 20px;">
-      <button class="dashboard-export-button" onclick="window.location.href='export.html'">นำออกข้อมูล</button>
+      <div class="tab-content active">
+        <!-- Statistics Cards -->
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">👥</div>
+              <div class="card-title">ผู้เยี่ยมชมวันนี้</div>
+            </div>
+            <div class="stat-number">127</div>
+            <div class="stat-label">คน</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(45deg, #3498db, #2980b9);">🏢</div>
+              <div class="card-title">ห้องที่เปิดใช้งาน</div>
+            </div>
+            <div class="stat-number">8</div>
+            <div class="stat-label">ห้อง</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">📡</div>
+              <div class="card-title">iBeacon ออนไลน์</div>
+            </div>
+            <div class="stat-number">45</div>
+            <div class="stat-label">อุปกรณ์</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">⏱️</div>
+              <div class="card-title">เวลาเฉลี่ย</div>
+            </div>
+            <div class="stat-number">2.5</div>
+            <div class="stat-label">ชั่วโมง</div>
+          </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">📊</div>
+            <div class="card-title">รายงานและข้อมูล</div>
+          </div>
+          <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+            <button class="btn" onclick="exportDailyReport()">📄 รายงานประจำวัน</button>
+            <button class="btn" onclick="exportWeeklyReport()">📅 รายงานสัปดาห์</button>
+            <button class="btn" onclick="exportMonthlyReport()">📆 รายงานประจำเดือน</button>
+            <button class="btn" onclick="exportVisitorReport()">👥 รายงานผู้เยี่ยมชม</button>
+            <button class="btn" onclick="exportEquipmentReport()">🏷️ รายงานอุปกรณ์</button>
+          </div>
+        </div>
+
+        <!-- Section Divider -->
+        <div class="section-divider">
+          <h2>🏛️ สถิติแต่ละห้อง</h2>
+          <p>ข้อมูลผู้เยี่ยมชมแยกตามห้องแสดงนิทรรศการ</p>
+        </div>
+
+        <!-- Room Dashboard Grid -->
+        <div class="room-dashboard-grid">
+          <div class="room-card">
+            <h3>ห้องที่ 1 - ห้องเกริกไกรเจ้าฟ้านักอนุรักษ์</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=16&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 2 - หอวัตถุทรัพย์สิ่งล้นตน</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=19&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 3 - เขาหลวงทรัพยากรมากมี</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=20&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 4 - ศักยภาพมากล้นมีให้เห็น</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=22&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 5 - ทรัพยากรลุ่มน้ำปากพนัง</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=23&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 6 - ชายฝั่งอุดมสมบูรณ์</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=24&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 7 - บริบูรณ์ทรัพยากรอ่าวไทย</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=25&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+
+          <div class="room-card">
+            <h3>ห้องที่ 8 - ประโยชน์แท้แก่มหาชน</h3>
+            <iframe
+              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=26&__feature.dashboardSceneSolo"
+              frameborder="0"></iframe>
+          </div>
+        </div>
+
+        <!-- Total Visitors Section -->
+        <div class="total-visitors-card">
+          <h3>📊 จำนวนคนทั้งหมดในวันนี้</h3>
+          <iframe
+            src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1748059139091&to=1748080739091&timezone=browser&panelId=6&__feature.dashboardSceneSolo"
+            frameborder="0"></iframe>
+        </div>
+
+        <!-- Real-time Activity Table -->
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>เวลา</th>
+                <th>ผู้เยี่ยมชม</th>
+                <th>iBeacon</th>
+                <th>ห้อง</th>
+                <th>กิจกรรม</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="realtimeTable">
+              <tr>
+                <td>14:35:22</td>
+                <td>น้องมินิ</td>
+                <td>TAG001</td>
+                <td>ห้องประวัติศาสตร์</td>
+                <td>เข้าห้อง</td>
+                <td><span class="badge badge-success">ปกติ</span></td>
+              </tr>
+              <tr>
+                <td>14:33:15</td>
+                <td>คุณสมชาย</td>
+                <td>TAG005</td>
+                <td>ห้องศิลปะ</td>
+                <td>ออกจากห้อง</td>
+                <td><span class="badge badge-warning">ช้า</span></td>
+              </tr>
+              <tr>
+                <td>14:32:08</td>
+                <td>น้องแป้ง</td>
+                <td>TAG003</td>
+                <td>ห้องวิทยาศาสตร์</td>
+                <td>เข้าห้อง</td>
+                <td><span class="badge badge-success">ปกติ</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script>
+
+    // Mock functions for button clicks
+    function exportDailyReport() {
+      alert('กำลังส่งออกรายงานประจำวัน...');
+    }
+
+    function exportWeeklyReport() {
+      alert('กำลังส่งออกรายงานสัปดาห์...');
+    }
+
+    function exportMonthlyReport() {
+      alert('กำลังส่งออกรายงานประจำเดือน...');
+    }
+
+    function exportVisitorReport() {
+      alert('กำลังส่งออกรายงานผู้เยี่ยมชม...');
+    }
+
+    function exportEquipmentReport() {
+      alert('กำลังส่งออกรายงานอุปกรณ์...');
+    }
+
+    // Simulate real-time data updates
+    function updateRealtimeData() {
+      const table = document.getElementById('realtimeTable');
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('th-TH', { hour12: false });
+
+      // Example of adding new row (you can implement actual data fetching here)
+      console.log('Real-time data updated at:', timeString);
+    }
+
+    // Update every 30 seconds
+    setInterval(updateRealtimeData, 30000);
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const firstname = localStorage.getItem("firstname");
+      const lastname = localStorage.getItem("lastname");
+      const role = localStorage.getItem("role");
+      const loginTime = localStorage.getItem("loginTime");
+
+      if (firstname && lastname) {
+        document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
+      }
+
+      if (role) {
+        const roleText = {
+          admin: "ผู้ดูแลระบบ",
+          manager: "ผู้บริหาร",
+          staff: "เจ้าหน้าที่"
+        };
+        document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
+      }
+
+      if (loginTime) {
+        document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
+      }
+    });
+
+    // ฟังก์ชัน logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = '../login.html';
+    }
+  </script>
 </body>
+
 </html>

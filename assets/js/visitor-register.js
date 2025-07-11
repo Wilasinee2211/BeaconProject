@@ -99,3 +99,9 @@ document.getElementById("visitorRegisterForm").addEventListener("submit", functi
       });
     });
 });
+
+function logout() {
+      localStorage.removeItem("role");
+      localStorage.removeItem("fullname");
+      window.location.href = "../login.html";
+    }

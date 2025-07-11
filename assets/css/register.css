@@ -16,131 +16,6 @@ body {
     min-height: 100vh;
 }
 
-.sidebar {
-    width: 280px;
-    background: linear-gradient(180deg, #2a8c78, #114345);
-    color: white;
-    padding: 20px 0;
-    height: 100vh;
-    position: fixed;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-header {
-    padding: 0 20px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.sidebar-header h2 {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-    font-weight: 600;
-}
-
-.form-container h2 {
-  color: #2a8c78;
-}
-
-.sidebar-header .role {
-    font-size: 0.9rem;
-    opacity: 0.8;
-}
-
-/* User Profile Section in Sidebar */
-.user-profile {
-    padding: 20px;
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
-    margin: 0 20px 20px;
-    text-align: center;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.user-profile .profile-avatar {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #4ecdc4, #20c997);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    font-size: 24px;
-    color: white;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.user-profile .profile-name {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: white;
-}
-
-.user-profile .profile-role {
-    font-size: 12px;
-    opacity: 0.9;
-    color: #4ecdc4;
-    font-weight: 500;
-}
-
-.user-profile .profile-time {
-    font-size: 11px;
-    opacity: 0.7;
-    margin-top: 8px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.nav-menu {
-    list-style: none;
-    padding-left: 0;
-    margin-top: 20px;
-}
-
-.nav-item {
-    margin-bottom: 5px;
-}
-
-.nav-link {
-    display: block;
-    padding: 15px 20px;
-    color: white;
-    text-decoration: none;
-    transition: all 0.3s;
-    cursor: pointer;
-    border-left: 4px solid transparent;
-}
-
-.nav-link:hover,
-.nav-link.active {
-    background: rgba(255, 255, 255, 0.1);
-    border-left-color: #4ecdc4;
-}
-
-.logout-btn {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
-    padding: 12px;
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-    font-family: 'Kanit', sans-serif;
-    font-weight: 500;
-}
-
-.logout-btn:hover {
-    background: #c82333;
-}
-
 .main-content {
     margin-left: 280px;
     padding: 30px;
@@ -175,6 +50,10 @@ body {
     margin-bottom: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
+}
+
+.form-container h2 {
+    color: #2a8c78;
 }
 
 .form-grid {
@@ -374,3 +253,77 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.password-field {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 16px;
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+.form-group input[type="password"],
+.form-group input[type="text"] {
+    padding-right: 40px;
+}
+.error-message {
+  display: none;
+  color: #dc3545;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 5px;
+  padding: 3px 8px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+}
+
+.error-message:not(:empty) {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* เพิ่มไอคอน Error */
+.error-message::before {
+  content: "⚠️ ";
+  margin-right: 4px;
+}
+
+/* สไตล์สำหรับ input ที่มี error */
+.form-group input.error,
+.form-group select.error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Animation สำหรับ error message */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-message.show {
+  animation: slideDown 0.3s ease;
+}
+

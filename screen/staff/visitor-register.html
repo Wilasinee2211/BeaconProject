@@ -1,42 +1,41 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SIRIN MUSEUM - ลงทะเบียนผู้เยี่ยมชม</title>
-  <link rel="stylesheet" href="../../assets/css/staff-sidebar.css" />
-  <link rel="stylesheet" href="../../assets/css/manage_device.css" />
+  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+  <link rel="stylesheet" href="../../assets/css/visitor-register.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
   <div class="dashboard-layout active">
-  <!-- Sidebar -->
-  <div class="sidebar">
+    <!-- Sidebar -->
+    <div class="sidebar">
       <div class="sidebar-header">
         <h2>SIRIN MUSEUM</h2>
-        <div class="role">เจ้าหน้าที่</div>
+        <div class="role">STAFF</div>
       </div>
-    <!-- ✅ เพิ่ม User Profile Section -->
-    <div class="user-profile">
-      <div class="profile-avatar">
-        <i class="fas fa-user"></i>
+      <div class="user-profile">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div class="profile-name" id="profileName">คุณสมสวย</div>
+        <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
+        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
       </div>
-      <div class="profile-name" id="sidebarUserName">คุณสมชาย ใจดี</div>
-      <div class="profile-role" id="sidebarUserRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
-      <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 09:30</div>
-    </div>
 
-    <ul class="nav-menu">
-      <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
-      <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
-    </ul>
-    <button class="logout-btn">🚪 ออกจากระบบ</button>
-  </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
+        <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+      </ul>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -117,19 +116,19 @@
       const birth = new Date(birthDate);
       let age = today.getFullYear() - birth.getFullYear();
       const monthDiff = today.getMonth() - birth.getMonth();
-      
+
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
         age--;
       }
-      
+
       return age;
     }
 
     // อัปเดตอายุเมื่อเลือกวันเกิด
-    document.getElementById('visitorBirthdate').addEventListener('change', function() {
+    document.getElementById('visitorBirthdate').addEventListener('change', function () {
       const birthDate = this.value;
       const ageDisplay = document.getElementById('ageDisplay');
-      
+
       if (birthDate) {
         const age = calculateAge(birthDate);
         ageDisplay.textContent = `อายุ: ${age} ปี`;
@@ -169,9 +168,9 @@
       };
 
       console.log('ข้อมูลที่จะบันทึก:', visitorData);
-      
+
       Swal.fire('สำเร็จ!', `ลงทะเบียนผู้เยี่ยมชม ${firstName} ${lastName} (อายุ ${age} ปี) เรียบร้อยแล้ว`, 'success');
-      
+
       // ล้างฟอร์ม
       document.getElementById('visitorFirstName').value = '';
       document.getElementById('visitorLastName').value = '';
@@ -180,7 +179,7 @@
       document.getElementById('visitorGroup').value = '';
       document.getElementById('visitorBeacon').value = '';
       document.getElementById('ageDisplay').textContent = '';
-      
+
       // เรียกใช้ฟังก์ชันโหลดข้อมูลใหม่
       loadVisitors();
     }
@@ -259,9 +258,40 @@
     }
 
     // เรียกใช้เมื่อโหลดหน้าเว็บ
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       loadVisitors();
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const firstname = localStorage.getItem("firstname");
+      const lastname = localStorage.getItem("lastname");
+      const role = localStorage.getItem("role");
+      const loginTime = localStorage.getItem("loginTime");
+
+      if (firstname && lastname) {
+        document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
+      }
+
+      if (role) {
+        const roleText = {
+          admin: "ผู้ดูแลระบบ",
+          manager: "ผู้บริหาร",
+          staff: "เจ้าหน้าที่"
+        };
+        document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
+      }
+
+      if (loginTime) {
+        document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
+      }
+    });
+
+    // ฟังก์ชัน logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = '../login.html';
+    }
   </script>
 </body>
+
 </html>
