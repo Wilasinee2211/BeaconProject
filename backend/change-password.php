@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 // การเชื่อมต่อฐานข้อมูล
 $host = "localhost";
-$port = 3306;
+$port = 8889;
 $dbname = "beacon_db";
 $username = "root";
 $password = "root";
