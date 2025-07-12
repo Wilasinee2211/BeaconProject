@@ -25,8 +25,8 @@
       </div>
       <div class="user-profile">
         <div class="profile-avatar"><i class="fas fa-user"></i></div>
-        <div class="profile-name" id="profileName">คุณสมสวย</div>
-        <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
+        <div class="profile-name" id="profileName">เจ้าหน้าที่</div>
+        <div class="profile-role" id="profileRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
         <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
       </div>
 
@@ -41,48 +41,97 @@
     <div class="main-content">
       <div class="content-header">
         <h1>ลงทะเบียนผู้เยี่ยมชม</h1>
-        <p>กรอกข้อมูลผู้เยี่ยมชมเพื่อจัดการอุปกรณ์</p>
+        <p>เลือกประเภทการลงทะเบียนและกรอกข้อมูลผู้เยี่ยมชม</p>
       </div>
 
       <div class="form-container">
-        <h2 style="margin-bottom: 20px; color: #2a8c78;">➕ ลงทะเบียนผู้เยี่ยมชม</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>ชื่อ:</label>
-            <input type="text" id="visitorFirstName" placeholder="กรอกชื่อ">
+        <h2 style="margin-bottom: 30px; color: #2a8c78; text-align: center;">ลงทะเบียนผู้เยี่ยมชม</h2>
+        
+        <!-- เลือกประเภทการลงทะเบียน -->
+        <div class="registration-type">
+          <div class="type-option active" onclick="selectType('individual')">
+            <div class="icon">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3>ลงทะเบียนเดี่ยว</h3>
+            <p>ลงทะเบียนผู้เยี่ยมชม 1 คน<br>กรอกข้อมูลส่วนบุคคลครบถ้วน</p>
           </div>
-          <div class="form-group">
-            <label>นามสกุล:</label>
-            <input type="text" id="visitorLastName" placeholder="กรอกนามสกุล">
-          </div>
-          <div class="form-group">
-            <label>วันเกิด:</label>
-            <input type="date" id="visitorBirthdate" placeholder="เลือกวันเกิด">
-            <div class="age-display" id="ageDisplay"></div>
-          </div>
-          <div class="form-group">
-            <label>เพศ:</label>
-            <select id="visitorGender">
-              <option value="">เลือกเพศ</option>
-              <option value="male">ชาย</option>
-              <option value="female">หญิง</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>กลุ่ม:</label>
-            <input type="text" id="visitorGroup" placeholder="ชื่อกลุ่ม (ถ้ามี)">
-          </div>
-          <div class="form-group">
-            <label>iBeacon Tag:</label>
-            <select id="visitorBeacon">
-              <option value="">เลือก iBeacon</option>
-              <option value="TAG001">TAG001 - เด็กชาย 1</option>
-              <option value="TAG002">TAG002 - เด็กหญิง 1</option>
-              <option value="TAG003">TAG003 - ผู้ใหญ่ 1</option>
-            </select>
+          <div class="type-option" onclick="selectType('group')">
+            <div class="icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3>ลงทะเบียนกลุ่ม</h3>
+            <p>ลงทะเบียนผู้เยี่ยมชมเป็นกลุ่ม<br>กรอกข้อมูลกลุ่มและจำนวนคน</p>
           </div>
         </div>
-        <button class="btn" onclick="addVisitor()">เพิ่มผู้เยี่ยมชม</button>
+
+        <!-- ฟอร์มลงทะเบียนเดี่ยว -->
+        <div class="form-section active" id="individualForm">
+          <div class="form-grid individual">
+            <div class="form-group">
+              <label>ชื่อ:</label>
+              <input type="text" id="visitorFirstName" placeholder="กรอกชื่อ">
+            </div>
+            <div class="form-group">
+              <label>นามสกุล:</label>
+              <input type="text" id="visitorLastName" placeholder="กรอกนามสกุล">
+            </div>
+            <div class="form-group">
+              <label>วันเกิด:</label>
+              <input type="date" id="visitorBirthdate">
+              <div class="age-display" id="ageDisplay"></div>
+            </div>
+            <div class="form-group">
+              <label>เพศ:</label>
+              <select id="visitorGender">
+                <option value="">เลือกเพศ</option>
+                <option value="male">ชาย</option>
+                <option value="female">หญิง</option>
+                <option value="other">อื่นๆ</option>
+              </select>
+            </div>
+            <div class="form-group full-width">
+              <label>iBeacon Tag:</label>
+              <select id="visitorBeacon">
+                <option value="">เลือก iBeacon</option>
+                <option value="TAG001">TAG001 - เด็กชาย 1</option>
+                <option value="TAG002">TAG002 - เด็กหญิง 1</option>
+                <option value="TAG003">TAG003 - ผู้ใหญ่ 1</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn" onclick="addIndividualVisitor()">เพิ่มผู้เยี่ยมชม</button>
+        </div>
+
+        <!-- ฟอร์มลงทะเบียนกลุ่ม -->
+        <div class="form-section" id="groupForm">
+          <div class="form-grid group">
+            <div class="form-group">
+              <label>ชื่อกลุ่ม:</label>
+              <input type="text" id="groupName" placeholder="เช่น: โรงเรียนวัดใหญ่">
+            </div>
+            <div class="form-group">
+              <label>จำนวนผู้เยี่ยมชม:</label>
+              <input type="number" id="groupSize" placeholder="จำนวนคน" min="1">
+            </div>
+            <div class="form-group">
+              <label>ประเภทกลุ่ม:</label>
+              <select id="groupType">
+                <option value="">เลือกประเภท</option>
+                <option value="student">นักเรียน</option>
+                <option value="tourist">นักท่องเที่ยว</option>
+                <option value="family">ครอบครัว</option>
+                <option value="corporate">องค์กร/บริษัท</option>
+                <option value="other">อื่นๆ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ผู้นำกลุ่ม:</label>
+              <input type="text" id="groupLeader" placeholder="ชื่อผู้นำกลุ่ม">
+            </div>
+          </div>
+          <button class="btn" onclick="addGroupVisitor()">เพิ่มกลุ่มผู้เยี่ยมชม</button>
+        </div>
       </div>
 
       <div class="table-container">
@@ -90,11 +139,11 @@
           <thead>
             <tr>
               <th>ID</th>
-              <th>ชื่อ</th>
-              <th>นามสกุล</th>
-              <th>อายุ</th>
+              <th>ชื่อ/กลุ่ม</th>
+              <th>ประเภท</th>
+              <th>จำนวน</th>
+              <th>อายุ/ข้อมูล</th>
               <th>เพศ</th>
-              <th>กลุ่ม</th>
               <th>iBeacon</th>
               <th>เข้าชม</th>
               <th>ออก</th>
@@ -110,6 +159,29 @@
   </div>
 
   <script>
+    let currentType = 'individual';
+
+    // ฟังก์ชันเลือกประเภทการลงทะเบียน
+    function selectType(type) {
+      currentType = type;
+      
+      // อัปเดต UI
+      document.querySelectorAll('.type-option').forEach(option => {
+        option.classList.remove('active');
+      });
+      document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      if (type === 'individual') {
+        document.querySelector('.type-option:first-child').classList.add('active');
+        document.getElementById('individualForm').classList.add('active');
+      } else {
+        document.querySelector('.type-option:last-child').classList.add('active');
+        document.getElementById('groupForm').classList.add('active');
+      }
+    }
+
     // ฟังก์ชันคำนวณอายุจากวันเกิด
     function calculateAge(birthDate) {
       const today = new Date();
@@ -138,7 +210,8 @@
       }
     });
 
-    function addVisitor() {
+    // ฟังก์ชันเพิ่มผู้เยี่ยมชมเดี่ยว
+    function addIndividualVisitor() {
       const firstName = document.getElementById('visitorFirstName').value;
       const lastName = document.getElementById('visitorLastName').value;
       const birthDate = document.getElementById('visitorBirthdate').value;
@@ -153,9 +226,8 @@
 
       const age = calculateAge(birthDate);
 
-      // ที่นี่จะเชื่อมต่อกับฐานข้อมูลเพื่อบันทึกข้อมูล
-      // สร้าง object ข้อมูลที่จะส่งไปฐานข้อมูล
       const visitorData = {
+        type: 'individual',
         firstName: firstName,
         lastName: lastName,
         birthDate: birthDate,
@@ -167,11 +239,52 @@
         checkOut: '-'
       };
 
-      console.log('ข้อมูลที่จะบันทึก:', visitorData);
+      console.log('ข้อมูลผู้เยี่ยมชมเดี่ยว:', visitorData);
 
       Swal.fire('สำเร็จ!', `ลงทะเบียนผู้เยี่ยมชม ${firstName} ${lastName} (อายุ ${age} ปี) เรียบร้อยแล้ว`, 'success');
 
       // ล้างฟอร์ม
+      clearIndividualForm();
+      loadVisitors();
+    }
+
+    // ฟังก์ชันเพิ่มกลุ่มผู้เยี่ยมชม
+    function addGroupVisitor() {
+      const groupName = document.getElementById('groupName').value;
+      const groupSize = document.getElementById('groupSize').value;
+      const groupType = document.getElementById('groupType').value;
+      const groupLeader = document.getElementById('groupLeader').value;
+      const groupContact = document.getElementById('groupContact').value;
+      const groupNote = document.getElementById('groupNote').value;
+
+      if (!groupName || !groupSize || !groupType || !groupLeader || !groupContact) {
+        Swal.fire('กรอกข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบถ้วนทุกช่องที่จำเป็น', 'warning');
+        return;
+      }
+
+      const groupData = {
+        type: 'group',
+        groupName: groupName,
+        groupSize: parseInt(groupSize),
+        groupType: groupType,
+        groupLeader: groupLeader,
+        groupContact: groupContact,
+        groupNote: groupNote || '-',
+        checkIn: new Date().toLocaleString('th-TH'),
+        checkOut: '-'
+      };
+
+      console.log('ข้อมูลกลุ่มผู้เยี่ยมชม:', groupData);
+
+      Swal.fire('สำเร็จ!', `ลงทะเบียนกลุ่ม "${groupName}" จำนวน ${groupSize} คน เรียบร้อยแล้ว`, 'success');
+
+      // ล้างฟอร์ม
+      clearGroupForm();
+      loadVisitors();
+    }
+
+    // ฟังก์ชันล้างฟอร์มเดี่ยว
+    function clearIndividualForm() {
       document.getElementById('visitorFirstName').value = '';
       document.getElementById('visitorLastName').value = '';
       document.getElementById('visitorBirthdate').value = '';
@@ -179,9 +292,16 @@
       document.getElementById('visitorGroup').value = '';
       document.getElementById('visitorBeacon').value = '';
       document.getElementById('ageDisplay').textContent = '';
+    }
 
-      // เรียกใช้ฟังก์ชันโหลดข้อมูลใหม่
-      loadVisitors();
+    // ฟังก์ชันล้างฟอร์มกลุ่ม
+    function clearGroupForm() {
+      document.getElementById('groupName').value = '';
+      document.getElementById('groupSize').value = '';
+      document.getElementById('groupType').value = '';
+      document.getElementById('groupLeader').value = '';
+      document.getElementById('groupContact').value = '';
+      document.getElementById('groupNote').value = '';
     }
 
     function editVisitor(visitorId) {
@@ -210,25 +330,51 @@
       const sampleData = [
         {
           id: 1,
-          firstName: 'สมชาย',
-          lastName: 'ใจดี',
-          age: 25,
+          type: 'individual',
+          name: 'สมชาย ใจดี',
+          dataType: 'บุคคล',
+          count: 1,
+          ageInfo: '25 ปี',
           gender: 'ชาย',
-          group: 'กลุ่ม A',
           beacon: 'TAG001',
           checkIn: '09:30',
           checkOut: '-'
         },
         {
           id: 2,
-          firstName: 'สมหญิง',
-          lastName: 'รักเรียน',
-          age: 30,
+          type: 'individual',
+          name: 'สมหญิง รักเรียน',
+          dataType: 'บุคคล',
+          count: 1,
+          ageInfo: '30 ปี',
           gender: 'หญิง',
-          group: 'กลุ่ม B',
           beacon: 'TAG002',
           checkIn: '10:15',
           checkOut: '14:30'
+        },
+        {
+          id: 3,
+          type: 'group',
+          name: 'โรงเรียนวัดใหญ่',
+          dataType: 'กลุ่ม',
+          count: 25,
+          ageInfo: 'นักเรียน',
+          gender: 'ผสม',
+          beacon: 'TAG003-027',
+          checkIn: '08:45',
+          checkOut: '-'
+        },
+        {
+          id: 4,
+          type: 'group',
+          name: 'ครอบครัวสมิท',
+          dataType: 'กลุ่ม',
+          count: 5,
+          ageInfo: 'ครอบครัว',
+          gender: 'ผสม',
+          beacon: 'TAG028-032',
+          checkIn: '11:20',
+          checkOut: '-'
         }
       ];
 
@@ -239,11 +385,11 @@
         const row = `
           <tr>
             <td>${visitor.id}</td>
-            <td>${visitor.firstName}</td>
-            <td>${visitor.lastName}</td>
-            <td>${visitor.age}</td>
+            <td>${visitor.name}</td>
+            <td>${visitor.dataType}</td>
+            <td>${visitor.count}</td>
+            <td>${visitor.ageInfo}</td>
             <td>${visitor.gender}</td>
-            <td>${visitor.group}</td>
             <td>${visitor.beacon}</td>
             <td>${visitor.checkIn}</td>
             <td>${visitor.checkOut}</td>
