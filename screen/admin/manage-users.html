@@ -5,37 +5,247 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>จัดการสิทธิ์</title>
-  <link rel="stylesheet" href="../../assets/css/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+  <link rel="stylesheet" href="../../assets/css/manage-users.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 
-<body class="manage-users">
-  <div class="manage-users__container">
-    <h2 class="manage-users__title">จัดการสิทธิ์</h2>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>SIRIN MUSEUM</h2>
+        <div class="role">ADMIN</div>
+      </div>
 
-    <div id="loadingStatus" style="margin-bottom: 20px; color: #666; text-align: center; font-size: 16px;"></div>
+      <div class="user-profile">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div class="profile-name" id="profileName">คุณสมสวย</div>
+        <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
+        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
+      </div>
 
-    <table class="manage-users__table">
-      <thead>
-        <tr>
-          <th>รหัสบัตรประชาชน</th>
-          <th>ชื่อ</th>
-          <th>นามสกุล</th>
-          <th>ตำแหน่ง</th>
-          <th>จัดการ</th>
-        </tr>
-      </thead>
-      <tbody id="userTableBody"></tbody>
-    </table>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="register.html" class="nav-link"><i class="fas fa-users"></i> ลงทะเบียนพนักงาน</a>
+        </li>
+        <li class="nav-item">
+          <a href="manage-users.html" class="nav-link active"><i class="fas fa-key"></i> จัดการสิทธิ์</a>
+        </li>
+      </ul>
 
-    <div class="manage-users__actions">
-      <button class="manage-users__confirm-btn" id="confirmBtn">ยืนยันสิทธิ์</button>
-      <button class="manage-users__cancel-btn" id="cancelBtn">ยกเลิก</button>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
-  </div>
 
-  <script src="../../assets/js/manage-users.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-header">
+        <h1>จัดการสิทธิ์</h1>
+        <p>กำหนดสิทธิ์การเข้าถึงของผู้ใช้งานในระบบ</p>
+      </div>
+
+      <div id="loadingStatus" style="margin-bottom: 20px; color: #666; text-align: center; font-size: 16px;"></div>
+
+      <!-- เพิ่มกล่องพื้นหลังขาว -->
+      <div class="form-container">
+
+        <!-- ช่องค้นหาใหม่ -->
+        <div class="search-container">
+          <div class="search-wrapper">
+            <input type="text" class="search-input" id="searchInput"
+              placeholder="ค้นหาผู้ใช้งาน (รหัสบัตร, ชื่อ, นามสกุล, ตำแหน่ง)" autocomplete="off">
+            <i class="fas fa-search search-icon"></i>
+          </div>
+          <div class="search-stats" id="searchStats"></div>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>รหัสบัตรประชาชน</th>
+                <th>ชื่อ</th>
+                <th>นามสกุล</th>
+                <th>ตำแหน่ง</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody">
+              <tr>
+                <td>1234567890123</td>
+                <td>สมชาย</td>
+                <td>ใจดี</td>
+                <td>เจ้าหน้าที่</td>
+                <td>
+                  <select class="role-dropdown">
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="staff" selected>เจ้าหน้าที่</option>
+                    <option value="manager">ผู้บริหาร</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>9876543210987</td>
+                <td>สมหญิง</td>
+                <td>แสนดี</td>
+                <td>เจ้าหน้าที่</td>
+                <td>
+                  <select class="role-dropdown">
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="staff" selected>เจ้าหน้าที่</option>
+                    <option value="manager">ผู้บริหาร</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>5555666677778</td>
+                <td>จิรายุ</td>
+                <td>รักสงบ</td>
+                <td>ผู้บริหาร</td>
+                <td>
+                  <select class="role-dropdown">
+                    <option value="admin">ผู้ดูแลระบบ</option>
+                    <option value="staff">เจ้าหน้าที่</option>
+                    <option value="manager" selected>ผู้บริหาร</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>1111222233334</td>
+                <td>มาลี</td>
+                <td>ขยันเรียน</td>
+                <td>ผู้ดูแลระบบ</td>
+                <td>
+                  <select class="role-dropdown">
+                    <option value="admin" selected>ผู้ดูแลระบบ</option>
+                    <option value="staff">เจ้าหน้าที่</option>
+                    <option value="manager">ผู้บริหาร</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ข้อความเมื่อไม่พบข้อมูล -->
+        <div class="no-results" id="noResults" style="display: none;">
+          <i class="fas fa-search"></i>
+          <h3>ไม่พบข้อมูลที่ค้นหา</h3>
+          <p>กรุณาลองใช้คำค้นหาอื่น หรือตรวจสอบการสะกดให้ถูกต้อง</p>
+        </div>
+
+        <!-- ปุ่มยืนยัน/ยกเลิก อยู่ในกล่องเดียวกัน -->
+        <div style="margin-top: 20px; display: flex; gap: 15px;">
+          <button class="btn" id="confirmBtn">ยืนยันสิทธิ์</button>
+          <button class="btn btn-return" id="cancelBtn">ยกเลิก</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // โหลดข้อมูลจาก localStorage
+        const firstname = localStorage.getItem('firstname');
+        const lastname = localStorage.getItem('lastname');
+        const role = localStorage.getItem('role');
+        const loginTime = localStorage.getItem('loginTime');
+
+        if (firstname && lastname) {
+          document.getElementById('profileName').textContent = `คุณ${firstname} ${lastname}`;
+        }
+
+        if (role) {
+          const roleText = {
+            'admin': 'ผู้ดูแลระบบ',
+            'manager': 'ผู้บริหาร',
+            'staff': 'เจ้าหน้าที่'
+          };
+          document.getElementById('profileRole').textContent = roleText[role] || 'ผู้ใช้งาน';
+        }
+
+        if (loginTime) {
+          document.getElementById('sidebarLoginTime').textContent = `เข้าสู่ระบบ: ${loginTime}`;
+        }
+
+        // ฟังก์ชันค้นหา
+        const searchInput = document.getElementById('searchInput');
+        const tableBody = document.getElementById('userTableBody');
+        const searchStats = document.getElementById('searchStats');
+        const noResults = document.getElementById('noResults');
+        const tableContainer = document.querySelector('.table-container');
+        const allRows = Array.from(tableBody.querySelectorAll('tr'));
+
+        function highlightText(text, searchTerm) {
+          if (!searchTerm) return text;
+          const regex = new RegExp(`(${searchTerm})`, 'gi');
+          return text.replace(regex, '<span class="search-highlight">$1</span>');
+        }
+
+        function performSearch() {
+          const searchTerm = searchInput.value.trim().toLowerCase();
+          let visibleCount = 0;
+
+          allRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const searchableText = Array.from(cells).slice(0, 4).map(cell => cell.textContent.toLowerCase()).join(' ');
+            const isMatch = searchableText.includes(searchTerm);
+
+            if (isMatch) {
+              row.style.display = '';
+              visibleCount++;
+
+              if (searchTerm) {
+                cells.forEach((cell, index) => {
+                  if (index < 4) {
+                    const originalText = cell.textContent;
+                    cell.innerHTML = highlightText(originalText, searchTerm);
+                  }
+                });
+              }
+            } else {
+              row.style.display = 'none';
+            }
+          });
+
+          if (searchTerm) {
+            searchStats.innerHTML = `<i class="fas fa-info-circle"></i> แสดง <strong>${visibleCount}</strong> จาก <strong>${allRows.length}</strong> รายการ สำหรับคำค้นหา "<strong>${searchTerm}</strong>"`;
+          } else {
+            searchStats.innerHTML = `<i class="fas fa-users"></i> แสดงผู้ใช้งานทั้งหมด <strong>${allRows.length}</strong> รายการ`;
+          }
+
+          if (visibleCount === 0 && searchTerm) {
+            noResults.style.display = 'block';
+            tableContainer.style.display = 'none';
+          } else {
+            noResults.style.display = 'none';
+            tableContainer.style.display = 'block';
+          }
+        }
+
+        searchInput.addEventListener('input', performSearch);
+        searchInput.addEventListener('keyup', function (e) {
+          if (e.key === 'Escape') {
+            this.value = '';
+            performSearch();
+            this.blur();
+          }
+        });
+
+        performSearch(); // initial
+        document.getElementById('loadingStatus').textContent = 'กำลังโหลดข้อมูลผู้ใช้...';
+        setTimeout(() => {
+          document.getElementById('loadingStatus').textContent = '';
+        }, 1000);
+      });
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = '../login.html';
+      }
+    </script>
+
 </body>
 
 </html>

@@ -32,7 +32,7 @@ function renderUserTable() {
 
     const row = document.createElement('tr');
     row.id = `user-${user.id}`;
-    
+
     const originalUser = originalData.find(u => u.id == user.id);
     if (originalUser && user.role !== originalUser.role) {
       row.classList.add('row-modified');
@@ -64,7 +64,7 @@ function renderUserTable() {
 function handleRoleChange(selectElement) {
   const userId = selectElement.dataset.userid;
   const newRole = selectElement.value;
-  
+
   const userIndex = currentData.findIndex(u => u.id == userId);
   if (userIndex !== -1) {
     currentData[userIndex].role = newRole;
@@ -72,7 +72,7 @@ function handleRoleChange(selectElement) {
 
   const originalUser = originalData.find(u => u.id == userId);
   const row = document.getElementById(`user-${userId}`);
-  
+
   if (originalUser && newRole !== originalUser.role) {
     row.classList.add('row-modified');
   } else {
@@ -90,7 +90,7 @@ function handleDelete(userId) {
 document.getElementById('confirmBtn').addEventListener('click', async function () {
   const loadingStatus = document.getElementById('loadingStatus');
   loadingStatus.textContent = "กำลังอัปเดตข้อมูล...";
-  
+
   const updates = [];
 
   currentData.forEach(user => {
@@ -105,12 +105,12 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
 
   const updatePromise = updates.length > 0
     ? fetch('../../backend/admin/manage_users.php?action=update_users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ updates })
-      }).catch(error => {
-        console.error("Error updating roles:", error);
-      })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ updates })
+    }).catch(error => {
+      console.error("Error updating roles:", error);
+    })
     : Promise.resolve();
 
   const deletePromises = Array.from(deleteQueue).map(userId =>
@@ -167,3 +167,32 @@ document.getElementById('cancelBtn').addEventListener('click', async function ()
   }
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  const firstname = localStorage.getItem("firstname");
+  const lastname = localStorage.getItem("lastname");
+  const role = localStorage.getItem("role");
+  const loginTime = localStorage.getItem("loginTime");
+
+  if (firstname && lastname) {
+    document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
+  }
+
+  if (role) {
+    const roleText = {
+      admin: "ผู้ดูแลระบบ",
+      manager: "ผู้บริหาร",
+      staff: "เจ้าหน้าที่"
+    };
+    document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
+  }
+
+  if (loginTime) {
+    document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
+  }
+});
+
+// ฟังก์ชัน logout
+function logout() {
+  localStorage.clear();
+  window.location.href = '../login.html';
+}

@@ -1,77 +1,119 @@
 <!DOCTYPE html>
-<html lang="th" class="register-page">
+<html lang="th">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIRIN MUSEUM - Register</title>
-  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <title>SIRIN MUSEUM - ลงทะเบียนพนักงาน</title>
+  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+  <link rel="stylesheet" href="../../assets/css/register.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="register-page">
-  <div class="register-container">
-    <div class="register-left">
-      <img src="https://blog.wu.ac.th/wp-content/uploads/2022/11/S__12132393.jpg" alt="Register Image" />
-      <div class="register-overlay-center">
-        <h1>SIRIN MUSEUM</h1>
-        <p>พิพิธภัณฑ์ธรรมชาติวิทยาเทพรัตน์ฯ มหาวิทยาลัยวลัยลักษณ์</p>
+<body>
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>SIRIN MUSEUM</h2>
+        <div class="role">ADMIN</div>
       </div>
+      <div class="user-profile">
+        <div class="profile-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="profile-name" id="profileName">คุณแอดมิน</div>
+        <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
+        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="register.html" class="nav-link active"><i class="fas fa-users"></i> ลงทะเบียนพนักงาน</a>
+        </li>
+        <li class="nav-item">
+          <a href="manage-users.html" class="nav-link"><i class="fas fa-key"></i> จัดการสิทธิ์</a>
+        </li>
+      </ul>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
-    <div class="register-right">
-      <div class="register-box-wrapper">
-        <div class="register-box-shadow"></div>
-        <form id="registerForm" class="register-box">
-          <h2>ลงทะเบียน</h2>
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container">
+        <div class="content-header">
+          <h1>ลงทะเบียนพนักงาน</h1>
+          <p>เพิ่มบัญชีผู้ใช้งานของพนักงานพิพิธภัณฑ์</p>
+        </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-id-card icon"></i>
-            <input type="text" id="citizenId" name="citizenId" placeholder="เลขบัตรประชาชน" maxlength="13" required
-              oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
-          </div>
+        <div class="form-container">
+          <h2><i class="fas fa-user-friends"></i> ลงทะเบียนพนักงาน</h2>
+          <form id="employeeForm" action="../../backend/admin/register.php" method="POST">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="national_id">เลขบัตรประชาชน: <span style="color: red;">*</span></label>
+                <input type="text" id="national_id" name="national_id" placeholder="กรอกเลขบัตรประชาชน 13 หลัก"
+                  maxlength="13" pattern="[0-9]{13}" required>
+                <div class="error-message" id="national_id_error"></div>
+              </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" name="firstName" placeholder="ชื่อ" required />
-          </div>
+              <div class="form-group">
+                <label for="firstname">ชื่อ <span style="color: red;">*</span></label>
+                <input type="text" id="firstname" name="firstname" placeholder="กรอกชื่อ" required>
+                <div class="error-message" id="firstname_error"></div>
+              </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-user icon"></i>
-            <input type="text" name="lastName" placeholder="นามสกุล" required />
-          </div>
+              <div class="form-group">
+                <label for="lastname">นามสกุล <span style="color: red;">*</span></label>
+                <input type="text" id="lastname" name="lastname" placeholder="กรอกนามสกุล" required>
+                <div class="error-message" id="lastname_error"></div>
+              </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-lock icon"></i>
-            <input type="password" id="password" name="password" placeholder="รหัสผ่าน" required />
-            <i class="fas fa-eye-slash eye" onclick="togglePassword('password', this)"></i>
-          </div>
+              <div class="form-group">
+                <label for="password">รหัสผ่าน <span style="color: red;">*</span></label>
+                <div class="password-field">
+                  <input type="password" id="password" name="password" placeholder="กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
+                    minlength="6" required>
+                  <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('password', this)"></i>
+                </div>
+                <div class="error-message" id="password_error"></div>
+              </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-lock icon"></i>
-            <input type="password" id="confirmPassword" placeholder="ยืนยันรหัสผ่าน" required />
-            <i class="fas fa-eye-slash eye" onclick="togglePassword('confirmPassword', this)"></i>
-          </div>
+              <div class="form-group">
+                <label for="confirm_password">ยืนยันรหัสผ่าน <span style="color: red;">*</span></label>
+                <div class="password-field">
+                  <input type="password" id="confirm_password" name="confirm_password"
+                    placeholder="กรอกรหัสผ่านอีกครั้ง" minlength="6" required>
+                  <i class="fas fa-eye-slash password-toggle" onclick="togglePassword('confirm_password', this)"></i>
+                </div>
+                <div class="error-message" id="confirm_password_error"></div>
+              </div>
 
-          <div class="register-input-group">
-            <i class="fas fa-users icon"></i>
-            <select name="role" required>
-              <option value="" hidden disabled selected>-- เลือกตำแหน่ง --</option>
-              <option value="admin">ผู้ดูแลระบบ</option>
-              <option value="manager">ผู้บริหาร</option>
-              <option value="staff">เจ้าหน้าที่</option>
-            </select>
-          </div>
+              <div class="form-group">
+                <label for="role">ตำแหน่ง <span style="color: red;">*</span></label>
+                <select id="role" name="role" required>
+                  <option value="">-- เลือกตำแหน่ง --</option>
+                  <option value="admin">ผู้ดูแลระบบ</option>
+                  <option value="manager">ผู้บริหาร</option>
+                  <option value="staff">เจ้าหน้าที่</option>
+                </select>
+                <div class="error-message" id="role_error"></div>
+              </div>
+            </div>
 
-          <button type="submit" class="register-button">ลงทะเบียน</button>
-        </form>
+            <button type="submit" class="btn" id="submitBtn">
+              <i class="fas fa-user-plus"></i> เพิ่มผู้ใช้
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 
   <script src="../../assets/js/register.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  </script>
 
 </body>
 

@@ -52,6 +52,10 @@ body {
     width: 100%;
 }
 
+.form-container h2 {
+    color: #2a8c78;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -249,3 +253,77 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.password-field {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 16px;
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+.form-group input[type="password"],
+.form-group input[type="text"] {
+    padding-right: 40px;
+}
+.error-message {
+  display: none;
+  color: #dc3545;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 5px;
+  padding: 3px 8px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+}
+
+.error-message:not(:empty) {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* เพิ่มไอคอน Error */
+.error-message::before {
+  content: "⚠️ ";
+  margin-right: 4px;
+}
+
+/* สไตล์สำหรับ input ที่มี error */
+.form-group input.error,
+.form-group select.error {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Animation สำหรับ error message */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-message.show {
+  animation: slideDown 0.3s ease;
+}
+

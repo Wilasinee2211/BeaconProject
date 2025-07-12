@@ -16,75 +16,6 @@ body {
   min-height: 100vh;
 }
 
-.sidebar {
-  width: 280px;
-  background: linear-gradient(180deg, #2a8c78, #114345);
-  color: white;
-  padding: 20px 0;
-  height: 100vh;
-  position: fixed;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar-header {
-  padding: 0 20px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 20px;
-}
-
-.sidebar-header h2 {
-  font-size: 1.5rem;
-  margin-bottom: 5px;
-}
-
-.sidebar-header .role {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.nav-menu {
-  list-style: none;
-  padding-left: 0;
-}
-
-.nav-item {
-  margin-bottom: 5px;
-}
-
-.nav-link {
-  display: block;
-  padding: 15px 20px;
-  color: white;
-  text-decoration: none;
-  transition: all 0.3s;
-  cursor: pointer;
-  border-left: 4px solid transparent;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  background: rgba(255, 255, 255, 0.1);
-  border-left-color: #4ecdc4;
-}
-
-.logout-btn {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  padding: 12px;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.logout-btn:hover {
-  background: #c82333;
-}
-
 .main-content {
   margin-left: 280px;
   padding: 30px;
@@ -253,3 +184,4 @@ body {
     grid-template-columns: 1fr;
   }
 }
+

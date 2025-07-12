@@ -160,3 +160,9 @@ function getFileExtension(fileType) {
         default: return 'txt';
     }
 }
+
+function logout() {
+      localStorage.removeItem("role");
+      localStorage.removeItem("fullname");
+      window.location.href = "../login.html";
+    }

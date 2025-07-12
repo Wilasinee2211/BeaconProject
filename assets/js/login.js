@@ -33,11 +33,13 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     return;
   }
 
-  const formData = new FormData(this);
-
-  fetch("http://localhost:80/BeaconProject/backend/login.php", {
+  // ส่งแบบ JSON
+  fetch("http://localhost:8888/BeaconProject/backend/login.php", {
     method: "POST",
-    body: formData
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ citizenId, password })
   })
     .then(res => res.json())
     .then(data => {
@@ -49,12 +51,20 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
           timer: 1500,
           showConfirmButton: false
         }).then(() => {
+          // เก็บข้อมูลผู้ใช้ใน localStorage
           localStorage.setItem("role", data.role);
+          localStorage.setItem("firstname", data.firstname);
+          localStorage.setItem("lastname", data.lastname);
+          localStorage.setItem("citizen_id", data.citizen_id);
+          localStorage.setItem("loginTime", new Date().toLocaleTimeString('th-TH', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          }));
 
           if (data.role === "admin") {
-            window.location.href = "../screen/admin/admin.html";
+            window.location.href = "../screen/admin/register.html";
           } else if (data.role === "staff") {
-            window.location.href = "../screen/staff/staff-menu.html";
+            window.location.href = "../screen/staff/visitor-register.html";
           } else if (data.role === "manager") {
             window.location.href = "../screen/manager/dashboard.html";
           } else {
