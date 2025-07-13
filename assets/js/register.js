@@ -18,23 +18,6 @@ function validateNationalId(nationalId) {
   if (!/^\d{13}$/.test(nationalId)) {
     return { isValid: false, message: "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก" };
   }
-
-  // ปิดการเช็คตัวเลขตรวจสอบทั้งหมด
-  /*
-  const digits = nationalId.split('').map(Number);
-  let sum = 0;
-
-  for (let i = 0; i < 12; i++) {
-    sum += digits[i] * (13 - i);
-  }
-
-  const checkDigit = (11 - (sum % 11)) % 10;
-
-  if (checkDigit !== digits[12]) {
-    return { isValid: false, message: "เลขบัตรประชาชนไม่ถูกต้อง" };
-  }
-  */
-
   return { isValid: true, message: "" };
 }
 

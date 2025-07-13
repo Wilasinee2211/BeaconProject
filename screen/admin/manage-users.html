@@ -13,7 +13,6 @@
 
 <body>
   <div class="dashboard-layout">
-    <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-header">
         <h2>SIRIN MUSEUM</h2>
@@ -39,7 +38,6 @@
       <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
       <div class="content-header">
         <h1>จัดการสิทธิ์</h1>
@@ -48,10 +46,8 @@
 
       <div id="loadingStatus" style="margin-bottom: 20px; color: #666; text-align: center; font-size: 16px;"></div>
 
-      <!-- เพิ่มกล่องพื้นหลังขาว -->
       <div class="form-container">
 
-        <!-- ช่องค้นหาใหม่ -->
         <div class="search-container">
           <div class="search-wrapper">
             <input type="text" class="search-input" id="searchInput"
@@ -73,178 +69,26 @@
               </tr>
             </thead>
             <tbody id="userTableBody">
-              <tr>
-                <td>1234567890123</td>
-                <td>สมชาย</td>
-                <td>ใจดี</td>
-                <td>เจ้าหน้าที่</td>
-                <td>
-                  <select class="role-dropdown">
-                    <option value="admin">ผู้ดูแลระบบ</option>
-                    <option value="staff" selected>เจ้าหน้าที่</option>
-                    <option value="manager">ผู้บริหาร</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td>9876543210987</td>
-                <td>สมหญิง</td>
-                <td>แสนดี</td>
-                <td>เจ้าหน้าที่</td>
-                <td>
-                  <select class="role-dropdown">
-                    <option value="admin">ผู้ดูแลระบบ</option>
-                    <option value="staff" selected>เจ้าหน้าที่</option>
-                    <option value="manager">ผู้บริหาร</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td>5555666677778</td>
-                <td>จิรายุ</td>
-                <td>รักสงบ</td>
-                <td>ผู้บริหาร</td>
-                <td>
-                  <select class="role-dropdown">
-                    <option value="admin">ผู้ดูแลระบบ</option>
-                    <option value="staff">เจ้าหน้าที่</option>
-                    <option value="manager" selected>ผู้บริหาร</option>
-                  </select>
-                </td>
-              </tr>
-              <tr>
-                <td>1111222233334</td>
-                <td>มาลี</td>
-                <td>ขยันเรียน</td>
-                <td>ผู้ดูแลระบบ</td>
-                <td>
-                  <select class="role-dropdown">
-                    <option value="admin" selected>ผู้ดูแลระบบ</option>
-                    <option value="staff">เจ้าหน้าที่</option>
-                    <option value="manager">ผู้บริหาร</option>
-                  </select>
-                </td>
-              </tr>
-            </tbody>
+              </tbody>
           </table>
         </div>
 
-        <!-- ข้อความเมื่อไม่พบข้อมูล -->
         <div class="no-results" id="noResults" style="display: none;">
           <i class="fas fa-search"></i>
           <h3>ไม่พบข้อมูลที่ค้นหา</h3>
           <p>กรุณาลองใช้คำค้นหาอื่น หรือตรวจสอบการสะกดให้ถูกต้อง</p>
         </div>
 
-        <!-- ปุ่มยืนยัน/ยกเลิก อยู่ในกล่องเดียวกัน -->
         <div style="margin-top: 20px; display: flex; gap: 15px;">
           <button class="btn" id="confirmBtn">ยืนยันสิทธิ์</button>
           <button class="btn btn-return" id="cancelBtn">ยกเลิก</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        // โหลดข้อมูลจาก localStorage
-        const firstname = localStorage.getItem('firstname');
-        const lastname = localStorage.getItem('lastname');
-        const role = localStorage.getItem('role');
-        const loginTime = localStorage.getItem('loginTime');
-
-        if (firstname && lastname) {
-          document.getElementById('profileName').textContent = `คุณ${firstname} ${lastname}`;
-        }
-
-        if (role) {
-          const roleText = {
-            'admin': 'ผู้ดูแลระบบ',
-            'manager': 'ผู้บริหาร',
-            'staff': 'เจ้าหน้าที่'
-          };
-          document.getElementById('profileRole').textContent = roleText[role] || 'ผู้ใช้งาน';
-        }
-
-        if (loginTime) {
-          document.getElementById('sidebarLoginTime').textContent = `เข้าสู่ระบบ: ${loginTime}`;
-        }
-
-        // ฟังก์ชันค้นหา
-        const searchInput = document.getElementById('searchInput');
-        const tableBody = document.getElementById('userTableBody');
-        const searchStats = document.getElementById('searchStats');
-        const noResults = document.getElementById('noResults');
-        const tableContainer = document.querySelector('.table-container');
-        const allRows = Array.from(tableBody.querySelectorAll('tr'));
-
-        function highlightText(text, searchTerm) {
-          if (!searchTerm) return text;
-          const regex = new RegExp(`(${searchTerm})`, 'gi');
-          return text.replace(regex, '<span class="search-highlight">$1</span>');
-        }
-
-        function performSearch() {
-          const searchTerm = searchInput.value.trim().toLowerCase();
-          let visibleCount = 0;
-
-          allRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            const searchableText = Array.from(cells).slice(0, 4).map(cell => cell.textContent.toLowerCase()).join(' ');
-            const isMatch = searchableText.includes(searchTerm);
-
-            if (isMatch) {
-              row.style.display = '';
-              visibleCount++;
-
-              if (searchTerm) {
-                cells.forEach((cell, index) => {
-                  if (index < 4) {
-                    const originalText = cell.textContent;
-                    cell.innerHTML = highlightText(originalText, searchTerm);
-                  }
-                });
-              }
-            } else {
-              row.style.display = 'none';
-            }
-          });
-
-          if (searchTerm) {
-            searchStats.innerHTML = `<i class="fas fa-info-circle"></i> แสดง <strong>${visibleCount}</strong> จาก <strong>${allRows.length}</strong> รายการ สำหรับคำค้นหา "<strong>${searchTerm}</strong>"`;
-          } else {
-            searchStats.innerHTML = `<i class="fas fa-users"></i> แสดงผู้ใช้งานทั้งหมด <strong>${allRows.length}</strong> รายการ`;
-          }
-
-          if (visibleCount === 0 && searchTerm) {
-            noResults.style.display = 'block';
-            tableContainer.style.display = 'none';
-          } else {
-            noResults.style.display = 'none';
-            tableContainer.style.display = 'block';
-          }
-        }
-
-        searchInput.addEventListener('input', performSearch);
-        searchInput.addEventListener('keyup', function (e) {
-          if (e.key === 'Escape') {
-            this.value = '';
-            performSearch();
-            this.blur();
-          }
-        });
-
-        performSearch(); // initial
-        document.getElementById('loadingStatus').textContent = 'กำลังโหลดข้อมูลผู้ใช้...';
-        setTimeout(() => {
-          document.getElementById('loadingStatus').textContent = '';
-        }, 1000);
-      });
-
-      function logout() {
-        localStorage.clear();
-        window.location.href = '../login.html';
-      }
-    </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="../../assets/js/manage-users.js"></script>
 
 </body>
 

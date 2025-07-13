@@ -1,198 +1,238 @@
-window.onload = () => {
-  loadUserData();
-};
+document.addEventListener('DOMContentLoaded', function () {
 
-let originalData = [];
-let currentData = [];
-let deleteQueue = new Set();
-
-function loadUserData() {
-  const loadingStatus = document.getElementById('loadingStatus');
-  loadingStatus.textContent = "กำลังโหลดข้อมูล...";
-
-  fetch('../../backend/admin/manage_users.php?action=get_users')
-    .then(response => response.json())
-    .then(data => {
-      originalData = JSON.parse(JSON.stringify(data));
-      currentData = JSON.parse(JSON.stringify(data));
-      renderUserTable();
-      loadingStatus.textContent = `โหลดสำเร็จ : พบผู้ใช้ ${data.length} คน`;
-    })
-    .catch(error => {
-      loadingStatus.textContent = `เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}`;
-    });
-}
-
-function renderUserTable() {
-  const tableBody = document.getElementById('userTableBody');
-  tableBody.innerHTML = '';
-
-  currentData.forEach(user => {
-    if (deleteQueue.has(user.id)) return;
-
-    const row = document.createElement('tr');
-    row.id = `user-${user.id}`;
-
-    const originalUser = originalData.find(u => u.id == user.id);
-    if (originalUser && user.role !== originalUser.role) {
-      row.classList.add('row-modified');
-    }
-
-    row.innerHTML = `
-      <td>${user.citizen_id || '-'}</td>
-      <td>${user.first_name || '-'}</td>
-      <td>${user.last_name || '-'}</td>
-      <td>
-        <div class="role-select-container">
-          <select class="role-select" data-userid="${user.id}" onchange="handleRoleChange(this)">
-            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ผู้ดูแล</option>
-            <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>ผู้บริหาร</option>
-            <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>เจ้าหน้าที่</option>
-          </select>
-          <span class="role-select-arrow"></span>
-        </div>
-      </td>
-      <td>
-        <button class="delete-btn" data-userid="${user.id}" onclick="handleDelete(${user.id})">ลบ</button>
-      </td>
-    `;
-
-    tableBody.appendChild(row);
-  });
-}
-
-function handleRoleChange(selectElement) {
-  const userId = selectElement.dataset.userid;
-  const newRole = selectElement.value;
-
-  const userIndex = currentData.findIndex(u => u.id == userId);
-  if (userIndex !== -1) {
-    currentData[userIndex].role = newRole;
-  }
-
-  const originalUser = originalData.find(u => u.id == userId);
-  const row = document.getElementById(`user-${userId}`);
-
-  if (originalUser && newRole !== originalUser.role) {
-    row.classList.add('row-modified');
-  } else {
-    row.classList.remove('row-modified');
-  }
-}
-
-function handleDelete(userId) {
-  deleteQueue.add(userId);
-  const row = document.getElementById(`user-${userId}`);
-  row.classList.add('row-modified');
-  row.style.opacity = '0.5';
-}
-
-document.getElementById('confirmBtn').addEventListener('click', async function () {
-  const loadingStatus = document.getElementById('loadingStatus');
-  loadingStatus.textContent = "กำลังอัปเดตข้อมูล...";
-
-  const updates = [];
-
-  currentData.forEach(user => {
-    const originalUser = originalData.find(u => u.id == user.id);
-    if (originalUser && user.role !== originalUser.role) {
-      updates.push({
-        id: user.id,
-        role: user.role
-      });
-    }
-  });
-
-  const updatePromise = updates.length > 0
-    ? fetch('../../backend/admin/manage_users.php?action=update_users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ updates })
-    }).catch(error => {
-      console.error("Error updating roles:", error);
-    })
-    : Promise.resolve();
-
-  const deletePromises = Array.from(deleteQueue).map(userId =>
-    fetch('../../backend/admin/manage_users.php?action=delete_user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `id=${userId}`
-    }).catch(error => {
-      console.error(`Error deleting user ${userId}:`, error);
-    })
-  );
-
-  await Promise.all([updatePromise, ...deletePromises]);
-
-  originalData = JSON.parse(JSON.stringify(currentData));
-  currentData = currentData.filter(user => !deleteQueue.has(user.id));
-  originalData = originalData.filter(user => !deleteQueue.has(user.id));
-  deleteQueue.clear();
-  renderUserTable();
-  loadingStatus.textContent = `อัปเดตข้อมูลสำเร็จ: มีผู้ใช้คงเหลือ ${currentData.length} คน`;
-
-  Swal.fire({
-    icon: 'success',
-    title: 'สำเร็จ',
-    text: 'อัปเดตสิทธิ์และลบผู้ใช้เรียบร้อยแล้ว',
-    timer: 2000,
-    showConfirmButton: false
-  });
-});
-
-document.getElementById('cancelBtn').addEventListener('click', async function () {
-  const result = await Swal.fire({
-    title: 'ยืนยันการยกเลิก',
-    text: 'คุณต้องการยกเลิกการเปลี่ยนแปลงทั้งหมดใช่หรือไม่?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'ใช่, ยกเลิกเลย',
-    cancelButtonText: 'ไม่'
-  });
-
-  if (result.isConfirmed) {
-    deleteQueue.clear();
-    currentData = JSON.parse(JSON.stringify(originalData));
-    renderUserTable();
-
-    Swal.fire({
-      icon: 'success',
-      title: 'ยกเลิกการเปลี่ยนแปลงแล้ว',
-      timer: 1500,
-      showConfirmButton: false
-    });
-  }
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  const firstname = localStorage.getItem("firstname");
-  const lastname = localStorage.getItem("lastname");
-  const role = localStorage.getItem("role");
-  const loginTime = localStorage.getItem("loginTime");
+  // Load user data from localStorage
+  const firstname = localStorage.getItem('firstname');
+  const lastname = localStorage.getItem('lastname');
+  const role = localStorage.getItem('role');
+  const loginTime = localStorage.getItem('loginTime');
 
   if (firstname && lastname) {
-    document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
+    document.getElementById('profileName').textContent = `คุณ${firstname} ${lastname}`;
   }
 
   if (role) {
     const roleText = {
-      admin: "ผู้ดูแลระบบ",
-      manager: "ผู้บริหาร",
-      staff: "เจ้าหน้าที่"
+      'admin': 'ผู้ดูแลระบบ',
+      'manager': 'ผู้บริหาร',
+      'staff': 'เจ้าหน้าที่'
     };
-    document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
+    document.getElementById('profileRole').textContent = roleText[role] || 'ผู้ใช้งาน';
   }
 
   if (loginTime) {
-    document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
+    document.getElementById('sidebarLoginTime').textContent = `เข้าสู่ระบบ: ${loginTime}`;
   }
+
+  const userTableBody = document.getElementById('userTableBody');
+  const searchInput = document.getElementById('searchInput');
+  const searchStats = document.getElementById('searchStats');
+  const noResults = document.getElementById('noResults');
+  const tableContainer = document.querySelector('.table-container');
+  const loadingStatus = document.getElementById('loadingStatus');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+
+  let allUsers = [];
+
+  const roleTextMapping = {
+    'admin': 'ผู้ดูแลระบบ',
+    'manager': 'ผู้บริหาร',
+    'staff': 'เจ้าหน้าที่'
+  };
+
+  const roleValueMapping = {
+    'ผู้ดูแลระบบ': 'admin',
+    'ผู้บริหาร': 'manager',
+    'เจ้าหน้าที่': 'staff'
+  };
+
+  // ฟังก์ชันดึงข้อมูลผู้ใช้จากฐานข้อมูล
+  async function fetchUsers() {
+    loadingStatus.textContent = 'กำลังโหลดข้อมูลผู้ใช้...';
+    try {
+      const response = await fetch('../../backend/admin/fetch-users.php');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      if (data.success) {
+        allUsers = data.users;
+        renderTable(allUsers);
+        loadingStatus.textContent = '';
+      } else {
+        loadingStatus.textContent = `ข้อผิดพลาด: ${data.message}`;
+        userTableBody.innerHTML = '';
+        console.error('Failed to fetch users:', data.message);
+      }
+    } catch (error) {
+      loadingStatus.textContent = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
+      console.error('Error fetching users:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'เชื่อมต่อไม่ได้',
+        text: 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง',
+      });
+    }
+  }
+
+  // ฟังก์ชันแสดงผลข้อมูลผู้ใช้ในตาราง
+  function renderTable(usersToRender) {
+    userTableBody.innerHTML = '';
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    let visibleCount = 0;
+
+    if (usersToRender.length === 0 && searchTerm !== '') {
+      noResults.style.display = 'block';
+      tableContainer.style.display = 'none';
+      searchStats.innerHTML = `<i class="fas fa-info-circle"></i> ไม่พบ <strong>0</strong> รายการ สำหรับคำค้นหา "<strong>${searchTerm}</strong>"`;
+      return;
+    }
+
+    usersToRender.forEach(user => {
+      const row = document.createElement('tr');
+      row.dataset.citizenId = user.citizen_id;
+
+      const searchableText = `${user.citizen_id} ${user.first_name} ${user.last_name} ${roleTextMapping[user.role]}`.toLowerCase();
+      const isMatch = searchableText.includes(searchTerm);
+
+      if (!searchTerm || isMatch) {
+        visibleCount++;
+        row.innerHTML = `
+            <td>${highlightText(user.citizen_id, searchTerm)}</td>
+            <td>${highlightText(user.first_name, searchTerm)}</td>
+            <td>${highlightText(user.last_name, searchTerm)}</td>
+            <td>${highlightText(roleTextMapping[user.role], searchTerm)}</td>
+            <td>
+              <select class="role-dropdown" data-original-role="${user.role}">
+                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ผู้ดูแลระบบ</option>
+                <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>ผู้บริหาร</option>
+                <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>เจ้าหน้าที่</option>
+              </select>
+            </td>
+          `;
+        userTableBody.appendChild(row);
+      }
+    });
+
+    // แสดงผลข้อมูลการค้นหา
+    searchStats.innerHTML = `<i class="fas fa-info-circle"></i> แสดง <strong>${visibleCount}</strong> จาก <strong>${allUsers.length}</strong> รายการ`;
+    noResults.style.display = visibleCount === 0 && searchTerm ? 'block' : 'none';
+    tableContainer.style.display = visibleCount === 0 && searchTerm ? 'none' : 'block';
+  }
+
+  function highlightText(text, searchTerm) {
+    if (!searchTerm) return text;
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, '<span class="search-highlight">$1</span>');
+  }
+
+  // ฟังก์ชันค้นหา
+  function performSearch() {
+    renderTable(allUsers);
+  }
+
+  // ฟังก์ชันยืนยันการเปลี่ยนสิทธิ์
+  async function handleConfirm() {
+    const updatedUsers = [];
+    const rows = userTableBody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+      const dropdown = row.querySelector('.role-dropdown');
+      const newRole = dropdown.value;
+      const originalRole = dropdown.dataset.originalRole;
+      const citizenId = row.dataset.citizenId;
+
+      if (newRole !== originalRole) {
+        updatedUsers.push({
+          citizen_id: citizenId,
+          new_role: newRole
+        });
+      }
+    });
+
+    if (updatedUsers.length === 0) {
+      Swal.fire('ไม่มีการเปลี่ยนแปลง', 'คุณไม่ได้แก้ไขข้อมูลใดๆ', 'info');
+      return;
+    }
+
+    Swal.fire({
+      title: 'กำลังอัปเดตสิทธิ์...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      const response = await fetch('../../backend/admin/update-roles.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          users: updatedUsers
+        })
+      });
+
+      const result = await response.json();
+      Swal.close();
+
+      if (result.success) {
+        Swal.fire('สำเร็จ', 'อัปเดตสิทธิ์เรียบร้อยแล้ว', 'success');
+        fetchUsers(); // รีโหลดข้อมูลล่าสุด
+      } else {
+        Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถอัปเดตสิทธิ์ได้', 'error');
+      }
+    } catch (error) {
+      Swal.close();
+      console.error('Error updating roles:', error);
+      Swal.fire('เชื่อมต่อไม่ได้', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่ออัปเดตข้อมูลได้', 'error');
+    }
+  }
+
+  // ฟังก์ชันยกเลิก
+  function handleCancel() {
+    Swal.fire({
+      title: 'ต้องการยกเลิกการแก้ไขหรือไม่?',
+      text: 'การเปลี่ยนแปลงทั้งหมดที่คุณทำจะหายไป',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'ใช่, ยกเลิก',
+      cancelButtonText: 'ไม่'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetchUsers(); // รีโหลดข้อมูลเดิม
+        Swal.fire('ยกเลิกแล้ว', 'การแก้ไขถูกยกเลิกแล้ว', 'info');
+      }
+    });
+  }
+
+  searchInput.addEventListener('input', performSearch);
+  confirmBtn.addEventListener('click', handleConfirm);
+  cancelBtn.addEventListener('click', handleCancel);
+
+  // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
+  fetchUsers();
+
 });
 
-// ฟังก์ชัน logout
+// ฟังก์ชันสำหรับ logout
 function logout() {
-  localStorage.clear();
-  window.location.href = '../login.html';
+  Swal.fire({
+    title: 'ออกจากระบบ',
+    text: 'คุณต้องการออกจากระบบหรือไม่?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'ใช่, ออกจากระบบ',
+    cancelButtonText: 'ยกเลิก'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.clear();
+      window.location.href = '../login.html';
+    }
+  });
 }
