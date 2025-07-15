@@ -1,238 +1,261 @@
-document.addEventListener('DOMContentLoaded', function () {
+// assets/js/manage-device.js
 
-  // Load user data from localStorage
-  const firstname = localStorage.getItem('firstname');
-  const lastname = localStorage.getItem('lastname');
-  const role = localStorage.getItem('role');
-  const loginTime = localStorage.getItem('loginTime');
+// URL ของ API สำหรับดึงและอัปเดตข้อมูลผู้เยี่ยมชม
+// ตรวจสอบ Path นี้ให้ถูกต้อง: จาก assets/js/ ไปยัง backend/staff/api/get_visitors.php
+const GET_VISITORS_API_URL = '../../backend/staff/api/get_visitors.php'; 
 
-  if (firstname && lastname) {
-    document.getElementById('profileName').textContent = `คุณ${firstname} ${lastname}`;
-  }
+let currentVisitorsData = []; // เก็บข้อมูลผู้เยี่ยมชมที่ดึงมาจาก API
 
-  if (role) {
-    const roleText = {
-      'admin': 'ผู้ดูแลระบบ',
-      'manager': 'ผู้บริหาร',
-      'staff': 'เจ้าหน้าที่'
-    };
-    document.getElementById('profileRole').textContent = roleText[role] || 'ผู้ใช้งาน';
-  }
+// ฟังก์ชันแสดงสถานะ
+function getStatusBadge(status) {
+    switch (status) {
+        case 'returned':
+            return '<span class="status-badge status-returned">คืนแล้ว</span>';
+        case 'active':
+            return '<span class="status-badge status-active">ยังไม่คืน</span>';
+        default:
+            return '<span class="status-badge status-active">ยังไม่คืน</span>';
+    }
+}
 
-  if (loginTime) {
-    document.getElementById('sidebarLoginTime').textContent = `เข้าสู่ระบบ: ${loginTime}`;
-  }
+// ฟังก์ชันโหลดข้อมูลในตาราง
+function loadVisitorsTable(data = currentVisitorsData) {
+    const tableBody = document.getElementById('visitorsTable');
+    if (!tableBody) {
+        console.error('Error: Element with ID "visitorsTable" not found.');
+        return;
+    }
 
-  const userTableBody = document.getElementById('userTableBody');
-  const searchInput = document.getElementById('searchInput');
-  const searchStats = document.getElementById('searchStats');
-  const noResults = document.getElementById('noResults');
-  const tableContainer = document.querySelector('.table-container');
-  const loadingStatus = document.getElementById('loadingStatus');
-  const confirmBtn = document.getElementById('confirmBtn');
-  const cancelBtn = document.getElementById('cancelBtn');
+    if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="no-data">ไม่พบข้อมูลผู้เยี่ยมชม</td></tr>';
+        return;
+    }
 
-  let allUsers = [];
+    tableBody.innerHTML = data.map(visitor => {
+        const visitorId = visitor.visitor_id; // ใช้ visitor_id จาก DB
+        const fullName = `${visitor.first_name || ''} ${visitor.last_name || ''}`.trim();
+        const groupName = visitor.group_name || '-';
+        // ใช้ tag_name ถ้ามี, ไม่งั้นใช้ uuid (สมมติว่า API คืน tag_name และ uuid)
+        const beaconTag = visitor.tag_name || visitor.uuid || '-'; 
+        // จัดรูปแบบเวลา check_in_time
+        const checkInTime = visitor.check_in_time ? new Date(visitor.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false }) : '-';
+        const status = visitor.status; // ใช้ status จาก DB/PHP (returned หรือ active)
+        const actionButton = status !== 'returned' ?
+            `<button class="btn btn-return" onclick="returnEquipment('${visitorId}')">
+                <i class="fas fa-undo"></i> คืนอุปกรณ์
+            </button>` :
+            '<span style="color: #28a745;">✓ คืนแล้ว</span>';
 
-  const roleTextMapping = {
-    'admin': 'ผู้ดูแลระบบ',
-    'manager': 'ผู้บริหาร',
-    'staff': 'เจ้าหน้าที่'
-  };
+        return `
+            <tr>
+                <td>${visitorId}</td>
+                <td>${fullName}</td>
+                <td>${groupName}</td>
+                <td>${beaconTag}</td>
+                <td>${checkInTime}</td>
+                <td>${getStatusBadge(status)}</td>
+                <td>${actionButton}</td>
+            </tr>
+        `;
+    }).join('');
+}
 
-  const roleValueMapping = {
-    'ผู้ดูแลระบบ': 'admin',
-    'ผู้บริหาร': 'manager',
-    'เจ้าหน้าที่': 'staff'
-  };
+// ฟังก์ชันอัปเดตสถิติ
+function updateStatistics() {
+    const returned = currentVisitorsData.filter(v => v.status === 'returned').length;
+    const active = currentVisitorsData.filter(v => v.status === 'active').length;
 
-  // ฟังก์ชันดึงข้อมูลผู้ใช้จากฐานข้อมูล
-  async function fetchUsers() {
-    loadingStatus.textContent = 'กำลังโหลดข้อมูลผู้ใช้...';
+    document.getElementById('returnedCount').textContent = returned;
+    document.getElementById('activeCount').textContent = active;
+}
+
+// ฟังก์ชันสำหรับดึงข้อมูลผู้เยี่ยมชมจาก API
+async function fetchVisitors(searchType = null, searchValue = null) {
+    const tableBody = document.getElementById('visitorsTable');
+    if (!tableBody) return;
+    tableBody.innerHTML = '<tr><td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td></tr>';
+
+    let url = GET_VISITORS_API_URL;
+    const params = new URLSearchParams();
+    if (searchType && searchValue) {
+        params.append('searchType', searchType);
+        params.append('searchValue', searchValue);
+        url += '?' + params.toString();
+    }
+
     try {
-      const response = await fetch('../../backend/admin/fetch-users.php');
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      if (data.success) {
-        allUsers = data.users;
-        renderTable(allUsers);
-        loadingStatus.textContent = '';
-      } else {
-        loadingStatus.textContent = `ข้อผิดพลาด: ${data.message}`;
-        userTableBody.innerHTML = '';
-        console.error('Failed to fetch users:', data.message);
-      }
-    } catch (error) {
-      loadingStatus.textContent = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้';
-      console.error('Error fetching users:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'เชื่อมต่อไม่ได้',
-        text: 'ไม่สามารถโหลดข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง',
-      });
-    }
-  }
-
-  // ฟังก์ชันแสดงผลข้อมูลผู้ใช้ในตาราง
-  function renderTable(usersToRender) {
-    userTableBody.innerHTML = '';
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    let visibleCount = 0;
-
-    if (usersToRender.length === 0 && searchTerm !== '') {
-      noResults.style.display = 'block';
-      tableContainer.style.display = 'none';
-      searchStats.innerHTML = `<i class="fas fa-info-circle"></i> ไม่พบ <strong>0</strong> รายการ สำหรับคำค้นหา "<strong>${searchTerm}</strong>"`;
-      return;
-    }
-
-    usersToRender.forEach(user => {
-      const row = document.createElement('tr');
-      row.dataset.citizenId = user.citizen_id;
-
-      const searchableText = `${user.citizen_id} ${user.first_name} ${user.last_name} ${roleTextMapping[user.role]}`.toLowerCase();
-      const isMatch = searchableText.includes(searchTerm);
-
-      if (!searchTerm || isMatch) {
-        visibleCount++;
-        row.innerHTML = `
-            <td>${highlightText(user.citizen_id, searchTerm)}</td>
-            <td>${highlightText(user.first_name, searchTerm)}</td>
-            <td>${highlightText(user.last_name, searchTerm)}</td>
-            <td>${highlightText(roleTextMapping[user.role], searchTerm)}</td>
-            <td>
-              <select class="role-dropdown" data-original-role="${user.role}">
-                <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>ผู้ดูแลระบบ</option>
-                <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>ผู้บริหาร</option>
-                <option value="staff" ${user.role === 'staff' ? 'selected' : ''}>เจ้าหน้าที่</option>
-              </select>
-            </td>
-          `;
-        userTableBody.appendChild(row);
-      }
-    });
-
-    // แสดงผลข้อมูลการค้นหา
-    searchStats.innerHTML = `<i class="fas fa-info-circle"></i> แสดง <strong>${visibleCount}</strong> จาก <strong>${allUsers.length}</strong> รายการ`;
-    noResults.style.display = visibleCount === 0 && searchTerm ? 'block' : 'none';
-    tableContainer.style.display = visibleCount === 0 && searchTerm ? 'none' : 'block';
-  }
-
-  function highlightText(text, searchTerm) {
-    if (!searchTerm) return text;
-    const regex = new RegExp(`(${searchTerm})`, 'gi');
-    return text.replace(regex, '<span class="search-highlight">$1</span>');
-  }
-
-  // ฟังก์ชันค้นหา
-  function performSearch() {
-    renderTable(allUsers);
-  }
-
-  // ฟังก์ชันยืนยันการเปลี่ยนสิทธิ์
-  async function handleConfirm() {
-    const updatedUsers = [];
-    const rows = userTableBody.querySelectorAll('tr');
-
-    rows.forEach(row => {
-      const dropdown = row.querySelector('.role-dropdown');
-      const newRole = dropdown.value;
-      const originalRole = dropdown.dataset.originalRole;
-      const citizenId = row.dataset.citizenId;
-
-      if (newRole !== originalRole) {
-        updatedUsers.push({
-          citizen_id: citizenId,
-          new_role: newRole
+        console.log(`Fetching visitors from: ${url}`);
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
-      }
-    });
 
-    if (updatedUsers.length === 0) {
-      Swal.fire('ไม่มีการเปลี่ยนแปลง', 'คุณไม่ได้แก้ไขข้อมูลใดๆ', 'info');
-      return;
-    }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText}`);
+        }
 
-    Swal.fire({
-      title: 'กำลังอัปเดตสิทธิ์...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
+        const result = await response.json();
 
-    try {
-      const response = await fetch('../../backend/admin/update-roles.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          users: updatedUsers
-        })
-      });
-
-      const result = await response.json();
-      Swal.close();
-
-      if (result.success) {
-        Swal.fire('สำเร็จ', 'อัปเดตสิทธิ์เรียบร้อยแล้ว', 'success');
-        fetchUsers(); // รีโหลดข้อมูลล่าสุด
-      } else {
-        Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถอัปเดตสิทธิ์ได้', 'error');
-      }
+        if (result.status === 'success' && Array.isArray(result.data)) {
+            currentVisitorsData = result.data; // อัปเดตข้อมูลจริง
+            loadVisitorsTable(currentVisitorsData);
+            updateStatistics();
+        } else {
+            console.warn('API Response Warning:', result.message || 'No data or invalid data structure from API.');
+            tableBody.innerHTML = '<tr><td colspan="7" class="no-data">ไม่พบข้อมูลผู้เยี่ยมชมหรือข้อมูลผิดพลาด</td></tr>';
+            document.getElementById('returnedCount').textContent = 0;
+            document.getElementById('activeCount').textContent = 0;
+            Swal.fire('ข้อมูล', result.message || 'ไม่สามารถโหลดข้อมูลผู้เยี่ยมชมได้: โครงสร้างข้อมูล API ไม่ถูกต้อง', 'info');
+        }
     } catch (error) {
-      Swal.close();
-      console.error('Error updating roles:', error);
-      Swal.fire('เชื่อมต่อไม่ได้', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่ออัปเดตข้อมูลได้', 'error');
+        console.error('Error fetching visitors:', error);
+        tableBody.innerHTML = '<tr><td colspan="7" class="no-data" style="color: red;">เกิดข้อผิดพลาดในการโหลดข้อมูลผู้เยี่ยมชม: ' + error.message + '</td></tr>';
+        document.getElementById('returnedCount').textContent = 0;
+        document.getElementById('activeCount').textContent = 0;
+        Swal.fire('ข้อผิดพลาด', `ไม่สามารถโหลดข้อมูลผู้เยี่ยมชมได้: ${error.message}. กรุณาตรวจสอบ Network และ Server logs.`, 'error');
     }
-  }
+}
 
-  // ฟังก์ชันยกเลิก
-  function handleCancel() {
+// ฟังก์ชันค้นหา (ตอนนี้จะเรียก fetchVisitors() เพื่อให้ดึงจาก DB)
+function searchVisitors() {
+    const searchType = document.getElementById('searchType')?.value;
+    const searchValue = document.getElementById('searchValue')?.value.trim();
+    
+    fetchVisitors(searchType, searchValue);
+}
+
+// ฟังก์ชันคืนอุปกรณ์ (ส่งการอัปเดตไป API)
+async function returnEquipment(visitorId) {
     Swal.fire({
-      title: 'ต้องการยกเลิกการแก้ไขหรือไม่?',
-      text: 'การเปลี่ยนแปลงทั้งหมดที่คุณทำจะหายไป',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'ใช่, ยกเลิก',
-      cancelButtonText: 'ไม่'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        fetchUsers(); // รีโหลดข้อมูลเดิม
-        Swal.fire('ยกเลิกแล้ว', 'การแก้ไขถูกยกเลิกแล้ว', 'info');
-      }
+        title: 'ยืนยันการคืนอุปกรณ์',
+        text: `คุณต้องการคืนอุปกรณ์ของผู้เยี่ยมชม ID: ${visitorId} ใช่หรือไม่?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, คืนอุปกรณ์',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#28a745'
+    }).then(async (result) => { 
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(GET_VISITORS_API_URL, { // ใช้ API เดียวกัน แต่เป็น method POST
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ visitor_id: visitorId })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! Status: ${response.status}. Response: ${errorText}`);
+                }
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    Swal.fire(
+                        'คืนอุปกรณ์สำเร็จ!',
+                        result.message,
+                        'success'
+                    );
+                    fetchVisitors(); // โหลดข้อมูลใหม่ทั้งหมดหลังจากอัปเดต
+                } else {
+                    Swal.fire(
+                        'เกิดข้อผิดพลาด',
+                        result.message || 'ไม่สามารถคืนอุปกรณ์ได้',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                console.error('Error returning equipment:', error);
+                Swal.fire(
+                    'เกิดข้อผิดพลาด',
+                    `ไม่สามารถคืนอุปกรณ์ได้: ${error.message}`,
+                    'error'
+                );
+            }
+        }
     });
-  }
+}
 
-  searchInput.addEventListener('input', performSearch);
-  confirmBtn.addEventListener('click', handleConfirm);
-  cancelBtn.addEventListener('click', handleCancel);
+// ฟังก์ชันสำหรับโหลดข้อมูลผู้ใช้ใน Sidebar จาก localStorage
+function loadUserProfileFromLocalStorage() {
+    const profileNameEl = document.getElementById("profileName");
+    const profileRoleEl = document.getElementById("profileRole");
+    const sidebarLoginTimeEl = document.getElementById("sidebarLoginTime");
 
-  // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
-  fetchUsers();
+    const firstname = localStorage.getItem("firstname");
+    const lastname = localStorage.getItem("lastname");
+    const role = localStorage.getItem("role");
+    const loginTime = localStorage.getItem("loginTime");
 
+    if (profileNameEl) {
+        if (firstname && lastname) {
+            profileNameEl.textContent = `คุณ${firstname} ${lastname}`;
+        } else {
+            profileNameEl.textContent = 'ผู้ใช้งาน';
+        }
+    }
+
+    if (profileRoleEl) {
+        const roleText = {
+            admin: "ผู้ดูแลระบบ",
+            manager: "ผู้บริหาร",
+            staff: "เจ้าหน้าที่"
+        };
+        profileRoleEl.textContent = roleText[role] || "บทบาทไม่ระบุ";
+    }
+
+    if (sidebarLoginTimeEl) {
+        sidebarLoginTimeEl.textContent = `เข้าสู่ระบบ: ${loginTime || '--:--'}`;
+    }
+}
+
+
+// ฟังก์ชันออกจากระบบ
+function logout() {
+    Swal.fire({
+        title: 'ออกจากระบบ',
+        text: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                'ออกจากระบบสำเร็จ!',
+                'ขอบคุณที่ใช้บริการ',
+                'success'
+            ).then(() => {
+                localStorage.clear(); // ล้างข้อมูล localStorage
+                window.location.href = '../login.html'; // Redirect ไปหน้า login
+            });
+        }
+    });
+}
+
+// Event listener สำหรับการค้นหาแบบ real-time
+document.getElementById('searchValue')?.addEventListener('input', function (e) {
+    if (e.target.value === '') {
+        fetchVisitors(); // โหลดทั้งหมดเมื่อช่องค้นหาว่าง
+    }
 });
 
-// ฟังก์ชันสำหรับ logout
-function logout() {
-  Swal.fire({
-    title: 'ออกจากระบบ',
-    text: 'คุณต้องการออกจากระบบหรือไม่?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'ใช่, ออกจากระบบ',
-    cancelButtonText: 'ยกเลิก'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      localStorage.clear();
-      window.location.href = '../login.html';
+// Event listener สำหรับ Enter key ในช่องค้นหา
+document.getElementById('searchValue')?.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        searchVisitors();
     }
-  });
-}
+});
+
+// เรียกใช้เมื่อ DOM โหลดเสร็จสมบูรณ์
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOMContentLoaded: manage-device.html');
+    loadUserProfileFromLocalStorage(); // โหลดข้อมูลผู้ใช้จาก localStorage
+    fetchVisitors(); // ดึงข้อมูลผู้เยี่ยมชมเริ่มต้นเมื่อหน้าโหลด
+});
