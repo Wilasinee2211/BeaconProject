@@ -2,115 +2,114 @@
 <html lang="th">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIRIN MUSEUM - ลงทะเบียนผู้เยี่ยมชม</title>
-  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
-  <link rel="stylesheet" href="../../assets/css/visitor-register.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIRIN MUSEUM - ลงทะเบียนผู้เยี่ยมชม</title>
+
+    <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+    <link rel="stylesheet" href="../../assets/css/visitor-register.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-  <div class="dashboard-layout active">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <h2>SIRIN MUSEUM</h2>
-        <div class="role">STAFF</div>
-      </div>
-      <div class="user-profile">
-        <div class="profile-avatar"><i class="fas fa-user"></i></div>
-        <div class="profile-name" id="profileName">คุณสมสวย</div>
-        <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
-        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
-      </div>
+    <div class="dashboard-layout active">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>SIRIN MUSEUM</h2>
+                <div class="role">STAFF</div>
+            </div>
+            <div class="user-profile">
+                <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                <div class="profile-name" id="profileName">คุณสมสวย</div>
+                <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
+                <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
+            </div>
 
-      <ul class="nav-menu">
-        <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
-        <li class="nav-item"><a class="nav-link" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
-        <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
-      </ul>
-      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="content-header">
-        <h1>ลงทะเบียนผู้เยี่ยมชม</h1>
-        <p>กรอกข้อมูลผู้เยี่ยมชมเพื่อจัดการอุปกรณ์</p>
-      </div>
-
-      <div class="form-container">
-        <h2 style="margin-bottom: 20px; color: #2a8c78;">➕ ลงทะเบียนผู้เยี่ยมชม</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>ชื่อ:</label>
-            <input type="text" id="visitorFirstName" placeholder="กรอกชื่อ">
-          </div>
-          <div class="form-group">
-            <label>นามสกุล:</label>
-            <input type="text" id="visitorLastName" placeholder="กรอกนามสกุล">
-          </div>
-          <div class="form-group">
-            <label>วันเกิด:</label>
-            <input type="date" id="visitorBirthdate" placeholder="เลือกวันเกิด">
-            <div class="age-display" id="ageDisplay"></div>
-          </div>
-          <div class="form-group">
-            <label>เพศ:</label>
-            <select id="visitorGender">
-              <option value="">เลือกเพศ</option>
-              <option value="male">ชาย</option>
-              <option value="female">หญิง</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>กลุ่ม:</label>
-            <input type="text" id="visitorGroup" placeholder="ชื่อกลุ่ม (ถ้ามี)">
-          </div>
-          <div class="form-group">
-            <label>iBeacon Tag:</label>
-            <select id="visitorBeacon">
-              <option value="">เลือก iBeacon</option>
-              <option value="TAG001">TAG001 - เด็กชาย 1</option>
-              <option value="TAG002">TAG002 - เด็กหญิง 1</option>
-              <option value="TAG003">TAG003 - ผู้ใหญ่ 1</option>
-            </select>
-          </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a class="nav-link active" href="#">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
+                <li class="nav-item"><a class="nav-link" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
+                <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+            </ul>
+            <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
         </div>
-        <button class="btn" onclick="addVisitor()">เพิ่มผู้เยี่ยมชม</button>
-      </div>
+        <div class="main-content">
+            <div class="content-header">
+                <h1>ลงทะเบียนผู้เยี่ยมชม</h1>
+                <p>กรอกข้อมูลผู้เยี่ยมชมเพื่อจัดการอุปกรณ์</p>
+            </div>
 
-      <div class="table-container">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>ชื่อ</th>
-              <th>นามสกุล</th>
-              <th>อายุ</th>
-              <th>เพศ</th>
-              <th>กลุ่ม</th>
-              <th>iBeacon</th>
-              <th>เข้าชม</th>
-              <th>ออก</th>
-              <th>จัดการ</th>
-            </tr>
-          </thead>
-          <tbody id="visitorsTable">
-            <!-- ข้อมูลจะแสดงจากฐานข้อมูลที่นี่ -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #2a8c78;">➕ ลงทะเบียนผู้เยี่ยมชม</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="visitorFirstName">ชื่อ:</label>
+                        <input type="text" id="visitorFirstName" placeholder="กรอกชื่อ">
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorLastName">นามสกุล:</label>
+                        <input type="text" id="visitorLastName" placeholder="กรอกนามสกุล">
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorBirthdate">วันเกิด:</label>
+                        <input type="text" id="visitorBirthdate" placeholder="เลือกวันเกิด" data-input>
+                        <div class="age-display" id="ageDisplay"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorGender">เพศ:</label>
+                        <select id="visitorGender">
+                            <option value="">เลือกเพศ</option>
+                            <option value="male">ชาย</option>
+                            <option value="female">หญิง</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorGroup">กลุ่ม:</label>
+                        <input type="text" id="visitorGroup" placeholder="ชื่อกลุ่ม (ถ้ามี)">
+                    </div>
+                    <div class="form-group">
+                        <label for="visitorBeacon">iBeacon Tag:</label>
+                        <select id="visitorBeacon">
+                            <option value="">กำลังโหลด iBeacon...</option>
+                            </select>
+                    </div>
+                </div>
+                <button class="btn" onclick="addVisitor()">เพิ่มผู้เยี่ยมชม</button>
+            </div>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>ชื่อ</th>
+                            <th>นามสกุล</th>
+                            <th>อายุ</th>
+                            <th>เพศ</th>
+                            <th>กลุ่ม</th>
+                            <th>iBeacon</th>
+                            <th>เข้าชม</th>
+                            <th>ออก</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitorsTable">
+                        <tr><td colspan="10" style="text-align: center;">กำลังโหลดข้อมูลผู้เยี่ยมชม...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
 
-<script src="../../assets/js/visitor-register.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+
+    <script src="../../assets/js/visitor-register.js"></script>
 
 </body>
 

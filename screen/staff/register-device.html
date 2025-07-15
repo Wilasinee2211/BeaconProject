@@ -1,135 +1,78 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIRIN MUSEUM - ลงทะเบียนอุปกรณ์</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SIRIN MUSEUM - ลงทะเบียนอุปกรณ์</title>
 
-  <link rel="stylesheet" href="../../assets/css/sidebar.css" />
-  <link rel="stylesheet" href="../../assets/css/manage_device.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+    <link rel="stylesheet" href="../../assets/css/manage_device.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="dashboard-layout active">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <h2>SIRIN MUSEUM</h2>
-        <div class="role">STAFF</div>
-      </div>
-      <div class="user-profile">
-        <div class="profile-avatar"><i class="fas fa-user"></i></div>
-        <div class="profile-name" id="profileName">เจ้าหน้าที่</div>
-        <div class="profile-role" id="profileRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
-        <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: --:--</div>
-      </div>
-      <ul class="nav-menu">
-        <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
-        <li class="nav-item"><a class="nav-link active" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
-        <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
-      </ul>
-      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+    <div class="dashboard-layout active">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>SIRIN MUSEUM</h2>
+                <div class="role">STAFF</div>
+            </div>
+            <div class="user-profile">
+                <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                <div class="profile-name" id="profileName">เจ้าหน้าที่</div>
+                <div class="profile-role" id="profileRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
+                <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: --:--</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
+                <li class="nav-item"><a class="nav-link active" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
+                <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+            </ul>
+            <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h1>ลงทะเบียนอุปกรณ์</h1>
+                <p>กรอกข้อมูลเพื่อเพิ่มอุปกรณ์ใหม่เข้าสู่ระบบ</p>
+            </div>
+
+            <div class="form-container">
+                <h2 style="color:#2a8c78;">🖥️ ลงทะเบียน ESP32 (Host)</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ชื่อโฮสต์:</label>
+                        <input type="text" id="hostName" placeholder="เช่น: Host001">
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อห้องหรือ Location:</label>
+                        <input type="text" id="hostLocation" placeholder="เช่น: ห้องนิทรรศการ A">
+                    </div>
+                </div>
+                <button class="btn" onclick="registerHost()">ลงทะเบียน Host</button>
+            </div>
+
+            <div class="form-container">
+                <h2 style="color:#2a8c78;">📡 ลงทะเบียน iBeacon Tag</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ชื่อ Tag:</label>
+                        <input type="text" id="tagName" placeholder="เช่น: TAG001">
+                    </div>
+                    <div class="form-group">
+                        <label>UUID (8 ตัวอักษร):</label>
+                        <input type="text" id="tagUUID" maxlength="8" placeholder="เช่น: ABCD1234">
+                    </div>
+                </div>
+                <button class="btn" onclick="registerTag()">ลงทะเบียน iBeacon</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="content-header">
-        <h1>ลงทะเบียนอุปกรณ์</h1>
-        <p>กรอกข้อมูลเพื่อเพิ่มอุปกรณ์ใหม่เข้าสู่ระบบ</p>
-      </div>
-
-      <div class="form-container">
-        <h2 style="color:#2a8c78;">🖥️ ลงทะเบียน ESP32 (Host)</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>ชื่อโฮสต์:</label>
-            <input type="text" id="hostName" placeholder="เช่น: Host001">
-          </div>
-          <div class="form-group">
-            <label>ชื่อห้องหรือ Location:</label>
-            <input type="text" id="hostLocation" placeholder="เช่น: ห้องนิทรรศการ A">
-          </div>
-        </div>
-        <button class="btn" onclick="registerHost()">ลงทะเบียน Host</button>
-      </div>
-
-      <div class="form-container">
-        <h2 style="color:#2a8c78;">📡 ลงทะเบียน iBeacon Tag</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>ชื่อ Tag:</label>
-            <input type="text" id="tagName" placeholder="เช่น: TAG001">
-          </div>
-          <div class="form-group">
-            <label>UUID (8 ตัวอักษร):</label>
-            <input type="text" id="tagUUID" maxlength="8" placeholder="เช่น: ABCD1234">
-          </div>
-        </div>
-        <button class="btn" onclick="registerTag()">ลงทะเบียน iBeacon</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    // ฟังก์ชันสำหรับกรอก ESP32
-    function registerHost() {
-      const hostName = document.getElementById('hostName').value.trim();
-      const hostLocation = document.getElementById('hostLocation').value.trim();
-
-      if (!hostName || !hostLocation) {
-        Swal.fire('กรอกข้อมูลไม่ครบ', 'กรุณากรอกชื่อโฮสต์และ location ให้ครบถ้วน', 'warning');
-        return;
-      }
-
-      console.log('ลงทะเบียน ESP32:', { hostName, hostLocation });
-      Swal.fire('สำเร็จ!', 'ลงทะเบียน ESP32 เรียบร้อยแล้ว', 'success');
-    }
-
-    // ฟังก์ชันสำหรับกรอก iBeacon
-    function registerTag() {
-      const tagName = document.getElementById('tagName').value.trim();
-      const tagUUID = document.getElementById('tagUUID').value.trim();
-
-      if (!tagName || !tagUUID || tagUUID.length !== 8) {
-        Swal.fire('กรอกข้อมูลไม่ถูกต้อง', 'กรุณากรอกชื่อ Tag และ UUID ให้ครบ (8 ตัว)', 'warning');
-        return;
-      }
-
-      console.log('ลงทะเบียน iBeacon:', { tagName, tagUUID });
-      Swal.fire('สำเร็จ!', 'ลงทะเบียน iBeacon เรียบร้อยแล้ว', 'success');
-    }
-
-    function logout() {
-      localStorage.clear();
-      window.location.href = '../login.html';
-    }
-
-    // โหลดชื่อผู้ใช้ใน Sidebar
-    document.addEventListener("DOMContentLoaded", function () {
-      const firstname = localStorage.getItem("firstname");
-      const lastname = localStorage.getItem("lastname");
-      const role = localStorage.getItem("role");
-      const loginTime = localStorage.getItem("loginTime");
-
-      if (firstname && lastname) {
-        document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
-      }
-
-      if (role) {
-        const roleText = {
-          admin: "ผู้ดูแลระบบ",
-          manager: "ผู้บริหาร",
-          staff: "เจ้าหน้าที่"
-        };
-        document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
-      }
-
-      if (loginTime) {
-        document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
-      }
-    });
-  </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="../../assets/js/register_device.js"></script>
 </body>
 </html>
