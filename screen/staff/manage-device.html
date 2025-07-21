@@ -13,7 +13,6 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -25,15 +24,14 @@
             </div>
             <div class="user-profile">
                 <div class="profile-avatar"><i class="fas fa-user"></i></div>
-                <div class="profile-name" id="profileName">คุณสมสวย</div>
-                <div class="profile-role" id="profileRole">ผู้ดูแลระบบ</div>
-                <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: 19:52</div>
+                <div class="profile-name" id="profileName">เจ้าหน้าที่</div>
+                <div class="profile-role" id="profileRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
+                <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: --:--</div>
             </div>
-
             <ul class="nav-menu">
                 <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
                 <li class="nav-item"><a class="nav-link" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
-                <li class="nav-item"><a class="nav-link active" href="#">🛠️ จัดการอุปกรณ์</a></li>
+                <li class="nav-item"><a class="nav-link active" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
             </ul>
             <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
         </div>
@@ -49,7 +47,7 @@
                 <h2 style="margin-bottom: 20px; color: #2a8c78;">🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="searchType">ค้นหาจาก:</label>
+                        <label for="searchType">ค้นหาจาก</label>
                         <select id="searchType">
                             <option value="name">ชื่อ-นามสกุล</option>
                             <option value="beacon">รหัส iBeacon Tag</option>
@@ -57,7 +55,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="searchValue">ค้นหา:</label>
+                        <label for="searchValue">ค้นหา</label>
                         <input type="text" id="searchValue" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
                     </div>
                 </div>
@@ -95,13 +93,16 @@
                         </tr>
                     </thead>
                     <tbody id="visitorsTable">
-                        <tr><td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td></tr>
+                        <tr>
+                            <td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            </div>
         </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../assets/js/manage-device.js"></script>
 
 </body>

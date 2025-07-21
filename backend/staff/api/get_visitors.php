@@ -1,139 +1,141 @@
 <?php
 // backend/staff/api/get_visitors.php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *'); // อนุญาตให้ทุกโดเมนเรียกใช้ได้
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS'); // เพิ่ม POST สำหรับการอัปเดต
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
-// จัดการ CORS preflight request
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// โหลดไฟล์ db_connect.php
-require_once __DIR__ . '/config/db_connect.php';
+// ตรวจสอบเส้นทางของ db_connect.php
+$possible_paths = [
+    __DIR__ . '/../../config/db_connect.php',
+    __DIR__ . '/../../../config/db_connect.php',
+    __DIR__ . '/config/db_connect.php'
+];
 
-// ตรวจสอบว่า $conn ถูกกำหนดและเป็น PDO object
-if (!isset($conn) || !$conn instanceof PDO) {
-    http_response_code(500); // Internal Server Error
-    echo json_encode(['status' => 'error', 'message' => 'Database connection not established. (API: get_visitors.php)']);
+$db_path_found = false;
+foreach ($possible_paths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $db_path_found = true;
+        break;
+    }
+}
+
+if (!$db_path_found) {
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Database connection file not found.',
+        'debug' => [
+            'checked_paths' => $possible_paths
+        ]
+    ]);
     exit();
 }
 
-// ฟังก์ชันสำหรับดึงข้อมูลผู้เยี่ยมชม
-function getVisitors($conn, $searchType = null, $searchValue = null) {
-    $sql = "SELECT 
-                v.visitor_id, 
-                v.first_name, 
-                v.last_name, 
-                v.group_name, 
-                v.check_in_time, 
-                v.check_out_time,
-                bt.tag_name,
-                bt.uuid,
-                CASE 
-                    WHEN v.check_out_time IS NOT NULL THEN 'returned' 
-                    ELSE 'active' 
-                END as status
-            FROM visitors v
-            LEFT JOIN ibeacons_tag bt ON v.beacon_uuid = bt.uuid"; // สมมติว่ามี column beacon_uuid ในตาราง visitors
-
-    $params = [];
-    $whereClauses = [];
-
-    if ($searchType && $searchValue) {
-        if ($searchType === 'name') {
-            $whereClauses[] = "(v.first_name LIKE :searchValue OR v.last_name LIKE :searchValue)";
-            $params[':searchValue'] = '%' . $searchValue . '%';
-        } elseif ($searchType === 'beacon') {
-            $whereClauses[] = "bt.uuid LIKE :searchValue";
-            $params[':searchValue'] = '%' . $searchValue . '%';
-        } elseif ($searchType === 'group') {
-            $whereClauses[] = "v.group_name LIKE :searchValue";
-            $params[':searchValue'] = '%' . $searchValue . '%';
-        }
-    }
-
-    if (!empty($whereClauses)) {
-        $sql .= " WHERE " . implode(" AND ", $whereClauses);
-    }
-
-    $sql .= " ORDER BY v.check_in_time DESC";
-
-    try {
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("[get_visitors.php][PDO Error] " . $e->getMessage());
-        return false;
-    }
+if (!isset($conn) || !$conn instanceof PDO) {
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Invalid database connection.'
+    ]);
+    exit();
 }
 
-// ฟังก์ชันสำหรับอัปเดตสถานะการคืนอุปกรณ์
-function updateVisitorStatus($conn, $visitorId) {
-    try {
-        // ตรวจสอบว่าผู้เยี่ยมชมยังมีสถานะ active อยู่หรือไม่
-        $checkStmt = $conn->prepare("SELECT check_out_time FROM visitors WHERE visitor_id = :visitor_id");
-        $checkStmt->bindParam(':visitor_id', $visitorId);
-        $checkStmt->execute();
-        $visitor = $checkStmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$visitor) {
-            return ['status' => 'error', 'message' => 'Visitor not found.'];
-        }
-        
-        if ($visitor['check_out_time'] !== null) {
-            return ['status' => 'error', 'message' => 'Equipment already returned for this visitor.'];
-        }
-
-        $stmt = $conn->prepare("UPDATE visitors SET check_out_time = NOW() WHERE visitor_id = :visitor_id");
-        $stmt->bindParam(':visitor_id', $visitorId);
-        $stmt->execute();
-
-        if ($stmt->rowCount() > 0) {
-            return ['status' => 'success', 'message' => 'Equipment returned successfully.'];
-        } else {
-            return ['status' => 'error', 'message' => 'Failed to update visitor status. Visitor might not exist or already returned.'];
-        }
-    } catch (PDOException $e) {
-        error_log("[get_visitors.php][PDO Update Error] " . $e->getMessage());
-        return ['status' => 'error', 'message' => 'Database update failed: ' . $e->getMessage()];
-    }
-}
-
-// ROUTING: จัดการตาม Method ของ Request
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // ดึงข้อมูลผู้เยี่ยมชม
-    $searchType = isset($_GET['searchType']) ? $_GET['searchType'] : null;
-    $searchValue = isset($_GET['searchValue']) ? $_GET['searchValue'] : null;
+    try {
+        // รับพารามิเตอร์ type จาก URL
+        $typeFilter = $_GET['type'] ?? 'all';
 
-    $visitors = getVisitors($conn, $searchType, $searchValue);
+        // เตรียม SQL พื้นฐาน
+        $sql = "
+            SELECT 
+                v.id,
+                v.type,
+                v.first_name,
+                v.last_name,
+                v.group_name,
+                v.group_size,
+                v.group_type,
+                v.age,
+                v.gender,
+                v.uuid,
+                v.visit_date,
+                v.created_at,
+                v.active,
+                COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
+                i.uuid as beacon_registered_uuid
+            FROM visitors v
+            LEFT JOIN ibeacons_tag i 
+                ON v.uuid COLLATE utf8mb4_general_ci = i.uuid COLLATE utf8mb4_general_ci
+            WHERE v.active = 1
+        ";
 
-    if ($visitors !== false) {
-        echo json_encode(['status' => 'success', 'data' => $visitors]);
-    } else {
+        // กรองตาม type ถ้ามี
+        if ($typeFilter === 'group') {
+            $sql .= " AND v.type = 'group'";
+        } elseif ($typeFilter === 'individual') {
+            $sql .= " AND v.type = 'individual'";
+        }
+
+        $sql .= " ORDER BY v.created_at DESC";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $visitors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // จัดรูปแบบข้อมูลสำหรับ frontend
+        $formattedVisitors = array_map(function ($visitor) {
+            return [
+                'id' => $visitor['id'],
+                'type' => $visitor['type'],
+                'first_name' => $visitor['first_name'],
+                'last_name' => $visitor['last_name'],
+                'group_name' => $visitor['group_name'],
+                'group_size' => $visitor['group_size'],
+                'group_type' => $visitor['group_type'],
+                'age' => $visitor['age'],
+                'gender' => $visitor['gender'],
+                'beacon_name' => $visitor['tag_name'],
+                'beacon_uuid' => $visitor['uuid'],
+                'visit_date' => $visitor['visit_date'] ? date('Y-m-d H:i:s', strtotime($visitor['visit_date'])) : '-',
+                'created_at' => date('Y-m-d H:i:s', strtotime($visitor['created_at']))
+            ];
+        }, $visitors);
+
+        echo json_encode([
+            'status' => 'success',
+            'data' => $formattedVisitors,
+            'total' => count($formattedVisitors)
+        ]);
+    } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Failed to retrieve visitor data.']);
-    }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // อัปเดตสถานะ (คืนอุปกรณ์)
-    $input = json_decode(file_get_contents('php://input'), true);
-    $visitorId = $input['visitor_id'] ?? null;
-
-    if ($visitorId) {
-        $result = updateVisitorStatus($conn, $visitorId);
-        echo json_encode($result);
-    } else {
-        http_response_code(400); // Bad Request
-        echo json_encode(['status' => 'error', 'message' => 'Missing visitor_id for update.']);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Database query failed: ' . $e->getMessage()
+        ]);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Unexpected error: ' . $e->getMessage()
+        ]);
+    } finally {
+        $conn = null;
     }
 } else {
-    http_response_code(405); // Method Not Allowed
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
+    http_response_code(405);
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Invalid request method.'
+    ]);
 }
-
-$conn = null; // ปิด connection
-?>

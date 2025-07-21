@@ -39,77 +39,125 @@
             </ul>
             <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
         </div>
+
         <div class="main-content">
             <div class="content-header">
                 <h1>ลงทะเบียนผู้เยี่ยมชม</h1>
-                <p>กรอกข้อมูลผู้เยี่ยมชมเพื่อจัดการอุปกรณ์</p>
+                <p>เลือกประเภทการลงทะเบียนและกรอกข้อมูลผู้เยี่ยมชม</p>
             </div>
 
             <div class="form-container">
-                <h2 style="margin-bottom: 20px; color: #2a8c78;">➕ ลงทะเบียนผู้เยี่ยมชม</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="visitorFirstName">ชื่อ:</label>
-                        <input type="text" id="visitorFirstName" placeholder="กรอกชื่อ">
+                <!-- เลือกประเภทการลงทะเบียน -->
+                <div class="registration-type">
+                    <div class="type-option active" onclick="selectRegistrationType('individual')">
+                        <div class="icon">👤</div>
+                        <h3>ลงทะเบียนเดี่ยว</h3>
+                        <p>สำหรับผู้เยี่ยมชมรายบุคคล</p>
                     </div>
-                    <div class="form-group">
-                        <label for="visitorLastName">นามสกุล:</label>
-                        <input type="text" id="visitorLastName" placeholder="กรอกนามสกุล">
-                    </div>
-                    <div class="form-group">
-                        <label for="visitorBirthdate">วันเกิด:</label>
-                        <input type="text" id="visitorBirthdate" placeholder="เลือกวันเกิด" data-input>
-                        <div class="age-display" id="ageDisplay"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitorGender">เพศ:</label>
-                        <select id="visitorGender">
-                            <option value="">เลือกเพศ</option>
-                            <option value="male">ชาย</option>
-                            <option value="female">หญิง</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="visitorGroup">กลุ่ม:</label>
-                        <input type="text" id="visitorGroup" placeholder="ชื่อกลุ่ม (ถ้ามี)">
-                    </div>
-                    <div class="form-group">
-                        <label for="visitorBeacon">iBeacon Tag:</label>
-                        <select id="visitorBeacon">
-                            <option value="">กำลังโหลด iBeacon...</option>
-                            </select>
+                    <div class="type-option" onclick="selectRegistrationType('group')">
+                        <div class="icon">👥</div>
+                        <h3>ลงทะเบียนกลุ่ม</h3>
+                        <p>สำหรับผู้เยี่ยมชมเป็นกลุ่ม</p>
                     </div>
                 </div>
-                <button class="btn" onclick="addVisitor()">เพิ่มผู้เยี่ยมชม</button>
+
+                <!-- ฟอร์มลงทะเบียนเดี่ยว -->
+                <div id="individualForm" class="form-section active">
+                    <h2 style="margin-bottom: 20px; color: #2a8c78;">➕ ลงทะเบียนผู้เยี่ยมชมเดี่ยว</h2>
+                    <div class="form-grid individual">
+                        <div class="form-group">
+                            <label for="individualFirstName">ชื่อ</label>
+                            <input type="text" id="individualFirstName" placeholder="กรอกชื่อ">
+                        </div>
+                        <div class="form-group">
+                            <label for="individualLastName">นามสกุล</label>
+                            <input type="text" id="individualLastName" placeholder="กรอกนามสกุล">
+                        </div>
+                        <div class="form-group">
+                            <label for="visitorBirthdate">วันเกิด</label>
+                            <input type="text" id="visitorBirthdate" placeholder="เลือกวันเกิด" data-input>
+                            <div class="age-display" id="ageDisplay"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="individualGender">เพศ</label>
+                            <select id="individualGender">
+                                <option value="">เลือกเพศ</option>
+                                <option value="male">ชาย</option>
+                                <option value="female">หญิง</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="individualBeacon">iBeacon Tag</label>
+                            <select id="visitorBeacon">
+                                <option value="">กำลังโหลด iBeacon...</option>
+                                <!-- Options จะโหลดจาก database -->
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="addIndividualVisitor()">เพิ่มผู้เยี่ยมชม</button>
+                </div>
+
+                <!-- ฟอร์มลงทะเบียนกลุ่ม -->
+                <div id="groupForm" class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #2a8c78;">👥 ลงทะเบียนผู้เยี่ยมชมกลุ่ม</h2>
+                    <div class="form-grid group">
+                        <div class="form-group">
+                            <label for="groupName">ชื่อกลุ่ม</label>
+                            <input type="text" id="groupName" placeholder="กรอกชื่อกลุ่ม">
+                        </div>
+                        <div class="form-group">
+                            <label for="groupSize">จำนวนสมาชิก</label>
+                            <input type="number" id="groupSize" placeholder="กรอกจำนวนคน" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="groupType">ประเภทกลุ่ม</label>
+                            <select id="groupType">
+                                <option value="">เลือกประเภทกลุ่ม</option>
+                                <option value="students">นักเรียน</option>
+                                <option value="university">นักศึกษา</option>
+                                <option value="tour">ทัวร์</option>
+                                <option value="corporate">องค์กร/บริษัท</option>
+                                <option value="other">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="groupBeacon">iBeacon Tag</label>
+                            <select id="groupBeacon">
+                                <option value="">กำลังโหลด iBeacon...</option>
+                                <!-- Options จะโหลดจาก database -->
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="addGroupVisitor()">เพิ่มกลุ่มผู้เยี่ยมชม</button>
+                </div>
             </div>
+
             <div class="table-container">
+                <!-- ฟิลเตอร์อยู่ในกล่องเดียวกับตาราง -->
+                <div class="filter-bar">
+                    <label for="typeFilter">แสดง</label>
+                    <select id="typeFilter" onchange="applyVisitorFilter()">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="individual">แบบเดี่ยว</option>
+                        <option value="group">แบบกลุ่ม</option>
+                    </select>
+                </div>
+
                 <table class="table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>ชื่อ</th>
-                            <th>นามสกุล</th>
-                            <th>อายุ</th>
-                            <th>เพศ</th>
-                            <th>กลุ่ม</th>
-                            <th>iBeacon</th>
-                            <th>เข้าชม</th>
-                            <th>ออก</th>
-                            <th>จัดการ</th>
-                        </tr>
-                    </thead>
+                    <thead></thead>
                     <tbody id="visitorsTable">
-                        <tr><td colspan="10" style="text-align: center;">กำลังโหลดข้อมูลผู้เยี่ยมชม...</td></tr>
+                        <tr>
+                            <td colspan="6" style="text-align: center;">กำลังโหลดข้อมูลผู้เยี่ยมชม...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
-            </div>
-        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+            <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
 
-    <script src="../../assets/js/visitor-register.js"></script>
+            <script src="../../assets/js/visitor-register.js"></script>
 
 </body>
 
