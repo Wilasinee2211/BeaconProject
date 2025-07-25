@@ -1,6 +1,4 @@
 <?php
-// backend/staff/api/get_visitors.php
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -14,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-// ตรวจสอบเส้นทางของ db_connect.php
+// db_connect
 $possible_paths = [
     __DIR__ . '/../../config/db_connect.php',
     __DIR__ . '/../../../config/db_connect.php',
@@ -29,105 +27,137 @@ foreach ($possible_paths as $path) {
         break;
     }
 }
-
 if (!$db_path_found) {
     http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Database connection file not found.',
-        'debug' => [
-            'checked_paths' => $possible_paths
-        ]
-    ]);
+    echo json_encode(['status' => 'error', 'message' => 'DB file not found.']);
     exit();
 }
 
 if (!isset($conn) || !$conn instanceof PDO) {
     http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Invalid database connection.'
-    ]);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid DB connection.']);
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // รับพารามิเตอร์ type จาก URL
         $typeFilter = $_GET['type'] ?? 'all';
+        $allVisitors = [];
 
-        // เตรียม SQL พื้นฐาน
-        $sql = "
-            SELECT 
-                v.id,
-                v.type,
-                v.first_name,
-                v.last_name,
-                v.group_name,
-                v.group_size,
-                v.group_type,
-                v.age,
-                v.gender,
-                v.uuid,
-                v.visit_date,
-                v.created_at,
-                v.active,
-                COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
-                i.uuid as beacon_registered_uuid
-            FROM visitors v
-            LEFT JOIN ibeacons_tag i 
-                ON v.uuid COLLATE utf8mb4_general_ci = i.uuid COLLATE utf8mb4_general_ci
-            WHERE v.active = 1
-        ";
+        // INDIVIDUAL
+        if ($typeFilter === 'all' || $typeFilter === 'individual') {
+            $stmt = $conn->prepare("
+                SELECT 
+                    v.id, v.first_name, v.last_name, v.age, v.gender, v.uuid,
+                    COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name
+                FROM visitors v
+                LEFT JOIN ibeacons_tag i 
+                    ON v.uuid COLLATE utf8mb4_general_ci = i.uuid COLLATE utf8mb4_general_ci
+                WHERE v.active = 1 AND v.type = 'individual'
+                ORDER BY v.created_at DESC
+            ");
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // กรองตาม type ถ้ามี
-        if ($typeFilter === 'group') {
-            $sql .= " AND v.type = 'group'";
-        } elseif ($typeFilter === 'individual') {
-            $sql .= " AND v.type = 'individual'";
+            foreach ($rows as $v) {
+                $allVisitors[] = [
+                    'type' => 'individual',
+                    'name' => $v['first_name'] . ' ' . $v['last_name'],
+                    'age' => $v['age'],
+                    'gender' => $v['gender'],
+                    'tag_name' => $v['tag_name'],
+                    'uuid' => $v['uuid']
+                ];
+            }
         }
 
-        $sql .= " ORDER BY v.created_at DESC";
+        // GROUP
+        if ($typeFilter === 'all' || $typeFilter === 'group') {
+            $stmt = $conn->prepare("
+                SELECT 
+                    v.id AS group_id, v.group_name, v.uuid,
+                    COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
+                    gm.id AS member_id, gm.first_name, gm.last_name, gm.age, gm.gender
+                FROM visitors v
+                LEFT JOIN ibeacons_tag i 
+                    ON v.uuid COLLATE utf8mb4_general_ci = i.uuid COLLATE utf8mb4_general_ci
+                LEFT JOIN group_members gm ON v.id = gm.group_visitor_id
+                WHERE v.active = 1 AND v.type = 'group'
+                ORDER BY v.created_at DESC
+            ");
+            $stmt->execute();
+            $groupRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        $visitors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $groups = [];
 
-        // จัดรูปแบบข้อมูลสำหรับ frontend
-        $formattedVisitors = array_map(function ($visitor) {
-            return [
-                'id' => $visitor['id'],
-                'type' => $visitor['type'],
-                'first_name' => $visitor['first_name'],
-                'last_name' => $visitor['last_name'],
-                'group_name' => $visitor['group_name'],
-                'group_size' => $visitor['group_size'],
-                'group_type' => $visitor['group_type'],
-                'age' => $visitor['age'],
-                'gender' => $visitor['gender'],
-                'beacon_name' => $visitor['tag_name'],
-                'beacon_uuid' => $visitor['uuid'],
-                'visit_date' => $visitor['visit_date'] ? date('Y-m-d H:i:s', strtotime($visitor['visit_date'])) : '-',
-                'created_at' => date('Y-m-d H:i:s', strtotime($visitor['created_at']))
-            ];
-        }, $visitors);
+            foreach ($groupRows as $row) {
+                $gid = $row['group_id'];
+
+                if (!isset($groups[$gid])) {
+                    $groups[$gid] = [
+                        'type' => 'group_summary',
+                        'group_name' => $row['group_name'],
+                        'min_age' => $row['age'],
+                        'max_age' => $row['age'],
+                        'male_count' => 0,
+                        'female_count' => 0,
+                        'tag_name' => $row['tag_name'],
+                        'uuid' => $row['uuid'],
+                        'members' => []
+                    ];
+                } else {
+                    $groups[$gid]['min_age'] = min($groups[$gid]['min_age'], $row['age']);
+                    $groups[$gid]['max_age'] = max($groups[$gid]['max_age'], $row['age']);
+                }
+
+                if ($row['gender'] === 'male') $groups[$gid]['male_count']++;
+                if ($row['gender'] === 'female') $groups[$gid]['female_count']++;
+
+                if (!empty($row['member_id'])) {
+                    $groups[$gid]['members'][] = [
+                        'type' => 'group_member',
+                        'group_name' => $row['group_name'], 
+                        'name' => $row['first_name'] . ' ' . $row['last_name'],
+                        'age' => $row['age'],
+                        'gender' => $row['gender'],
+                        'tag_name' => $row['tag_name'],
+                        'uuid' => $row['uuid']
+                    ];
+                }
+            }
+
+            // เพิ่มข้อมูลกลุ่มและสมาชิก
+            foreach ($groups as $g) {
+                $allVisitors[] = [
+                    'type' => 'group',
+                    'group_name' => $g['group_name'],
+                    'min_age' => $g['min_age'],
+                    'max_age' => $g['max_age'],
+                    'male_count' => $g['male_count'],
+                    'female_count' => $g['female_count'],
+                    'tag_name' => $g['tag_name'],
+                    'uuid' => $g['uuid']
+                ];
+
+                if ($typeFilter === 'group' || $typeFilter === 'all') {
+                    foreach ($g['members'] as $member) {
+                        $allVisitors[] = $member;
+                    }
+                }
+            }
+        }
 
         echo json_encode([
             'status' => 'success',
-            'data' => $formattedVisitors,
-            'total' => count($formattedVisitors)
+            'data' => $allVisitors,
+            'total' => count($allVisitors)
         ]);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Database query failed: ' . $e->getMessage()
-        ]);
+
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
             'status' => 'error',
-            'message' => 'Unexpected error: ' . $e->getMessage()
+            'message' => $e->getMessage()
         ]);
     } finally {
         $conn = null;
