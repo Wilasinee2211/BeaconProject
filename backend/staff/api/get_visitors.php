@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name
                 FROM visitors v
                 LEFT JOIN ibeacons_tag i 
-                    ON v.uuid COLLATE utf8mb4_general_ci = i.uuid COLLATE utf8mb4_general_ci
+                    ON CONVERT(v.uuid USING utf8) = i.uuid
                 WHERE v.active = 1 AND v.type = 'individual'
                 ORDER BY v.created_at DESC
             ");
@@ -75,12 +75,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         if ($typeFilter === 'all' || $typeFilter === 'group') {
             $stmt = $conn->prepare("
                 SELECT 
-                    v.id AS group_id, v.group_name, v.uuid,
+                    v.id AS group_id, 
+                    CONCAT('กลุ่ม ', v.id) as group_name,
+                    v.uuid,
                     COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
                     gm.id AS member_id, gm.first_name, gm.last_name, gm.age, gm.gender
                 FROM visitors v
                 LEFT JOIN ibeacons_tag i 
-                    ON v.uuid COLLATE utf8mb4_general_ci = i.uuid COLLATE utf8mb4_general_ci
+                    ON CONVERT(v.uuid USING utf8) = i.uuid
                 LEFT JOIN group_members gm ON v.id = gm.group_visitor_id
                 WHERE v.active = 1 AND v.type = 'group'
                 ORDER BY v.created_at DESC
