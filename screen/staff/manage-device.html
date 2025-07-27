@@ -5,37 +5,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SIRIN MUSEUM - จัดการอุปกรณ์</title>
-
     <link rel="stylesheet" href="../../assets/css/sidebar.css" />
+    <link rel="stylesheet" href="../../assets/css/visitor-register.css" />
     <link rel="stylesheet" href="../../assets/css/manage_device.css" />
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 </head>
 
 <body>
     <div class="dashboard-layout active">
+        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>SIRIN MUSEUM</h2>
                 <div class="role">STAFF</div>
             </div>
+
             <div class="user-profile">
-                <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
                 <div class="profile-name" id="profileName">เจ้าหน้าที่</div>
                 <div class="profile-role" id="profileRole">เจ้าหน้าที่พิพิธภัณฑ์</div>
                 <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: --:--</div>
             </div>
+
             <ul class="nav-menu">
-                <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
-                <li class="nav-item"><a class="nav-link" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
-                <li class="nav-item"><a class="nav-link active" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="visitor-register.html">
+                        📝 ลงทะเบียนผู้เยี่ยมชม
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="register-device.html">
+                        📟 ลงทะเบียนอุปกรณ์
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="manage-device.html">
+                        🛠️ จัดการอุปกรณ์
+                    </a>
+                </li>
             </ul>
+
             <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
         </div>
+
+        <!-- Main Content -->
         <div class="main-content">
+            <!-- Content Header -->
             <div class="content-header">
                 <div class="content-left">
                     <h1>จัดการอุปกรณ์</h1>
@@ -43,8 +61,12 @@
                 </div>
             </div>
 
+            <!-- Search Form -->
             <div class="form-container">
-                <h2 style="margin-bottom: 20px; color: #2a8c78;">🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์</h2>
+                <h2 style="margin-bottom: 20px; color: #2a8c78;">
+                    🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
+                </h2>
+
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="searchType">ค้นหาจาก</label>
@@ -54,45 +76,57 @@
                             <option value="group">ชื่อกลุ่ม</option>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label for="searchValue">ค้นหา</label>
                         <input type="text" id="searchValue" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
                     </div>
                 </div>
+
                 <button class="btn" onclick="searchVisitors()">ค้นหา</button>
             </div>
+
+            <!-- Dashboard Stats -->
             <div class="dashboard-grid">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">✅</div>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">
+                            ✅
+                        </div>
                         <h3 class="card-title">คืนแล้ว</h3>
                     </div>
                     <div class="stat-number" id="returnedCount">0</div>
                     <div class="stat-label">ชุด</div>
                 </div>
+
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(45deg, #f39c12, #e67e22);">⏳</div>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #f39c12, #e67e22);">
+                            ⏳
+                        </div>
                         <h3 class="card-title">ยังไม่คืน</h3>
                     </div>
                     <div class="stat-number" id="activeCount">0</div>
                     <div class="stat-label">ชุด</div>
                 </div>
             </div>
+
+            <!-- Device Table -->
             <div class="table-container">
+                <!-- Filter Bar (แก้ไขให้เหมือน visitor-register.html) -->
+                <div class="filter-bar">
+                    <label for="deviceTypeFilter">แสดง</label>
+                    <select id="deviceTypeFilter" onchange="applyDeviceFilter()">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="individual">แบบเดี่ยว</option>
+                        <option value="group">แบบกลุ่ม</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
                 <table class="table">
-                    <thead>
-                        <tr>
-                            <th>รหัส</th>
-                            <th>ชื่อ-นามสกุล</th>
-                            <th>กลุ่ม</th>
-                            <th>iBeacon Tag</th>
-                            <th>เวลาเข้าชม</th>
-                            <th>สถานะ</th>
-                            <th>การดำเนินการ</th>
-                        </tr>
-                    </thead>
-                    <tbody id="visitorsTable">
+                    <thead id="deviceTableHead"></thead>
+                    <tbody id="deviceTableBody">
                         <tr>
                             <td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td>
                         </tr>
@@ -102,9 +136,14 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../../assets/js/manage-device.js"></script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            applyDeviceFilter();
+        });
+    </script>
 </body>
 
 </html>
