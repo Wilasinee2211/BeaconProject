@@ -92,8 +92,26 @@ async function registerTag() {
 
 // ฟังก์ชัน Logout และ Sidebar load user (ไม่มีการเปลี่ยนแปลง)
 function logout() {
-    localStorage.clear();
-    window.location.href = '../login.html';
+    Swal.fire({
+        title: 'ออกจากระบบ',
+        text: 'คุณต้องการออกจากระบบใช่หรือไม่?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ออกจากระบบ',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                'ออกจากระบบสำเร็จ!',
+                'ขอบคุณที่ใช้บริการ',
+                'success'
+            ).then(() => {
+                localStorage.clear(); // ล้างข้อมูล localStorage
+                window.location.href = '../login.html'; // Redirect ไปหน้า login
+            });
+        }
+    });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
