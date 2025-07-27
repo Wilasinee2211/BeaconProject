@@ -88,22 +88,40 @@
 
             <!-- Dashboard Stats -->
             <div class="dashboard-grid">
-                <div class="card">
+                <!-- Tag ที่ใช้งานทั้งหมด -->
+                <div class="card totalRegister-card">
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">
-                            ✅
-                        </div>
+                        <div class="card-icon">📊</div>
+                        <h3 class="card-title">Tag ที่ลงทะเบียนทั้งหมด</h3>
+                    </div>
+                    <div class="stat-number" id="totalRegisterCount">0</div>
+                    <div class="stat-label">ชุด</div>
+                </div>
+
+                <!-- Tag ที่ใช้งานทั้งหมด -->
+                <div class="card total-card">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <h3 class="card-title">Tag ที่ใช้งานทั้งหมด</h3>
+                    </div>
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">ชุด</div>
+                </div>
+
+                <!-- คืนแล้ว -->
+                <div class="card returned-card">
+                    <div class="card-header">
+                        <div class="card-icon">✅</div>
                         <h3 class="card-title">คืนแล้ว</h3>
                     </div>
                     <div class="stat-number" id="returnedCount">0</div>
                     <div class="stat-label">ชุด</div>
                 </div>
 
-                <div class="card">
+                <!-- ยังไม่คืน -->
+                <div class="card active-card">
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(45deg, #f39c12, #e67e22);">
-                            ⏳
-                        </div>
+                        <div class="card-icon">⏳</div>
                         <h3 class="card-title">ยังไม่คืน</h3>
                     </div>
                     <div class="stat-number" id="activeCount">0</div>
