@@ -68,6 +68,7 @@
                 </h2>
 
                 <div class="form-grid">
+                    <!-- Dropdown: ค้นหาจาก -->
                     <div class="form-group">
                         <label for="searchType">ค้นหาจาก</label>
                         <select id="searchType">
@@ -77,19 +78,23 @@
                         </select>
                     </div>
 
+                    <!-- กล่องกรอกคำค้น -->
                     <div class="form-group">
                         <label for="searchValue">ค้นหา</label>
-                        <input type="text" id="searchValue" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
+                        <input type="text" id="searchValue" list="visitorList" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
+                        <datalist id="visitorList"></datalist>
                     </div>
                 </div>
 
+                <!-- ปุ่มค้นหา -->
                 <button class="btn" onclick="searchVisitors()">ค้นหา</button>
             </div>
+
 
             <!-- Dashboard Stats -->
             <div class="dashboard-grid">
                 <!-- Tag ที่ใช้งานทั้งหมด -->
-                <div class="card totalRegister-card">
+                <div class="card totalRegister-card dashboard-filter" data-filter="registered">
                     <div class="card-header">
                         <div class="card-icon">📊</div>
                         <h3 class="card-title">Tag ที่ลงทะเบียนทั้งหมด</h3>
@@ -99,7 +104,7 @@
                 </div>
 
                 <!-- Tag ที่ใช้งานทั้งหมด -->
-                <div class="card total-card">
+                <div class="card total-card dashboard-filter" data-filter="in_use">
                     <div class="card-header">
                         <div class="card-icon">📊</div>
                         <h3 class="card-title">Tag ที่ใช้งานทั้งหมด</h3>
@@ -109,7 +114,7 @@
                 </div>
 
                 <!-- คืนแล้ว -->
-                <div class="card returned-card">
+                <div class="card returned-card dashboard-filter" data-filter="returned">
                     <div class="card-header">
                         <div class="card-icon">✅</div>
                         <h3 class="card-title">คืนแล้ว</h3>
@@ -119,7 +124,7 @@
                 </div>
 
                 <!-- ยังไม่คืน -->
-                <div class="card active-card">
+                <div class="card active-card dashboard-filter" data-filter="not_returned">
                     <div class="card-header">
                         <div class="card-icon">⏳</div>
                         <h3 class="card-title">ยังไม่คืน</h3>
@@ -160,6 +165,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             applyDeviceFilter();
+        });
+        
+        // ✅ Event: พิมพ์แล้วโหลด suggestion
+        document.getElementById('searchValue').addEventListener('input', e => {
+            if (e.target.value.length > 1) updateDatalist(e.target.value);
         });
     </script>
 </body>
