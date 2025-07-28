@@ -30,13 +30,15 @@ try {
     // ตั้งค่า charset
     $conn->set_charset("utf8mb4");
 
-    // สร้างคำสั่ง SQL สำหรับดึงข้อมูลผู้ใช้ทั้งหมด
-    $sql = "SELECT citizen_id, first_name, last_name, role FROM users";
+    // สร้างคำสั่ง SQL สำหรับดึงข้อมูลผู้ใช้ทั้งหมด - เพิ่ม id และเรียงลำดับ
+    $sql = "SELECT id, citizen_id, first_name, last_name, role FROM users ORDER BY id ASC";
     $result = $conn->query($sql);
 
     $users = [];
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
+            // แปลง id เป็น integer เพื่อให้ตรงกับ JavaScript
+            $row['id'] = (int)$row['id'];
             $users[] = $row;
         }
     }

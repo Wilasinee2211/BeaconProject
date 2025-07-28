@@ -58,8 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     v.created_at,
                     v.active,
                     v.type,
-                    COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
-                    i.last_seen
+                    COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name
                 FROM visitors v
                 LEFT JOIN ibeacons_tag i ON CONVERT(v.uuid USING utf8) = i.uuid
                 WHERE v.type = 'individual'
@@ -82,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     'uuid' => $v['uuid'],
                     'visit_date' => $v['visit_date'],
                     'created_at' => $v['created_at'],
-                    'last_seen' => $v['last_seen'],
+                    'last_seen' => null, // ตั้งค่าเป็น null เนื่องจากไม่มีคอลัมน์นี้
                     'active' => $v['active'],
                     'status' => $v['active'] == 1 ? 'active' : 'returned'
                 ];
@@ -94,14 +93,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $stmt = $conn->prepare("
                 SELECT
                     v.id AS group_id,
-                    CONCAT('กลุ่ม ', v.id) as group_name,
+                    v.group_name,
                     v.uuid,
                     v.visit_date,
                     v.created_at,
                     v.active,
                     v.type,
                     COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
-                    i.last_seen,
                     gm.id AS member_id, 
                     gm.first_name, 
                     gm.last_name, 
@@ -125,7 +123,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         'id' => $row['group_id'],
                         'visitor_id' => $row['group_id'],
                         'type' => 'group',
-                        'group_name' => $row['group_name'],
+                        'group_name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'], // ใช้ชื่อจริงหรือ default
+                        'name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'], // เพิ่ม name field
                         'min_age' => $row['age'] ?? 0,
                         'max_age' => $row['age'] ?? 0,
                         'male_count' => 0,
@@ -134,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         'uuid' => $row['uuid'],
                         'visit_date' => $row['visit_date'],
                         'created_at' => $row['created_at'],
-                        'last_seen' => $row['last_seen'],
+                        'last_seen' => null, // ตั้งค่าเป็น null เนื่องจากไม่มีคอลัมน์นี้
                         'active' => $row['active'],
                         'status' => $row['active'] == 1 ? 'active' : 'returned',
                         'members' => []
@@ -154,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         'id' => $row['member_id'],
                         'visitor_id' => $row['group_id'], // ใช้ group_id เป็น visitor_id
                         'type' => 'group_member',
-                        'group_name' => $row['group_name'],
+                        'group_name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'],
                         'name' => $row['first_name'] . ' ' . $row['last_name'],
                         'first_name' => $row['first_name'],
                         'last_name' => $row['last_name'],
@@ -164,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         'uuid' => $row['uuid'],
                         'visit_date' => $row['visit_date'],
                         'created_at' => $row['created_at'],
-                        'last_seen' => $row['last_seen'],
+                        'last_seen' => null, // ตั้งค่าเป็น null เนื่องจากไม่มีคอลัมน์นี้
                         'active' => $row['active'],
                         'status' => $row['active'] == 1 ? 'active' : 'returned'
                     ];
@@ -173,9 +172,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             
             // เพิ่มข้อมูลกลุ่มและสมาชิก
             foreach ($groups as $g) {
+                // แสดงข้อมูลกลุ่มเสมอ (สำหรับ filter = all และ group)
                 $allVisitors[] = $g;
                 
-                // ถ้าต้องการแสดงสมาชิกแยกจากกลุ่ม (สำหรับ filter = group)
+                // สำหรับ filter = group ให้แสดงสมาชิกด้วย
                 if ($typeFilter === 'group') {
                     foreach ($g['members'] as $member) {
                         $allVisitors[] = $member;

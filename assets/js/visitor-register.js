@@ -628,7 +628,6 @@ function applyVisitorFilter() {
     fetchVisitors(selectedFilter);
 }
 
-// ฟังก์ชันสำหรับดึงข้อมูลผู้เยี่ยมชมและแสดงในตาราง
 async function fetchVisitors(filter = 'all') {
     const visitorsTableHead = document.querySelector('.table thead');
     const visitorsTableBody = document.getElementById('visitorsTable');
@@ -641,7 +640,9 @@ async function fetchVisitors(filter = 'all') {
     visitorsTableBody.innerHTML = `<tr><td colspan="10" style="text-align: center;">กำลังโหลดข้อมูลผู้เยี่ยมชม...</td></tr>`;
 
     try {
-        const response = await fetch('../../backend/staff/api/get_visitors.php', {
+        // เพิ่ม type parameter ให้ API
+        const url = `../../backend/staff/api/get_visitors.php?type=${filter}`;
+        const response = await fetch(url, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -655,15 +656,7 @@ async function fetchVisitors(filter = 'all') {
 
         let data = result.data;
 
-        if (filter === 'individual') {
-            data = data.filter(v => v.type === 'individual');
-        } else if (filter === 'group') {
-            data = data.filter(v => v.type === 'group_member');
-        } else {
-            // เอาเฉพาะ individual และ group summary (ไม่เอาสมาชิกกลุ่ม)
-            data = data.filter(v => v.type === 'individual' || v.type === 'group');
-        }
-
+        // กำหนด header ตาม filter
         let theadHTML = '';
         if (filter === 'individual') {
             theadHTML = `
@@ -677,8 +670,8 @@ async function fetchVisitors(filter = 'all') {
         } else if (filter === 'group') {
             theadHTML = `
                 <tr>
-                    <th>ชื่อกลุ่ม</th>
-                    <th>ชื่อสมาชิก</th>
+                    <th>ประเภท</th>
+                    <th>ชื่อกลุ่ม/ชื่อสมาชิก</th>
                     <th>อายุ</th>
                     <th>เพศ</th>
                     <th>Tag</th>
@@ -706,7 +699,8 @@ async function fetchVisitors(filter = 'all') {
 
         data.forEach(visitor => {
             const gender = visitor.gender === 'male' ? 'ชาย' :
-                           visitor.gender === 'female' ? 'หญิง' : 'อื่นๆ';
+                           visitor.gender === 'female' ? 'หญิง' : 
+                           visitor.gender ? 'อื่นๆ' : '-';
             const tag = visitor.tag_name || 'ไม่พบชื่อ';
             const uuid = visitor.uuid || 'ไม่ระบุ';
 
@@ -715,7 +709,7 @@ async function fetchVisitors(filter = 'all') {
             if (filter === 'individual') {
                 row = `
                     <tr>
-                        <td>${visitor.name}</td>
+                        <td>${visitor.name || visitor.first_name + ' ' + visitor.last_name}</td>
                         <td>${visitor.age || '-'}</td>
                         <td>${gender}</td>
                         <td>${tag}</td>
@@ -726,9 +720,9 @@ async function fetchVisitors(filter = 'all') {
                     const ageRange = visitor.min_age && visitor.max_age ? `${visitor.min_age}-${visitor.max_age}` : '-';
                     const genderSummary = `M${visitor.male_count} F${visitor.female_count}`;
                     row = `
-                        <tr>
-                            <td>${visitor.group_name}</td>
-                            <td>-</td>
+                        <tr style="background-color: #f8f9fa; font-weight: bold;">
+                            <td>กลุ่ม</td>
+                            <td>${visitor.group_name || visitor.name}</td>
                             <td>${ageRange}</td>
                             <td>${genderSummary}</td>
                             <td>${tag}</td>
@@ -737,7 +731,7 @@ async function fetchVisitors(filter = 'all') {
                 } else if (visitor.type === 'group_member') {
                     row = `
                         <tr>
-                            <td>${visitor.group_name}</td> <!-- ใส่ชื่อกลุ่มตรงนี้ -->
+                            <td>สมาชิก</td>
                             <td>${visitor.name}</td>
                             <td>${visitor.age || '-'}</td>
                             <td>${gender}</td>
@@ -754,7 +748,7 @@ async function fetchVisitors(filter = 'all') {
                     row = `
                         <tr>
                             <td>กลุ่ม</td>
-                            <td>${visitor.group_name}</td>
+                            <td>${visitor.group_name || visitor.name}</td>
                             <td>${ageRange}</td>
                             <td>${genderSummary}</td>
                             <td>${tag}</td>
@@ -764,7 +758,7 @@ async function fetchVisitors(filter = 'all') {
                     row = `
                         <tr>
                             <td>เดี่ยว</td>
-                            <td>${visitor.name}</td>
+                            <td>${visitor.name || visitor.first_name + ' ' + visitor.last_name}</td>
                             <td>${visitor.age || '-'}</td>
                             <td>${gender}</td>
                             <td>${tag}</td>

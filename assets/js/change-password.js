@@ -4,6 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmBtn = document.getElementById('confirmBtn');
     let citizenIdValid = false;
 
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = 'login.html';
+        }
+    }
+
+    window.goBack = goBack; 
+
     function togglePassword(fieldId, icon) {
         const field = document.getElementById(fieldId);
         if (field.type === "password") {
@@ -28,25 +38,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: 'citizenId=' + encodeURIComponent(citizenId)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.exists) {
-                    citizenIdValid = true;
-                    citizenIdField.classList.add('valid');
-                    checkIcon.style.display = 'block';
-                    confirmBtn.disabled = false;
-                } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        citizenIdValid = true;
+                        citizenIdField.classList.add('valid');
+                        checkIcon.style.display = 'block';
+                        confirmBtn.disabled = false;
+                    } else {
+                        citizenIdValid = false;
+                        citizenIdField.classList.remove('valid');
+                        checkIcon.style.display = 'none';
+                        confirmBtn.disabled = true;
+                        Swal.fire('ไม่พบเลขบัตรประชาชนในระบบ', '', 'error');
+                    }
+                })
+                .catch(error => {
                     citizenIdValid = false;
-                    citizenIdField.classList.remove('valid');
-                    checkIcon.style.display = 'none';
-                    confirmBtn.disabled = true;
-                    Swal.fire('ไม่พบเลขบัตรประชาชนในระบบ', '', 'error');
-                }
-            })
-            .catch(error => {
-                citizenIdValid = false;
-                Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
-            });
+                    Swal.fire('เกิดข้อผิดพลาด', error.message, 'error');
+                });
         } else {
             citizenIdValid = false;
             citizenIdField.classList.remove('valid');
