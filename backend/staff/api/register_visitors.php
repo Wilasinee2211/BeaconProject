@@ -34,6 +34,10 @@ try {
         ])) {
             throw new Exception('บันทึกข้อมูลบุคคลล้มเหลว');
         }
+        // ✅ ล้างค่า last_seen ของ tag ที่ใช้
+        $resetStmt = $conn->prepare("UPDATE ibeacons_tag SET last_seen = NULL WHERE uuid = ?");
+        $resetStmt->execute([$input['uuid']]);
+
 
         echo json_encode([
             'status' => 'success',
@@ -116,6 +120,10 @@ try {
             }
 
             $groupId = $conn->lastInsertId();
+            // ✅ ล้างค่า last_seen ของ tag ที่ใช้
+            $resetStmt = $conn->prepare("UPDATE ibeacons_tag SET last_seen = NULL WHERE uuid = ?");
+            $resetStmt->execute([$uuid]);
+
 
             // สร้างตาราง group_members ถ้ายังไม่มี
             $conn->exec("
