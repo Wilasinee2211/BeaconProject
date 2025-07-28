@@ -88,24 +88,6 @@ function hideAllErrors() {
   });
 }
 
-// ฟังก์ชันสำหรับ logout
-function logout() {
-  Swal.fire({
-    title: 'ออกจากระบบ',
-    text: 'คุณต้องการออกจากระบบหรือไม่?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'ใช่, ออกจากระบบ',
-    cancelButtonText: 'ยกเลิก'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      window.location.href = '../login.html';
-    }
-  });
-}
-
 // Event listener สำหรับฟอร์ม
 document.getElementById("employeeForm").addEventListener("submit", function (e) {
   e.preventDefault();
