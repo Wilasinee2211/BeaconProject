@@ -10,6 +10,9 @@ const REGISTER_VISITOR_API_URL = '../../backend/staff/api/register_visitors.php'
 let uploadedFileData = null;
 let currentGroupMethod = 'file'; // เริ่มต้นด้วยการแนบไฟล์
 
+// ตัวแปรเก็บข้อมูลสมาชิกที่เพิ่มแบบรายคน
+let manualGroupMembers = [];
+
 async function loadIBeacons() {
     const beaconDropdownIds = ['visitorBeacon', 'groupBeacon'];
 
@@ -193,17 +196,315 @@ async function addIndividualVisitor() {
 function selectGroupMethod(method) {
     currentGroupMethod = method;
 
-    // Update UI
+    // Remove active class from all method options
     document.querySelectorAll('.method-option').forEach(el => el.classList.remove('active'));
-    event.target.closest('.method-option').classList.add('active');
 
-    // Show/hide sections
+    // Add active class to the clicked option
+    const clickedOption = document.querySelector(`.method-option[onclick*="'${method}'"]`);
+    if (clickedOption) {
+        clickedOption.classList.add('active');
+    }
+
+    // Get the sections to show/hide
+    const fileUploadSection = document.getElementById('fileUploadSection');
+    const groupAddManualSection = document.getElementById('groupAddManualSection');
+
+    // ลบ class active ออกจากทั้งสอง section
+    fileUploadSection.classList.remove('active');
+    groupAddManualSection.classList.remove('active');
+
+    // เพิ่ม class active ให้ section ที่เลือก
     if (method === 'file') {
-        document.getElementById('fileUploadSection').style.display = 'block';
-        document.getElementById('summarySection').style.display = 'none';
+        fileUploadSection.classList.add('active');
+    } else if (method === 'manual') {
+        groupAddManualSection.classList.add('active');
+    }
+}
+
+// ฟังก์ชันเพิ่มสมาชิกในกลุ่มแบบรายคน
+function addGroupMember() {
+    const firstName = document.getElementById('memberFirstName').value.trim();
+    const lastName = document.getElementById('memberLastName').value.trim();
+    const age = parseInt(document.getElementById('memberAge').value);
+    const gender = document.getElementById('memberGender').value;
+
+    // ตรวจสอบข้อมูล
+    if (!firstName || !lastName || !age || !gender) {
+        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกข้อมูลสมาชิกให้ครบถ้วน', 'warning');
+        return;
+    }
+
+    if (age < 0 || age > 150) {
+        Swal.fire('ข้อมูลไม่ถูกต้อง', 'อายุต้องอยู่ระหว่าง 0-150 ปี', 'warning');
+        return;
+    }
+
+    // สร้างข้อมูลสมาชิก
+    const member = {
+        id: Date.now() + Math.random(), // สร้าง ID ชั่วคราว
+        first_name: firstName,
+        last_name: lastName,
+        age: age,
+        gender: gender
+    };
+
+    // เพิ่มสมาชิกเข้า array
+    manualGroupMembers.push(member);
+
+    // อัปเดต UI
+    updateMembersList();
+    updateMembersSummary();
+
+    // ล้างฟอร์ม
+    clearMemberForm();
+
+    // แสดงการแจ้งเตือน
+    Swal.fire({
+        title: 'เพิ่มสมาชิกสำเร็จ',
+        text: `เพิ่ม ${firstName} ${lastName} เข้ากลุ่มแล้ว`,
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+    });
+}
+
+// ฟังก์ชันล้างฟอร์มเพิ่มสมาชิก
+function clearMemberForm() {
+    document.getElementById('memberFirstName').value = '';
+    document.getElementById('memberLastName').value = '';
+    document.getElementById('memberAge').value = '';
+    document.getElementById('memberGender').value = '';
+}
+
+// ฟังก์ชันอัปเดตรายชื่อสมาชิก
+function updateMembersList() {
+    const membersList = document.getElementById('membersList');
+    const memberCount = document.getElementById('memberCount');
+    const clearAllBtn = document.querySelector('.clear-all-btn');
+
+    if (!membersList || !memberCount) return;
+
+    // อัปเดตจำนวนสมาชิก
+    memberCount.textContent = manualGroupMembers.length;
+
+    if (manualGroupMembers.length === 0) {
+        // แสดงสถานะว่าง
+        membersList.innerHTML = `
+            <div class="empty-members-state">
+                <div class="empty-icon">👥</div>
+                <p>ยังไม่มีสมาชิกในกลุ่ม</p>
+                <p class="empty-hint">เริ่มเพิ่มสมาชิกคนแรกได้เลย</p>
+            </div>
+        `;
+        if (clearAllBtn) clearAllBtn.style.display = 'none';
     } else {
-        document.getElementById('fileUploadSection').style.display = 'none';
-        document.getElementById('summarySection').style.display = 'block';
+        // แสดงรายชื่อสมาชิก
+        let membersHTML = '';
+        manualGroupMembers.forEach((member, index) => {
+            const genderText = member.gender === 'male' ? 'ชาย' : 
+                              member.gender === 'female' ? 'หญิง' : 'อื่นๆ';
+            
+            membersHTML += `
+                <div class="member-item" data-member-id="${member.id}">
+                    <div class="member-info">
+                        <div class="member-name">${member.first_name} ${member.last_name}</div>
+                        <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
+                    </div>
+                    <div class="member-actions">
+                        <button type="button" class="btn-remove-member" onclick="removeMember(${member.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        membersList.innerHTML = membersHTML;
+        if (clearAllBtn) clearAllBtn.style.display = 'inline-flex';
+    }
+}
+
+// ฟังก์ชันลบสมาชิก
+function removeMember(memberId) {
+    const memberIndex = manualGroupMembers.findIndex(member => member.id === memberId);
+    if (memberIndex === -1) return;
+
+    const member = manualGroupMembers[memberIndex];
+    
+    Swal.fire({
+        title: 'ยืนยันการลบ',
+        text: `คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ลบ',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ลบสมาชิกออกจาก array
+            manualGroupMembers.splice(memberIndex, 1);
+            
+            // อัปเดต UI
+            updateMembersList();
+            updateMembersSummary();
+            
+            Swal.fire({
+                title: 'ลบสำเร็จ',
+                text: `ลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มแล้ว`,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+// ฟังก์ชันล้างสมาชิกทั้งหมด
+function clearAllMembers() {
+    if (manualGroupMembers.length === 0) return;
+
+    Swal.fire({
+        title: 'ยืนยันการล้างข้อมูล',
+        text: `คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'ใช่, ล้างทั้งหมด',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#dc3545'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // ล้างข้อมูลทั้งหมด
+            manualGroupMembers = [];
+            
+            // อัปเดต UI
+            updateMembersList();
+            updateMembersSummary();
+            
+            Swal.fire({
+                title: 'ล้างข้อมูลสำเร็จ',
+                text: 'ลบสมาชิกทั้งหมดออกจากกลุ่มแล้ว',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+// ฟังก์ชันอัปเดตสรุปข้อมูลสมาชิก
+function updateMembersSummary() {
+    const summarySection = document.getElementById('membersSummary');
+    
+    if (!summarySection) return;
+
+    if (manualGroupMembers.length === 0) {
+        summarySection.style.display = 'none';
+        return;
+    }
+
+    // คำนวณสถิติ
+    const maleCount = manualGroupMembers.filter(m => m.gender === 'male').length;
+    const femaleCount = manualGroupMembers.filter(m => m.gender === 'female').length;
+    const totalCount = manualGroupMembers.length; // คำนวณยอดรวมทั้งหมดแทน
+
+    const ages = manualGroupMembers.map(m => m.age);
+    const averageAge = ages.length > 0 ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
+
+    // อัปเดต UI
+    document.getElementById('totalMaleMembers').textContent = maleCount;
+    document.getElementById('totalFemaleMembers').textContent = femaleCount;
+    document.getElementById('totalAllMembers').textContent = totalCount; // อัปเดตยอดรวม
+    document.getElementById('averageAge').textContent = averageAge;
+
+    summarySection.style.display = 'block';
+}
+
+// ฟังก์ชันลงทะเบียนกลุ่มแบบรายคน
+async function addGroupVisitorManual() {
+    const groupName = document.getElementById('groupName').value.trim();
+    const groupType = document.getElementById('groupType').value.trim();
+    const beaconUUID = document.getElementById('groupBeacon').value;
+
+    // ตรวจสอบข้อมูลพื้นฐาน
+    if (!groupName || !groupType || !beaconUUID) {
+        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกชื่อกลุ่ม ประเภทกลุ่ม และเลือก iBeacon', 'warning');
+        return;
+    }
+
+    // ตรวจสอบสมาชิกในกลุ่ม
+    if (manualGroupMembers.length === 0) {
+        Swal.fire('ไม่มีสมาชิก', 'กรุณาเพิ่มสมาชิกในกลุ่มอย่างน้อย 1 คน', 'warning');
+        return;
+    }
+
+    // เตรียมข้อมูลสำหรับส่งไปยัง API
+    const groupData = {
+        type: 'group',
+        group_name: groupName,
+        group_type: groupType,
+        group_size: manualGroupMembers.length,
+        uuid: beaconUUID,
+        members: manualGroupMembers,
+        registration_method: 'manual' // ระบุวิธีการลงทะเบียน
+    };
+
+    console.log('Manual group data to be sent:', groupData);
+
+    try {
+        // แสดงสถานะกำลังบันทึก
+        Swal.fire({
+            title: 'กำลังบันทึกข้อมูล...',
+            text: `กำลังลงทะเบียนกลุ่ม ${groupName} (${groupType}) จำนวน ${manualGroupMembers.length} คน`,
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const response = await fetch(REGISTER_VISITOR_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(groupData)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server error response:', errorText);
+            Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', 'error');
+            return;
+        }
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            Swal.fire({
+                title: 'สำเร็จ!',
+                text: `ลงทะเบียนกลุ่ม ${groupName} (${groupType}) สำเร็จ จำนวน ${manualGroupMembers.length} คน`,
+                icon: 'success',
+                confirmButtonText: 'ตกลง'
+            });
+
+            // ล้างฟอร์มและข้อมูล
+            clearGroupForm();
+            fetchVisitors(); // รีเฟรชตารางข้อมูล
+
+        } else {
+            Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถลงทะเบียนได้', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error registering manual group:', error);
+        Swal.fire('ข้อผิดพลาด', `ไม่สามารถลงทะเบียนได้: ${error.message}`, 'error');
+    }
+}
+
+// ฟังก์ชันลงทะเบียนกลุ่ม (เลือกวิธีการตาม currentGroupMethod)
+async function addGroupVisitor() {
+    if (currentGroupMethod === 'file') {
+        await addGroupVisitorFromFile();
+    } else if (currentGroupMethod === 'manual') {
+        await addGroupVisitorManual();
     }
 }
 
@@ -542,6 +843,12 @@ function clearGroupForm() {
     const fileInput = document.getElementById('excelFile');
     if (fileInput) fileInput.value = '';
 
+    // ล้างข้อมูลสมาชิกแบบรายคน
+    manualGroupMembers = [];
+    updateMembersList();
+    updateMembersSummary();
+    clearMemberForm();
+
     // ซ่อนตัวอย่าง
     const preview = document.getElementById('filePreview');
     if (preview) preview.style.display = 'none';
@@ -857,11 +1164,7 @@ document.addEventListener("DOMContentLoaded", function () {
     loadIBeacons();
     fetchVisitors();
     setupDragAndDrop();
-    setupGroupTypeInput(); // เพิ่มบรรทัดนี้
+    setupGroupTypeInput();
     
-    // อัปเดตการเรียกใช้ฟังก์ชัน
-    const groupRegisterBtn = document.querySelector('button[onclick="addGroupVisitor()"]');
-    if (groupRegisterBtn) {
-        groupRegisterBtn.setAttribute('onclick', 'addGroupVisitorFromFile()');
-    }
+    // ไม่ต้องเปลี่ยน onclick attribute เพราะใช้ฟังก์ชัน addGroupVisitor() ที่จะเลือกวิธีการเอง
 });

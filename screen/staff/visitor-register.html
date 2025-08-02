@@ -84,7 +84,6 @@
                                 <option value="">เลือกเพศ</option>
                                 <option value="male">ชาย</option>
                                 <option value="female">หญิง</option>
-                                <option value="other">อื่นๆ</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -138,10 +137,10 @@
                                 <h4>แนบไฟล์ Excel</h4>
                                 <p>อัปโหลดไฟล์ข้อมูลสมาชิก</p>
                             </div>
-                            <div class="method-option" onclick="selectGroupMethod('summary')">
+                            <div class="method-option" onclick="selectGroupMethod('manual')">
                                 <div class="icon">📊</div>
-                                <h4>กรอกข้อมูลสรุป</h4>
-                                <p>กรอกจำนวนตามช่วงอายุ</p>
+                                <h4>กรอกข้อมูลรายคน</h4>
+                                <p>กรอกข้อมูลสมาชิกในกลุ่ม</p>
                             </div>
                         </div>
                     </div>
@@ -168,94 +167,88 @@
                         </div>
                     </div>
 
-                    <!-- Section สำหรับกรอกข้อมูลสรุป -->
-                    <div id="summarySection" class="summary-section" style="display: none;">
-                        <h4 style="color: #2a8c78; margin-bottom: 15px;">กรอกจำนวนสมาชิกตามช่วงอายุ</h4>
+                    <!-- Section สำหรับเพิ่มสมาชิกทีละคน -->
+                    <div id="groupAddManualSection" class="group-add-manual-section">
+                        <div class="add-member-form">
+                            <h4 style="color: #2a8c78; margin-bottom: 15px;">
+                                <i class="fas fa-user-plus"></i>
+                                เพิ่มสมาชิกในกลุ่ม
+                            </h4>
 
-                        <div class="age-groups">
-                            <div class="age-group-item">
-                                <div class="age-group-label">เด็กเล็ก (0-5 ปี)</div>
-                                <div class="gender-input">
-                                    <label>ชาย</label>
-                                    <input type="number" id="age0_5_male" min="0" value="0" onchange="updateSummary()">
+                            <div class="add-member-grid">
+                                <div class="form-group">
+                                    <label>ชื่อ</label>
+                                    <input type="text" id="memberFirstName" placeholder="กรอกชื่อ">
                                 </div>
-                                <div class="gender-input">
-                                    <label>หญิง</label>
-                                    <input type="number" id="age0_5_female" min="0" value="0"
-                                        onchange="updateSummary()">
+                                <div class="form-group">
+                                    <label>นามสกุล</label>
+                                    <input type="text" id="memberLastName" placeholder="กรอกนามสกุล">
                                 </div>
-                            </div>
-
-                            <div class="age-group-item">
-                                <div class="age-group-label">เด็กโต (6-11 ปี)</div>
-                                <div class="gender-input">
-                                    <label>ชาย</label>
-                                    <input type="number" id="age6_11_male" min="0" value="0" onchange="updateSummary()">
+                                <div class="form-group">
+                                    <label>อายุ</label>
+                                    <input type="number" id="memberAge" placeholder="อายุ" min="0" max="150">
                                 </div>
-                                <div class="gender-input">
-                                    <label>หญิง</label>
-                                    <input type="number" id="age6_11_female" min="0" value="0"
-                                        onchange="updateSummary()">
+                                <div class="form-group">
+                                    <label>เพศ</label>
+                                    <select id="memberGender">
+                                        <option value="">เลือกเพศ</option>
+                                        <option value="male">ชาย</option>
+                                        <option value="female">หญิง</option>
+                                    </select>
                                 </div>
-                            </div>
-
-                            <div class="age-group-item">
-                                <div class="age-group-label">วัยรุ่น (12-17 ปี)</div>
-                                <div class="gender-input">
-                                    <label>ชาย</label>
-                                    <input type="number" id="age12_17_male" min="0" value="0"
-                                        onchange="updateSummary()">
-                                </div>
-                                <div class="gender-input">
-                                    <label>หญิง</label>
-                                    <input type="number" id="age12_17_female" min="0" value="0"
-                                        onchange="updateSummary()">
-                                </div>
-                            </div>
-
-                            <div class="age-group-item">
-                                <div class="age-group-label">ผู้ใหญ่ (18-59 ปี)</div>
-                                <div class="gender-input">
-                                    <label>ชาย</label>
-                                    <input type="number" id="age18_59_male" min="0" value="0"
-                                        onchange="updateSummary()">
-                                </div>
-                                <div class="gender-input">
-                                    <label>หญิง</label>
-                                    <input type="number" id="age18_59_female" min="0" value="0"
-                                        onchange="updateSummary()">
-                                </div>
-                            </div>
-
-                            <div class="age-group-item">
-                                <div class="age-group-label">ผู้สูงอายุ (60+ ปี)</div>
-                                <div class="gender-input">
-                                    <label>ชาย</label>
-                                    <input type="number" id="age60_male" min="0" value="0" onchange="updateSummary()">
-                                </div>
-                                <div class="gender-input">
-                                    <label>หญิง</label>
-                                    <input type="number" id="age60_female" min="0" value="0" onchange="updateSummary()">
+                                <div class="form-group" style="align-self: end;">
+                                    <button type="button" class="btn-add-member" onclick="addGroupMember()">
+                                        <i class="fas fa-plus"></i> เพิ่ม
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="summary-info" id="ageSummary">
-                            <div class="summary-row">
-                                <span>จำนวนชาย:</span>
-                                <span id="totalMale">0 คน</span>
+                        <!-- รายชื่อสมาชิกที่เพิ่มแล้ว -->
+                        <div class="members-list-container">
+                            <div class="members-header-section">
+                                <h4 style="color: #2a8c78; margin-bottom: 15px;">
+                                    <i class="fas fa-users"></i>
+                                    รายชื่อสมาชิกในกลุ่ม (<span id="memberCount">0</span> คน)
+                                </h4>
+                                <button type="button" class="clear-all-btn" onclick="clearAllMembers()"
+                                    style="display: none;">
+                                    <i class="fas fa-trash"></i> ล้างทั้งหมด
+                                </button>
                             </div>
-                            <div class="summary-row">
-                                <span>จำนวนหญิง:</span>
-                                <span id="totalFemale">0 คน</span>
+
+                            <div class="members-list" id="membersList">
+                                <div class="empty-members-state">
+                                    <div class="empty-icon">👥</div>
+                                    <p>ยังไม่มีสมาชิกในกลุ่ม</p>
+                                    <p class="empty-hint">เริ่มเพิ่มสมาชิกคนแรกได้เลย</p>
+                                </div>
                             </div>
-                            <div class="summary-row summary-total">
-                                <span>รวมทั้งหมด:</span>
-                                <span id="totalMembers">0 คน</span>
+
+                            <!-- สรุปข้อมูลสมาชิก -->
+                            <div class="members-summary" id="membersSummary" style="display: none;">
+                                <h5><i class="fas fa-chart-pie"></i> สรุปข้อมูลสมาชิก</h5>
+                                <div class="summary-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalMaleMembers">0</div>
+                                        <div class="stat-label">ชาย</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalFemaleMembers">0</div>
+                                        <div class="stat-label">หญิง</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="totalAllMembers">0</div>
+                                        <div class="stat-label">รวมทั้งหมด</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-number" id="averageAge">0</div>
+                                        <div class="stat-label">อายุเฉลี่ย</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                     <button class="btn" onclick="addGroupVisitor()">เพิ่มกลุ่มผู้เยี่ยมชม</button>
                 </div>
             </div>
