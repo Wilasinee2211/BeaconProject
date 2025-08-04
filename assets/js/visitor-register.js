@@ -298,20 +298,20 @@ function updateMembersList() {
         `;
         if (clearAllBtn) clearAllBtn.style.display = 'none';
     } else {
-        // แสดงรายชื่อสมาชิก
+        // แสดงรายชื่อสมาชิกแบบ Card Layout
         let membersHTML = '';
         manualGroupMembers.forEach((member, index) => {
-            const genderText = member.gender === 'male' || member.gender === 'M' ? 'ชาย' : 
-                          member.gender === 'female' || member.gender === 'F' ? 'หญิง' : 
-                          member.gender === 'other' || member.gender === 'O' ? 'อื่นๆ' : 
-                          member.gender ? member.gender : '-';
+            const genderText = member.gender === 'male' ? 'ชาย' : 
+                              member.gender === 'female' ? 'หญิง' : 
+                              member.gender === 'other' ? 'อื่นๆ' : 
+                              member.gender ? member.gender : '-';
         
-        membersHTML += `
-            <div class="member-item" data-member-id="${member.id}">
-                <div class="member-info">
-                    <div class="member-name">${member.first_name} ${member.last_name}</div>
-                    <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
-                </div>
+            membersHTML += `
+                <div class="member-item" data-member-id="${member.id}">
+                    <div class="member-info">
+                        <div class="member-name">${member.first_name} ${member.last_name}</div>
+                        <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
+                    </div>
                     <div class="member-actions">
                         <button type="button" class="btn-remove-member" onclick="removeMember(${member.id})">
                             <i class="fas fa-trash"></i>
@@ -326,71 +326,209 @@ function updateMembersList() {
     }
 }
 
-// ฟังก์ชันลบสมาชิก
+// แทนที่ฟังก์ชัน updateMembersSummary() เดิม
+function updateMembersSummary() {
+    const summarySection = document.getElementById('membersSummary');
+    
+    if (!summarySection) return;
+
+    if (manualGroupMembers.length === 0) {
+        summarySection.style.display = 'none';
+        return;
+    }
+
+    // คำนวณสถิติ
+    const maleCount = manualGroupMembers.filter(m => m.gender === 'male').length;
+    const femaleCount = manualGroupMembers.filter(m => m.gender === 'female').length;
+    const otherCount = manualGroupMembers.filter(m => m.gender !== 'male' && m.gender !== 'female').length;
+    const totalCount = manualGroupMembers.length;
+
+    // อัปเดต UI
+    const totalMaleElement = document.getElementById('totalMaleMembers');
+    const totalFemaleElement = document.getElementById('totalFemaleMembers');
+    const totalOtherElement = document.getElementById('totalOtherMembers');
+    const totalAllElement = document.getElementById('totalAllMembers');
+
+    if (totalMaleElement) totalMaleElement.textContent = maleCount;
+    if (totalFemaleElement) totalFemaleElement.textContent = femaleCount;
+    if (totalOtherElement) totalOtherElement.textContent = otherCount;
+    if (totalAllElement) totalAllElement.textContent = totalCount;
+
+    summarySection.style.display = 'block';
+
+    console.log('Members Summary:', {
+        male: maleCount,
+        female: femaleCount,
+        other: otherCount,
+        total: totalCount
+    });
+}
+
+// เพิ่มการรองรับ Enter key สำหรับฟอร์มเพิ่มสมาชิก
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        // ตรวจสอบว่าอยู่ในฟอร์มเพิ่มสมาชิกหรือไม่
+        const activeElement = document.activeElement;
+        const formInputs = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
+        
+        if (formInputs.includes(activeElement.id)) {
+            addGroupMember();
+        }
+    }
+});
+
+// ฟังก์ชันเพิ่มสมาชิกในกลุ่มแบบรายคน (อัปเดตให้ใช้ SweetAlert2)
+function addGroupMember() {
+    const firstName = document.getElementById('memberFirstName').value.trim();
+    const lastName = document.getElementById('memberLastName').value.trim();
+    const age = parseInt(document.getElementById('memberAge').value);
+    const gender = document.getElementById('memberGender').value;
+
+    // ตรวจสอบข้อมูล
+    if (!firstName || !lastName || !age || !gender) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('กรอกไม่ครบ', 'กรุณากรอกข้อมูลสมาชิกให้ครบถ้วน', 'warning');
+        } else {
+            alert('กรุณากรอกข้อมูลสมาชิกให้ครบถ้วน');
+        }
+        return;
+    }
+
+    if (age < 0 || age > 150) {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('ข้อมูลไม่ถูกต้อง', 'อายุต้องอยู่ระหว่าง 0-150 ปี', 'warning');
+        } else {
+            alert('อายุต้องอยู่ระหว่าง 0-150 ปี');
+        }
+        return;
+    }
+
+    // สร้างข้อมูลสมาชิก
+    const member = {
+        id: Date.now() + Math.random(), // สร้าง ID ชั่วคราว
+        first_name: firstName,
+        last_name: lastName,
+        age: age,
+        gender: gender
+    };
+
+    // เพิ่มสมาชิกเข้า array
+    manualGroupMembers.push(member);
+
+    // อัปเดต UI
+    updateMembersList();
+    updateMembersSummary();
+
+    // ล้างฟอร์ม
+    clearMemberForm();
+
+    // แสดงการแจ้งเตือน
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'เพิ่มสมาชิกสำเร็จ',
+            text: `เพิ่ม ${firstName} ${lastName} เข้ากลุ่มแล้ว`,
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    console.log('Added member:', member);
+    console.log('Current members:', manualGroupMembers);
+}
+
+// ฟังก์ชันลบสมาชิก (อัปเดตให้ใช้ SweetAlert2)
 function removeMember(memberId) {
     const memberIndex = manualGroupMembers.findIndex(member => member.id === memberId);
     if (memberIndex === -1) return;
 
     const member = manualGroupMembers[memberIndex];
     
-    Swal.fire({
-        title: 'ยืนยันการลบ',
-        text: `คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'ใช่, ลบ',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#dc3545'
-    }).then((result) => {
-        if (result.isConfirmed) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'ยืนยันการลบ',
+            text: `คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ลบ',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ลบสมาชิกออกจาก array
+                manualGroupMembers.splice(memberIndex, 1);
+                
+                // อัปเดต UI
+                updateMembersList();
+                updateMembersSummary();
+                
+                Swal.fire({
+                    title: 'ลบสำเร็จ',
+                    text: `ลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มแล้ว`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    } else {
+        if (confirm(`คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`)) {
             // ลบสมาชิกออกจาก array
             manualGroupMembers.splice(memberIndex, 1);
             
             // อัปเดต UI
             updateMembersList();
             updateMembersSummary();
-            
-            Swal.fire({
-                title: 'ลบสำเร็จ',
-                text: `ลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มแล้ว`,
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
         }
-    });
+    }
+    
+    console.log('Removed member:', member);
+    console.log('Current members:', manualGroupMembers);
 }
 
-// ฟังก์ชันล้างสมาชิกทั้งหมด
+// ฟังก์ชันล้างสมาชิกทั้งหมด (อัปเดตให้ใช้ SweetAlert2)
 function clearAllMembers() {
     if (manualGroupMembers.length === 0) return;
 
-    Swal.fire({
-        title: 'ยืนยันการล้างข้อมูล',
-        text: `คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'ใช่, ล้างทั้งหมด',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#dc3545'
-    }).then((result) => {
-        if (result.isConfirmed) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'ยืนยันการล้างข้อมูล',
+            text: `คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ล้างทั้งหมด',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ล้างข้อมูลทั้งหมด
+                manualGroupMembers = [];
+                
+                // อัปเดต UI
+                updateMembersList();
+                updateMembersSummary();
+                
+                Swal.fire({
+                    title: 'ล้างข้อมูลสำเร็จ',
+                    text: 'ลบสมาชิกทั้งหมดออกจากกลุ่มแล้ว',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    } else {
+        if (confirm(`คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`)) {
             // ล้างข้อมูลทั้งหมด
             manualGroupMembers = [];
             
             // อัปเดต UI
             updateMembersList();
             updateMembersSummary();
-            
-            Swal.fire({
-                title: 'ล้างข้อมูลสำเร็จ',
-                text: 'ลบสมาชิกทั้งหมดออกจากกลุ่มแล้ว',
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
         }
-    });
+    }
+    
+    console.log('Cleared all members');
 }
 
 // ฟังก์ชันอัปเดตสรุปข้อมูลสมาชิก
