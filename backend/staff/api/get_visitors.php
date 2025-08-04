@@ -90,99 +90,106 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         // GROUP
         if ($typeFilter === 'all' || $typeFilter === 'group') {
-            $stmt = $conn->prepare("
-                SELECT
-                    v.id AS group_id,
-                    v.group_name,
-                    v.uuid,
-                    v.visit_date,
-                    v.created_at,
-                    v.active,
-                    v.type,
-                    COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
-                    gm.id AS member_id, 
-                    gm.first_name, 
-                    gm.last_name, 
-                    gm.age,
-                    gm.gender
-                FROM visitors v
-                LEFT JOIN ibeacons_tag i ON CONVERT(v.uuid USING utf8) = i.uuid
-                LEFT JOIN group_members gm ON v.id = gm.group_visitor_id
-                WHERE v.type = 'group'
-                ORDER BY v.created_at DESC
-            ");
-            $stmt->execute();
-            $groupRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            $groups = [];
-            foreach ($groupRows as $row) {
-                $gid = $row['group_id'];
-                
-                if (!isset($groups[$gid])) {
-                    $groups[$gid] = [
-                        'id' => $row['group_id'],
-                        'visitor_id' => $row['group_id'],
-                        'type' => 'group',
-                        'group_name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'], // ใช้ชื่อจริงหรือ default
-                        'name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'], // เพิ่ม name field
-                        'min_age' => $row['age'] ?? 0,
-                        'max_age' => $row['age'] ?? 0,
-                        'male_count' => 0,
-                        'female_count' => 0,
-                        'tag_name' => $row['tag_name'],
-                        'uuid' => $row['uuid'],
-                        'visit_date' => $row['visit_date'],
-                        'created_at' => $row['created_at'],
-                        'last_seen' => null, // ตั้งค่าเป็น null เนื่องจากไม่มีคอลัมน์นี้
-                        'active' => $row['active'],
-                        'status' => $row['active'] == 1 ? 'active' : 'returned',
-                        'members' => []
-                    ];
-                } else {
-                    if ($row['age']) {
-                        $groups[$gid]['min_age'] = min($groups[$gid]['min_age'], $row['age']);
-                        $groups[$gid]['max_age'] = max($groups[$gid]['max_age'], $row['age']);
-                    }
-                }
-                
-                if ($row['gender'] === 'male') $groups[$gid]['male_count']++;
-                if ($row['gender'] === 'female') $groups[$gid]['female_count']++;
-                
-                if (!empty($row['member_id'])) {
-                    $groups[$gid]['members'][] = [
-                        'id' => $row['member_id'],
-                        'visitor_id' => $row['group_id'], // ใช้ group_id เป็น visitor_id
-                        'type' => 'group_member',
-                        'group_name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'],
-                        'name' => $row['first_name'] . ' ' . $row['last_name'],
-                        'first_name' => $row['first_name'],
-                        'last_name' => $row['last_name'],
-                        'age' => $row['age'],
-                        'gender' => $row['gender'],
-                        'tag_name' => $row['tag_name'],
-                        'uuid' => $row['uuid'],
-                        'visit_date' => $row['visit_date'],
-                        'created_at' => $row['created_at'],
-                        'last_seen' => null, // ตั้งค่าเป็น null เนื่องจากไม่มีคอลัมน์นี้
-                        'active' => $row['active'],
-                        'status' => $row['active'] == 1 ? 'active' : 'returned'
-                    ];
-                }
-            }
-            
-            // เพิ่มข้อมูลกลุ่มและสมาชิก
-            foreach ($groups as $g) {
-                // แสดงข้อมูลกลุ่มเสมอ (สำหรับ filter = all และ group)
-                $allVisitors[] = $g;
-                
-                // สำหรับ filter = group ให้แสดงสมาชิกด้วย
-                if ($typeFilter === 'group') {
-                    foreach ($g['members'] as $member) {
-                        $allVisitors[] = $member;
-                    }
-                }
+    $stmt = $conn->prepare("
+        SELECT
+            v.id AS group_id,
+            v.group_name,
+            v.uuid,
+            v.visit_date,
+            v.created_at,
+            v.active,
+            v.type,
+            COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name,
+            gm.id AS member_id, 
+            gm.first_name, 
+            gm.last_name, 
+            gm.age,
+            gm.gender
+        FROM visitors v
+        LEFT JOIN ibeacons_tag i ON CONVERT(v.uuid USING utf8) = i.uuid
+        LEFT JOIN group_members gm ON v.id = gm.group_visitor_id
+        WHERE v.type = 'group'
+        ORDER BY v.created_at DESC
+    ");
+    $stmt->execute();
+    $groupRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $groups = [];
+    foreach ($groupRows as $row) {
+        $gid = $row['group_id'];
+        
+        if (!isset($groups[$gid])) {
+            $groups[$gid] = [
+                'id' => $row['group_id'],
+                'visitor_id' => $row['group_id'],
+                'type' => 'group',
+                'group_name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'],
+                'name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'],
+                'min_age' => $row['age'] ?? 0,
+                'max_age' => $row['age'] ?? 0,
+                'male_count' => 0,
+                'female_count' => 0,
+                'other_count' => 0, // เพิ่มการนับเพศอื่นๆ
+                'tag_name' => $row['tag_name'],
+                'uuid' => $row['uuid'],
+                'visit_date' => $row['visit_date'],
+                'created_at' => $row['created_at'],
+                'last_seen' => null,
+                'active' => $row['active'],
+                'status' => $row['active'] == 1 ? 'active' : 'returned',
+                'members' => []
+            ];
+        } else {
+            if ($row['age']) {
+                $groups[$gid]['min_age'] = min($groups[$gid]['min_age'], $row['age']);
+                $groups[$gid]['max_age'] = max($groups[$gid]['max_age'], $row['age']);
             }
         }
+        
+        // แก้ไขการนับเพศให้ครอบคลุมทุกประเภท
+        $gender = strtolower(trim($row['gender'] ?? ''));
+        
+        if ($gender === 'male' || $gender === 'm') {
+            $groups[$gid]['male_count']++;
+        } elseif ($gender === 'female' || $gender === 'f') {
+            $groups[$gid]['female_count']++;
+        } elseif ($gender === 'other' || $gender === 'o') {
+            $groups[$gid]['other_count']++;
+        }
+        
+        if (!empty($row['member_id'])) {
+            $groups[$gid]['members'][] = [
+                'id' => $row['member_id'],
+                'visitor_id' => $row['group_id'],
+                'type' => 'group_member',
+                'group_name' => $row['group_name'] ?: 'กลุ่ม ' . $row['group_id'],
+                'name' => $row['first_name'] . ' ' . $row['last_name'],
+                'first_name' => $row['first_name'],
+                'last_name' => $row['last_name'],
+                'age' => $row['age'],
+                'gender' => $row['gender'], // ส่งค่าเดิมไป (จะแปลงใน JavaScript)
+                'tag_name' => $row['tag_name'],
+                'uuid' => $row['uuid'],
+                'visit_date' => $row['visit_date'],
+                'created_at' => $row['created_at'],
+                'last_seen' => null,
+                'active' => $row['active'],
+                'status' => $row['active'] == 1 ? 'active' : 'returned'
+            ];
+        }
+    }
+    
+    // เพิ่มข้อมูลกลุ่มและสมาชิก
+    foreach ($groups as $g) {
+        $allVisitors[] = $g;
+        
+        if ($typeFilter === 'group') {
+            foreach ($g['members'] as $member) {
+                $allVisitors[] = $member;
+            }
+        }
+    }
+}
 
         echo json_encode([
             'status' => 'success',

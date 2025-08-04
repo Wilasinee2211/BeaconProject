@@ -301,15 +301,17 @@ function updateMembersList() {
         // แสดงรายชื่อสมาชิก
         let membersHTML = '';
         manualGroupMembers.forEach((member, index) => {
-            const genderText = member.gender === 'male' ? 'ชาย' : 
-                              member.gender === 'female' ? 'หญิง' : 'อื่นๆ';
-            
-            membersHTML += `
-                <div class="member-item" data-member-id="${member.id}">
-                    <div class="member-info">
-                        <div class="member-name">${member.first_name} ${member.last_name}</div>
-                        <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
-                    </div>
+            const genderText = member.gender === 'male' || member.gender === 'M' ? 'ชาย' : 
+                          member.gender === 'female' || member.gender === 'F' ? 'หญิง' : 
+                          member.gender === 'other' || member.gender === 'O' ? 'อื่นๆ' : 
+                          member.gender ? member.gender : '-';
+        
+        membersHTML += `
+            <div class="member-item" data-member-id="${member.id}">
+                <div class="member-info">
+                    <div class="member-name">${member.first_name} ${member.last_name}</div>
+                    <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
+                </div>
                     <div class="member-actions">
                         <button type="button" class="btn-remove-member" onclick="removeMember(${member.id})">
                             <i class="fas fa-trash"></i>
@@ -405,16 +407,14 @@ function updateMembersSummary() {
     // คำนวณสถิติ
     const maleCount = manualGroupMembers.filter(m => m.gender === 'male').length;
     const femaleCount = manualGroupMembers.filter(m => m.gender === 'female').length;
-    const totalCount = manualGroupMembers.length; // คำนวณยอดรวมทั้งหมดแทน
-
-    const ages = manualGroupMembers.map(m => m.age);
-    const averageAge = ages.length > 0 ? Math.round(ages.reduce((a, b) => a + b, 0) / ages.length) : 0;
+    const otherCount = manualGroupMembers.filter(m => m.gender !== 'male' && m.gender !== 'female').length;
+    const totalCount = manualGroupMembers.length;
 
     // อัปเดต UI
     document.getElementById('totalMaleMembers').textContent = maleCount;
     document.getElementById('totalFemaleMembers').textContent = femaleCount;
-    document.getElementById('totalAllMembers').textContent = totalCount; // อัปเดตยอดรวม
-    document.getElementById('averageAge').textContent = averageAge;
+    document.getElementById('totalOtherMembers').textContent = otherCount;
+    document.getElementById('totalAllMembers').textContent = totalCount;
 
     summarySection.style.display = 'block';
 }
@@ -701,8 +701,11 @@ function displayFilePreview(data) {
     `;
 
     previewData.forEach(row => {
-        const genderText = row.gender === 'male' ? 'ชาย' : 
-                          row.gender === 'female' ? 'หญิง' : 'อื่นๆ';
+        const genderText = row.gender === 'male' || row.gender === 'M' ? 'ชาย' : 
+                          row.gender === 'female' || row.gender === 'F' ? 'หญิง' : 
+                          row.gender === 'other' || row.gender === 'O' ? 'อื่นๆ' : 
+                          row.gender ? row.gender : '-';
+        
         tableHtml += `
             <tr>
                 <td>${row.first_name}</td>
@@ -935,6 +938,8 @@ function applyVisitorFilter() {
     fetchVisitors(selectedFilter);
 }
 
+// แก้ไขในฟังก์ชัน fetchVisitors() ใน visitor-register.js
+
 async function fetchVisitors(filter = 'all') {
     const visitorsTableHead = document.querySelector('.table thead');
     const visitorsTableBody = document.getElementById('visitorsTable');
@@ -947,7 +952,6 @@ async function fetchVisitors(filter = 'all') {
     visitorsTableBody.innerHTML = `<tr><td colspan="10" style="text-align: center;">กำลังโหลดข้อมูลผู้เยี่ยมชม...</td></tr>`;
 
     try {
-        // เพิ่ม type parameter ให้ API
         const url = `../../backend/staff/api/get_visitors.php?type=${filter}`;
         const response = await fetch(url, {
             method: 'GET',
@@ -1005,9 +1009,29 @@ async function fetchVisitors(filter = 'all') {
         }
 
         data.forEach(visitor => {
-            const gender = visitor.gender === 'male' ? 'ชาย' :
-                           visitor.gender === 'female' ? 'หญิง' : 
-                           visitor.gender ? 'อื่นๆ' : '-';
+            // ฟังก์ชันแปลงเพศที่ถูกต้อง
+            const formatGender = (genderValue) => {
+                if (!genderValue) return '-';
+                
+                const cleanGender = genderValue.toString().trim().toLowerCase();
+                
+                switch (cleanGender) {
+                    case 'male':
+                    case 'm':
+                        return 'ชาย';
+                    case 'female':
+                    case 'f':
+                        return 'หญิง';
+                    case 'other':
+                    case 'o':
+                        return 'อื่นๆ';
+                    default:
+                        console.log('Unknown gender value:', genderValue);
+                        return genderValue;
+                }
+            };
+
+            const gender = formatGender(visitor.gender);
             const tag = visitor.tag_name || 'ไม่พบชื่อ';
             const uuid = visitor.uuid || 'ไม่ระบุ';
 
@@ -1025,7 +1049,13 @@ async function fetchVisitors(filter = 'all') {
             } else if (filter === 'group') {
                 if (visitor.type === 'group') {
                     const ageRange = visitor.min_age && visitor.max_age ? `${visitor.min_age}-${visitor.max_age}` : '-';
-                    const genderSummary = `M${visitor.male_count} F${visitor.female_count}`;
+                    
+                    // แก้ไขการแสดงสรุปเพศให้รวม other_count
+                    let genderSummary = `M${visitor.male_count || 0} F${visitor.female_count || 0}`;
+                    if (visitor.other_count && visitor.other_count > 0) {
+                        genderSummary += ` O${visitor.other_count}`;
+                    }
+                    
                     row = `
                         <tr style="background-color: #f8f9fa; font-weight: bold;">
                             <td>กลุ่ม</td>
@@ -1051,7 +1081,13 @@ async function fetchVisitors(filter = 'all') {
 
                 if (isGroup) {
                     const ageRange = visitor.min_age && visitor.max_age ? `${visitor.min_age}-${visitor.max_age}` : '-';
-                    const genderSummary = `M${visitor.male_count} F${visitor.female_count}`;
+                    
+                    // แก้ไขการแสดงสรุปเพศให้รวม other_count
+                    let genderSummary = `M${visitor.male_count || 0} F${visitor.female_count || 0}`;
+                    if (visitor.other_count && visitor.other_count > 0) {
+                        genderSummary += ` O${visitor.other_count}`;
+                    }
+                    
                     row = `
                         <tr>
                             <td>กลุ่ม</td>

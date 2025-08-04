@@ -53,7 +53,7 @@
               <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">👥</div>
               <div class="card-title">ผู้เยี่ยมชมวันนี้</div>
             </div>
-            <div class="stat-number">127</div>
+            <div class="stat-number" id="totalVisitors">94</div>
             <div class="stat-label">คน</div>
           </div>
           <div class="card">
@@ -77,165 +77,347 @@
               <div class="card-icon" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">⏱️</div>
               <div class="card-title">เวลาเฉลี่ย</div>
             </div>
-            <div class="stat-number">2.5</div>
-            <div class="stat-label">ชั่วโมง</div>
-          </div>
-        </div>
-
-        <!-- Reports Section -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">📊</div>
-            <div class="card-title">รายงานและข้อมูล</div>
-          </div>
-          <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-            <button class="btn" onclick="exportDailyReport()">📄 รายงานประจำวัน</button>
-            <button class="btn" onclick="exportWeeklyReport()">📅 รายงานสัปดาห์</button>
-            <button class="btn" onclick="exportMonthlyReport()">📆 รายงานประจำเดือน</button>
-            <button class="btn" onclick="exportVisitorReport()">👥 รายงานผู้เยี่ยมชม</button>
-            <button class="btn" onclick="exportEquipmentReport()">🏷️ รายงานอุปกรณ์</button>
+            <div class="stat-number" id="avgTime">22</div>
+            <div class="stat-label">นาที</div>
           </div>
         </div>
 
         <!-- Section Divider -->
         <div class="section-divider">
-          <h2>🏛️ สถิติแต่ละห้อง</h2>
-          <p>ข้อมูลผู้เยี่ยมชมแยกตามห้องแสดงนิทรรศการ</p>
+          <h2>🗺️ แผนผังพิพิธภัณฑ์และสถิติแต่ละห้อง</h2>
+          <p>ข้อมูลผู้เยี่ยมชมแบบเรียลไทม์และการติดตามการเคลื่อนไหว</p>
         </div>
 
-        <!-- Room Dashboard Grid -->
-        <div class="room-dashboard-grid">
-          <div class="room-card">
-            <h3>ห้องที่ 1 - ห้องเกริกไกรเจ้าฟ้านักอนุรักษ์</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=16&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
+        <!-- Museum Layout Section -->
+        <div class="main-dashboard">
+          <div class="museum-layout">
+            <h2 class="layout-title">
+              <i class="fas fa-map-marked-alt"></i>
+              แผนผังพิพิธภัณฑ์
+            </h2>
+            <div class="museum-image-container">
+              <img src="https://blog.wu.ac.th/wp-content/uploads/2022/10/S__12132359.jpg" alt="Museum Layout"
+                class="museum-image">
+
+              <!-- Room markers positioned on the museum image -->
+              <div class="room-marker" data-room="1" style="left: 32%; top: 78%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">12</span>
+                </div>
+                <div class="room-label">ห้อง 1</div>
+              </div>
+
+              <div class="room-marker" data-room="2" style="left: 13%; top: 60%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">8</span>
+                </div>
+                <div class="room-label">ห้อง 2</div>
+              </div>
+
+              <div class="room-marker" data-room="3" style="left: 25%; top: 25%;">
+                <div class="marker-circle capacity-yellow">
+                  <span class="visitor-count">15</span>
+                </div>
+                <div class="room-label">ห้อง 3</div>
+              </div>
+
+              <div class="room-marker" data-room="4" style="left: 42%; top: 28%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">6</span>
+                </div>
+                <div class="room-label">ห้อง 4</div>
+              </div>
+
+              <div class="room-marker" data-room="5" style="left: 68%; top: 68%;">
+                <div class="marker-circle capacity-yellow">
+                  <span class="visitor-count">20</span>
+                </div>
+                <div class="room-label">ห้อง 5</div>
+              </div>
+
+              <div class="room-marker" data-room="6" style="left: 90%; top: 38%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">4</span>
+                </div>
+                <div class="room-label">ห้อง 6</div>
+              </div>
+
+              <div class="room-marker" data-room="7" style="left: 78%; top: 26%;">
+                <div class="marker-circle capacity-red">
+                  <span class="visitor-count">18</span>
+                </div>
+                <div class="room-label">ห้อง 7</div>
+              </div>
+
+              <div class="room-marker" data-room="8" style="left: 62%; top: 32%;">
+                <div class="marker-circle capacity-yellow">
+                  <span class="visitor-count">11</span>
+                </div>
+                <div class="room-label">ห้อง 8</div>
+              </div>
+            </div>
+
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-color capacity-green"></div>
+                <span class="legend-text">ว่าง (&lt;60%)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color capacity-yellow"></div>
+                <span class="legend-text">ค่อนข้างเต็ม (60-80%)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color capacity-red"></div>
+                <span class="legend-text">เต็มเกือบหมด (&gt;80%)</span>
+              </div>
+            </div>
           </div>
 
-          <div class="room-card">
-            <h3>ห้องที่ 2 - หอวัตถุทรัพย์สิ่งล้นตน</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=19&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
-          </div>
+          <div class="details-panel">
+            <div id="roomDetails" class="empty-state">
+              <div class="empty-icon">
+                <i class="fas fa-mouse-pointer"></i>
+              </div>
+              <p style="font-size: 1.2rem; margin-bottom: 10px;">คลิกที่จุดบนแผนผัง</p>
+              <p style="font-size: 1rem;">เพื่อดูรายละเอียดของแต่ละห้อง</p>
+            </div>
 
-          <div class="room-card">
-            <h3>ห้องที่ 3 - เขาหลวงทรัพยากรมากมี</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=20&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
-          </div>
-
-          <div class="room-card">
-            <h3>ห้องที่ 4 - ศักยภาพมากล้นมีให้เห็น</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=22&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
-          </div>
-
-          <div class="room-card">
-            <h3>ห้องที่ 5 - ทรัพยากรลุ่มน้ำปากพนัง</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=23&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
-          </div>
-
-          <div class="room-card">
-            <h3>ห้องที่ 6 - ชายฝั่งอุดมสมบูรณ์</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=24&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
-          </div>
-
-          <div class="room-card">
-            <h3>ห้องที่ 7 - บริบูรณ์ทรัพยากรอ่าวไทย</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=25&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
-          </div>
-
-          <div class="room-card">
-            <h3>ห้องที่ 8 - ประโยชน์แท้แก่มหาชน</h3>
-            <iframe
-              src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1749471372820&to=1749471672820&timezone=browser&showCategory=Gauge&panelId=26&__feature.dashboardSceneSolo"
-              frameborder="0"></iframe>
+            <div class="quick-stats">
+              <h4 class="quick-stats-title">
+                <i class="fas fa-trophy"></i>
+                ห้องที่คนเยอะที่สุด
+              </h4>
+              <div id="topRooms">
+                <div class="quick-stat-item">
+                  <span class="quick-stat-label">#1 ห้อง 5</span>
+                  <span class="quick-stat-value">20 คน</span>
+                </div>
+                <div class="quick-stat-item">
+                  <span class="quick-stat-label">#2 ห้อง 7</span>
+                  <span class="quick-stat-value">18 คน</span>
+                </div>
+                <div class="quick-stat-item">
+                  <span class="quick-stat-label">#3 ห้อง 3</span>
+                  <span class="quick-stat-value">15 คน</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        <!-- Analytics Section -->
+        <div class="analytics-section">
+          <h2 class="section-title">
+            <i class="fas fa-chart-bar"></i>
+            การวิเคราะห์และสถิติ
+          </h2>
 
-        <!-- Total Visitors Section -->
-        <div class="total-visitors-card">
-          <h3>📊 จำนวนคนทั้งหมดในวันนี้</h3>
-          <iframe
-            src="http://localhost:3000/d-solo/feag3icdt3f28a/rsssssss191?orgId=1&from=1748059139091&to=1748080739091&timezone=browser&panelId=6&__feature.dashboardSceneSolo"
-            frameborder="0"></iframe>
-        </div>
+          <div class="analytics-grid">
+            <!-- Demographics Chart -->
+            <div class="chart-card">
+              <h3 class="chart-title">
+                <i class="fas fa-users"></i>
+                กลุ่มผู้เยี่ยมชมตามเพศและอายุ
+              </h3>
+              <div class="chart-container">
+                <canvas id="demographicsChart"></canvas>
+              </div>
+            </div>
 
-        <!-- Real-time Activity Table -->
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>เวลา</th>
-                <th>ผู้เยี่ยมชม</th>
-                <th>iBeacon</th>
-                <th>ห้อง</th>
-                <th>กิจกรรม</th>
-                <th>สถานะ</th>
-              </tr>
-            </thead>
-            <tbody id="realtimeTable">
-              <tr>
-                <td>14:35:22</td>
-                <td>น้องมินิ</td>
-                <td>TAG001</td>
-                <td>ห้องประวัติศาสตร์</td>
-                <td>เข้าห้อง</td>
-                <td><span class="badge badge-success">ปกติ</span></td>
-              </tr>
-              <tr>
-                <td>14:33:15</td>
-                <td>คุณสมชาย</td>
-                <td>TAG005</td>
-                <td>ห้องศิลปะ</td>
-                <td>ออกจากห้อง</td>
-                <td><span class="badge badge-warning">ช้า</span></td>
-              </tr>
-              <tr>
-                <td>14:32:08</td>
-                <td>น้องแป้ง</td>
-                <td>TAG003</td>
-                <td>ห้องวิทยาศาสตร์</td>
-                <td>เข้าห้อง</td>
-                <td><span class="badge badge-success">ปกติ</span></td>
-              </tr>
-            </tbody>
-          </table>
+            <!-- Room Popularity Chart -->
+            <div class="chart-card">
+              <h3 class="chart-title">
+                <i class="fas fa-star"></i>
+                ความนิยมของแต่ละห้อง
+              </h3>
+              <div class="chart-container">
+                <canvas id="roomPopularityChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Time Spent Chart -->
+            <div class="chart-card full-width">
+              <h3 class="chart-title">
+                <i class="fas fa-clock"></i>
+                เวลาที่ใช้ในแต่ละห้อง (นาที)
+              </h3>
+              <div class="chart-container">
+                <canvas id="timeSpentChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Visitor Flow Timeline -->
+            <div class="chart-card full-width">
+              <h3 class="chart-title">
+                <i class="fas fa-chart-line"></i>
+                แนวโน้มผู้เยี่ยมชมตลอดวัน
+              </h3>
+              <div class="chart-container">
+                <canvas id="visitorFlowChart"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
   <script>
+    // Room data
+    const roomData = {
+      1: { name: 'ห้องเกริกไกรเจ้าฟ้านักอนุรักษ์', visitors: 12, maxCapacity: 50, avgTime: 15 },
+      2: { name: 'หอวัตถุทรัพย์สิ่งล้นตน', visitors: 8, maxCapacity: 20, avgTime: 22 },
+      3: { name: 'เขาหลวงทรัพยากรมากมี', visitors: 15, maxCapacity: 30, avgTime: 18 },
+      4: { name: 'ศักยภาพมากล้นมีให้เห็น', visitors: 6, maxCapacity: 15, avgTime: 25 },
+      5: { name: 'ทรัพยากรลุ่มน้ำปากพนัง', visitors: 20, maxCapacity: 35, avgTime: 12 },
+      6: { name: 'ชายฝั่งอุดมสมบูรณ์', visitors: 4, maxCapacity: 18, avgTime: 20 },
+      7: { name: 'บริบูรณ์ทรัพยากรอ่าวไทย', visitors: 18, maxCapacity: 25, avgTime: 30 },
+      8: { name: 'ประโยชน์แท้แก่มหาชน', visitors: 11, maxCapacity: 22, avgTime: 35 }
+    };
 
-    // Mock functions for button clicks
-    function exportDailyReport() {
-      alert('กำลังส่งออกรายงานประจำวัน...');
+    let selectedRoom = null;
+
+    // Get capacity color class
+    function getCapacityColorClass(visitors, maxCapacity) {
+      const percentage = (visitors / maxCapacity) * 100;
+      if (percentage >= 80) return 'capacity-red';
+      if (percentage >= 60) return 'capacity-yellow';
+      return 'capacity-green';
     }
 
-    function exportWeeklyReport() {
-      alert('กำลังส่งออกรายงานสัปดาห์...');
+    // Get capacity status text
+    function getCapacityStatus(visitors, maxCapacity) {
+      const percentage = (visitors / maxCapacity) * 100;
+      if (percentage >= 80) return 'เต็มเกือบหมด';
+      if (percentage >= 60) return 'ค่อนข้างเต็ม';
+      return 'ว่าง';
     }
 
-    function exportMonthlyReport() {
-      alert('กำลังส่งออกรายงานประจำเดือน...');
+    // Update statistics
+    function updateStats() {
+      const totalVisitors = Object.values(roomData).reduce((sum, room) => sum + room.visitors, 0);
+      const avgTime = Math.round(Object.values(roomData).reduce((sum, room) => sum + room.avgTime, 0) / Object.values(roomData).length);
+
+      document.getElementById('totalVisitors').textContent = totalVisitors;
+      document.getElementById('avgTime').textContent = avgTime;
     }
 
-    function exportVisitorReport() {
-      alert('กำลังส่งออกรายงานผู้เยี่ยมชม...');
+    // Show room details
+    function showRoomDetails(roomId) {
+      const room = roomData[roomId];
+      const percentage = Math.round((room.visitors / room.maxCapacity) * 100);
+      const colorClass = getCapacityColorClass(room.visitors, room.maxCapacity);
+
+      const detailsHtml = `
+    <div class="room-details">
+      <div class="room-title-container">
+        <h3 class="room-number">ห้อง ${roomId}</h3>
+        <h4 class="room-name">${room.name}</h4>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">ผู้เยี่ยมชมปัจจุบัน:</span>
+        <span class="detail-value">${room.visitors}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">ความจุสูงสุด:</span>
+        <span style="font-size: 1.2rem; color: #666; font-weight: 600;">${room.maxCapacity}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">สถานะ:</span>
+        <span class="status-badge ${colorClass}">${getCapacityStatus(room.visitors, room.maxCapacity)}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">เวลาเยี่ยมชมเฉลี่ย:</span>
+        <span style="font-size: 1.2rem; color: #666; font-weight: 600;">${room.avgTime} นาที</span>
+      </div>
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>อัตราการใช้งาน</span>
+          <span>${percentage}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill ${colorClass}" style="width: ${percentage}%"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+      document.getElementById('roomDetails').innerHTML = detailsHtml;
     }
 
-    function exportEquipmentReport() {
-      alert('กำลังส่งออกรายงานอุปกรณ์...');
+    // Hide room details
+    function hideRoomDetails() {
+      document.getElementById('roomDetails').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-mouse-pointer"></i>
+          </div>
+          <p style="font-size: 1.2rem; margin-bottom: 10px;">คลิกที่จุดบนแผนผัง</p>
+          <p style="font-size: 1rem;">เพื่อดูรายละเอียดของแต่ละห้อง</p>
+        </div>
+      `;
+    }
+
+    // Handle room marker clicks
+    document.querySelectorAll('.room-marker').forEach(marker => {
+      marker.addEventListener('click', function () {
+        const roomId = this.getAttribute('data-room');
+
+        // Remove selected class from all markers
+        document.querySelectorAll('.room-marker').forEach(m => m.classList.remove('selected'));
+
+        if (selectedRoom === roomId) {
+          // Deselect if clicking the same room
+          selectedRoom = null;
+          hideRoomDetails();
+        } else {
+          // Select new room
+          selectedRoom = roomId;
+          this.classList.add('selected');
+          showRoomDetails(roomId);
+        }
+      });
+    });
+
+    // Simulate real-time updates
+    function simulateRealTimeUpdates() {
+      Object.keys(roomData).forEach(roomId => {
+        const change = Math.floor(Math.random() * 5) - 2; // -2 to +2
+        roomData[roomId].visitors = Math.max(0, Math.min(
+          roomData[roomId].maxCapacity,
+          roomData[roomId].visitors + change
+        ));
+
+        // Update marker display
+        const marker = document.querySelector(`[data-room="${roomId}"]`);
+        const circle = marker.querySelector('.marker-circle');
+        const count = marker.querySelector('.visitor-count');
+
+        count.textContent = roomData[roomId].visitors;
+        circle.className = `marker-circle ${getCapacityColorClass(roomData[roomId].visitors, roomData[roomId].maxCapacity)}`;
+      });
+
+      updateStats();
+
+      // Update selected room details if any
+      if (selectedRoom) {
+        showRoomDetails(selectedRoom);
+      }
+
+      // Update top rooms
+      const sortedRooms = Object.entries(roomData)
+        .sort((a, b) => b[1].visitors - a[1].visitors)
+        .slice(0, 3);
+
+      const topRoomsHtml = sortedRooms.map(([roomId, room], index) => `
+        <div class="quick-stat-item">
+          <span class="quick-stat-label">#${index + 1} ห้อง ${roomId}</span>
+          <span class="quick-stat-value">${room.visitors} คน</span>
+        </div>
+      `).join('');
+
+      document.getElementById('topRooms').innerHTML = topRoomsHtml;
     }
 
     // Simulate real-time data updates
@@ -248,9 +430,7 @@
       console.log('Real-time data updated at:', timeString);
     }
 
-    // Update every 30 seconds
-    setInterval(updateRealtimeData, 30000);
-
+    // Initialize when page loads
     document.addEventListener("DOMContentLoaded", function () {
       const firstname = localStorage.getItem("firstname");
       const lastname = localStorage.getItem("lastname");
@@ -273,6 +453,202 @@
       if (loginTime) {
         document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
       }
+
+      updateStats();
+
+      // Set up real-time updates every 5 seconds
+      setInterval(simulateRealTimeUpdates, 5000);
+      setInterval(updateRealtimeData, 30000);
+    });
+
+    // Demographics data
+    const demographicsData = {
+      male: { '0-14': 15, '15-25': 32, '26-40': 28, '41-60': 18, '60+': 7 },
+      female: { '0-14': 18, '15-25': 45, '26-40': 35, '41-60': 22, '60+': 12 }
+    };
+
+    // Visitor flow data (hourly)
+    const visitorFlowData = [5, 8, 12, 18, 25, 32, 45, 52, 48, 38, 28, 15, 8, 3];
+    const timeLabels = ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+    let charts = {};
+
+    // Initialize all charts
+    function initializeCharts() {
+      // Demographics Chart
+      const demographicsCtx = document.getElementById('demographicsChart').getContext('2d');
+      charts.demographics = new Chart(demographicsCtx, {
+        type: 'bar',
+        data: {
+          labels: ['0-14 ปี', '15-25 ปี', '26-40 ปี', '41-60 ปี', '60+ ปี'],
+          datasets: [{
+            label: 'ชาย',
+            data: Object.values(demographicsData.male),
+            backgroundColor: 'rgba(42, 140, 120, 0.8)',
+            borderColor: 'rgba(42, 140, 120, 1)',
+            borderWidth: 1
+          }, {
+            label: 'หญิง',
+            data: Object.values(demographicsData.female),
+            backgroundColor: 'rgba(32, 201, 151, 0.8)',
+            borderColor: 'rgba(32, 201, 151, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'จำนวนคน'
+              }
+            }
+          }
+        }
+      });
+
+      // Room Popularity Chart
+      const roomPopularityCtx = document.getElementById('roomPopularityChart').getContext('2d');
+      const roomNames = Object.values(roomData).map(room => room.name.replace('ห้อง', ''));
+      const roomVisitors = Object.values(roomData).map(room => room.visitors);
+
+      charts.roomPopularity = new Chart(roomPopularityCtx, {
+        type: 'doughnut',
+        data: {
+          labels: roomNames,
+          datasets: [{
+            data: roomVisitors,
+            backgroundColor: [
+              '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+              '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: {
+                  size: 11
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Time Spent Chart
+      const timeSpentCtx = document.getElementById('timeSpentChart').getContext('2d');
+      const roomLabels = Object.keys(roomData).map(id => `ห้อง ${id}`);
+      const avgTimes = Object.values(roomData).map(room => room.avgTime);
+
+      charts.timeSpent = new Chart(timeSpentCtx, {
+        type: 'bar',
+        data: {
+          labels: roomLabels,
+          datasets: [{
+            label: 'เวลาเฉลี่ย (นาที)',
+            data: avgTimes,
+            backgroundColor: 'rgba(42, 140, 120, 0.8)',
+            borderColor: 'rgba(42, 140, 120, 1)',
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'นาที'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'ห้องแสดง'
+              }
+            }
+          }
+        }
+      });
+
+      // Visitor Flow Chart
+      const visitorFlowCtx = document.getElementById('visitorFlowChart').getContext('2d');
+      charts.visitorFlow = new Chart(visitorFlowCtx, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'จำนวนผู้เยี่ยมชม',
+            data: visitorFlowData,
+            borderColor: 'rgba(42, 140, 120, 1)',
+            backgroundColor: 'rgba(42, 140, 120, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: 'rgba(42, 140, 120, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'จำนวนคน'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'เวลา'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize charts after a short delay to ensure canvas elements are ready
+      setTimeout(() => {
+        initializeCharts();
+      }, 100);
     });
 
     // ฟังก์ชัน logout
@@ -280,6 +656,7 @@
       localStorage.clear();
       window.location.href = '../login.html';
     }
+
   </script>
 </body>
 
