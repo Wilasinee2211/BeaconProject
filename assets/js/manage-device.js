@@ -250,28 +250,48 @@ function loadDeviceTableByType(type = "all") {
 
 
 // ✅ ฟังก์ชันคืนอุปกรณ์
-function returnEquipment(visitorId, uuid) {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการคืนอุปกรณ์นี้?')) return;
-
-    fetch('../../backend/staff/api/return_equipment.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visitor_id: visitorId, uuid: uuid, action: 'return' })
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.success) {
-            alert('คืนอุปกรณ์เรียบร้อยแล้ว');
-            loadDeviceTableByType(); // รีโหลดข้อมูลใหม่
-        } else {
-            alert('เกิดข้อผิดพลาด: ' + response.message);
+function returnEquipment(visitor_id, uuid) {
+    Swal.fire({
+        title: 'คืนอุปกรณ์',
+        text: "คุณต้องการคืนอุปกรณ์นี้ใช่หรือไม่?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก',
+        reverseButtons: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#d33'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('../../backend/staff/api/return_equipment.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visitor_id: visitor_id, uuid: uuid })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    Swal.fire({
+                        title: 'สำเร็จ',
+                        text: result.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    // reload หรือ refresh table
+                    applyDeviceFilter();
+                } else {
+                    Swal.fire('ผิดพลาด', result.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+            });
         }
-    })
-    .catch(err => {
-        console.error('Error returning device:', err);
-        alert('เกิดข้อผิดพลาดขณะคืนอุปกรณ์');
     });
 }
+
 function logout() {
     Swal.fire({
         title: 'ออกจากระบบ',
