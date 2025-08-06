@@ -498,6 +498,130 @@ async function updateDatalist(keyword) {
     }
 }
 
+// ✅ Function to Sort Visitor Data by Status Priority (Damaged -> Online -> Offline)
+function sortVisitorDataByStatusPriority(data) {
+    const statusPriority = {
+        'Damaged': 1,
+        'Online': 2,
+        'Offline': 3
+    };
+
+    return data.sort((a, b) => {
+        const statusA = getStatusLabel(a.last_seen, a.active);
+        const statusB = getStatusLabel(b.last_seen, b.active);
+
+        const priorityA = statusPriority[statusA] || 99;
+        const priorityB = statusPriority[statusB] || 99;
+
+        if (priorityA !== priorityB) {
+            return priorityA - priorityB;
+        }
+
+        // Secondary Sort: Registered Time Descending
+        return new Date(b.created_at) - new Date(a.created_at);
+    });
+}
+
+// ✅ Helper Function to Determine Status Label
+function getStatusLabel(lastSeen, active) {
+    if (active == 0) return 'Offline';
+    if (!lastSeen) return 'Damaged';
+
+    const now = new Date();
+    const last = new Date(lastSeen);
+    const diff = (now - last) / 1000; // seconds
+
+    return diff <= 300 ? 'Online' : 'Damaged';
+}
+
+// ✅ Modify loadDeviceTableByType to Sort Data Before Render
+function loadDeviceTableByType(type = "all") {
+    const tbody = document.getElementById('deviceTableBody');
+    tbody.innerHTML = '<tr><td colspan="8" class="no-data">กำลังโหลดข้อมูล...</td></tr>';
+
+    fetch('../../backend/staff/api/get_visitors.php')
+        .then(response => response.json())
+        .then(result => {
+            if (result.status !== 'success') {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+                return;
+            }
+
+            let data = result.data.filter(v => type === 'all' || v.type === type);
+            data = sortVisitorDataByStatusPriority(data); // ✅ Sort Data by Status
+
+            renderVisitorRows(data);
+        })
+        .catch(error => {
+            console.error('Error loading visitors:', error);
+            tbody.innerHTML = '<tr><td colspan="8" class="no-data" style="color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+        });
+}
+
+// ✅ Modify returnEquipment to Update Row Position After Return
+function returnEquipment(visitorId, uuid) {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการคืนอุปกรณ์นี้?')) return;
+
+    fetch('../../backend/staff/api/return_equipment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitor_id: visitorId, uuid: uuid, action: 'return' })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response.success) {
+            alert('คืนอุปกรณ์เรียบร้อยแล้ว');
+
+            // ✅ Update Current Data's active status and ended_at
+            const now = new Date().toISOString();
+            const visitor = currentVisitorData.find(v => v.id == visitorId);
+            if (visitor) {
+                visitor.active = 0;
+                visitor.ended_at = now;
+            }
+
+            // ✅ Re-sort and re-render table without reload
+            const filter = document.getElementById('deviceTypeFilter').value;
+            const filtered = currentVisitorData.filter(v => filter === 'all' || v.type === filter);
+            const sorted = sortVisitorDataByStatusPriority(filtered);
+            renderVisitorRows(sorted);
+
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + response.message);
+        }
+    })
+    .catch(err => {
+        console.error('Error returning device:', err);
+        alert('เกิดข้อผิดพลาดขณะคืนอุปกรณ์');
+    });
+}
+
+// ✅ Rendering Rows Function
+function renderVisitorRows(data) {
+    const tbody = document.getElementById('deviceTableBody');
+    const rows = [];
+
+    data.forEach(v => {
+        const status = getTagStatus(v.last_seen, v.active);
+        const actionBtn = v.active == 1
+            ? `<button class="btn btn-return" onclick="returnEquipment('${v.id}', '${v.uuid}')"><i class="fas fa-undo"></i> คืน</button>`
+            : `<span class="text-muted">คืนแล้ว</span>`;
+
+        rows.push(`<tr>
+            <td>${v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว'}</td>
+            <td>${v.name || '-'}</td>
+            <td>${v.tag_name || '-'}</td>
+            <td>${v.uuid || '-'}</td>
+            <td>${formatDateTime(v.created_at)}</td>
+            <td>${v.active == 1 ? '-' : formatDateTime(v.ended_at)}</td>
+            <td>${status}</td>
+            <td>${actionBtn}</td>
+        </tr>`);
+    });
+
+    tbody.innerHTML = rows.join('');
+}
+
 
 
 
