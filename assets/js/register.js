@@ -12,12 +12,38 @@ function togglePassword(fieldId, icon) {
   }
 }
 
-// ฟังก์ชันตรวจสอบเลขบัตรประชาชน (เช็คแค่จำนวนตัวเลข)
+
+// ฟังก์ชันตรวจสอบเลขบัตรประชาชนไทยที่ถูกต้อง 
 function validateNationalId(nationalId) {
-  // ตรวจสอบรูปแบบ - เช็คแค่ว่าเป็นตัวเลข 13 หลัก
+  // ตรวจสอบรูปแบบพื้นฐาน - ต้องเป็นตัวเลข 13 หลัก
   if (!/^\d{13}$/.test(nationalId)) {
     return { isValid: false, message: "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก" };
   }
+
+  // อัลกอริทึมตรวจสอบ Check Digit สำหรับเลขบัตรประชาชนไทย
+  const digits = nationalId.split('').map(Number);
+  
+  // คำนวณผลรวมถ่วงน้ำหนัก (12 หลักแรก คูณด้วย 13, 12, 11, ..., 2)
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    sum += digits[i] * (13 - i);
+  }
+  
+  // คำนวณเลขตรวจสอบ
+  const remainder = sum % 11;
+  let checkDigit;
+  
+  if (remainder < 2) {
+    checkDigit = 1 - remainder;
+  } else {
+    checkDigit = 11 - remainder;
+  }
+  
+  // ตรวจสอบว่าหลักสุดท้ายตรงกับเลขตรวจสอบหรือไม่
+  if (digits[12] !== checkDigit) {
+    return { isValid: false, message: "เลขบัตรประชาชนไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง" };
+  }
+  
   return { isValid: true, message: "" };
 }
 

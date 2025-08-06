@@ -301,11 +301,11 @@ function updateMembersList() {
         // แสดงรายชื่อสมาชิกแบบ Card Layout
         let membersHTML = '';
         manualGroupMembers.forEach((member, index) => {
-            const genderText = member.gender === 'male' ? 'ชาย' : 
-                              member.gender === 'female' ? 'หญิง' : 
-                              member.gender === 'other' ? 'อื่นๆ' : 
-                              member.gender ? member.gender : '-';
-        
+            const genderText = member.gender === 'male' ? 'ชาย' :
+                member.gender === 'female' ? 'หญิง' :
+                    member.gender === 'other' ? 'อื่นๆ' :
+                        member.gender ? member.gender : '-';
+
             membersHTML += `
                 <div class="member-item" data-member-id="${member.id}">
                     <div class="member-info">
@@ -320,7 +320,7 @@ function updateMembersList() {
                 </div>
             `;
         });
-        
+
         membersList.innerHTML = membersHTML;
         if (clearAllBtn) clearAllBtn.style.display = 'inline-flex';
     }
@@ -329,7 +329,7 @@ function updateMembersList() {
 // แทนที่ฟังก์ชัน updateMembersSummary() เดิม
 function updateMembersSummary() {
     const summarySection = document.getElementById('membersSummary');
-    
+
     if (!summarySection) return;
 
     if (manualGroupMembers.length === 0) {
@@ -365,12 +365,12 @@ function updateMembersSummary() {
 }
 
 // เพิ่มการรองรับ Enter key สำหรับฟอร์มเพิ่มสมาชิก
-document.addEventListener('keypress', function(e) {
+document.addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         // ตรวจสอบว่าอยู่ในฟอร์มเพิ่มสมาชิกหรือไม่
         const activeElement = document.activeElement;
         const formInputs = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
-        
+
         if (formInputs.includes(activeElement.id)) {
             addGroupMember();
         }
@@ -443,7 +443,7 @@ function removeMember(memberId) {
     if (memberIndex === -1) return;
 
     const member = manualGroupMembers[memberIndex];
-    
+
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             title: 'ยืนยันการลบ',
@@ -457,11 +457,11 @@ function removeMember(memberId) {
             if (result.isConfirmed) {
                 // ลบสมาชิกออกจาก array
                 manualGroupMembers.splice(memberIndex, 1);
-                
+
                 // อัปเดต UI
                 updateMembersList();
                 updateMembersSummary();
-                
+
                 Swal.fire({
                     title: 'ลบสำเร็จ',
                     text: `ลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มแล้ว`,
@@ -475,13 +475,13 @@ function removeMember(memberId) {
         if (confirm(`คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`)) {
             // ลบสมาชิกออกจาก array
             manualGroupMembers.splice(memberIndex, 1);
-            
+
             // อัปเดต UI
             updateMembersList();
             updateMembersSummary();
         }
     }
-    
+
     console.log('Removed member:', member);
     console.log('Current members:', manualGroupMembers);
 }
@@ -503,11 +503,11 @@ function clearAllMembers() {
             if (result.isConfirmed) {
                 // ล้างข้อมูลทั้งหมด
                 manualGroupMembers = [];
-                
+
                 // อัปเดต UI
                 updateMembersList();
                 updateMembersSummary();
-                
+
                 Swal.fire({
                     title: 'ล้างข้อมูลสำเร็จ',
                     text: 'ลบสมาชิกทั้งหมดออกจากกลุ่มแล้ว',
@@ -521,20 +521,20 @@ function clearAllMembers() {
         if (confirm(`คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`)) {
             // ล้างข้อมูลทั้งหมด
             manualGroupMembers = [];
-            
+
             // อัปเดต UI
             updateMembersList();
             updateMembersSummary();
         }
     }
-    
+
     console.log('Cleared all members');
 }
 
 // ฟังก์ชันอัปเดตสรุปข้อมูลสมาชิก
 function updateMembersSummary() {
     const summarySection = document.getElementById('membersSummary');
-    
+
     if (!summarySection) return;
 
     if (manualGroupMembers.length === 0) {
@@ -680,7 +680,7 @@ function handleFileUpload(event) {
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
         'application/vnd.ms-excel' // .xls
     ];
-    
+
     if (!validTypes.includes(file.type)) {
         Swal.fire('ข้อผิดพลาด', 'กรุณาเลือกไฟล์ Excel (.xlsx หรือ .xls) เท่านั้น', 'error');
         event.target.value = ''; // ล้างการเลือกไฟล์
@@ -704,6 +704,27 @@ function handleFileUpload(event) {
             const worksheet = workbook.Sheets[firstSheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { range: 2 });
 
+            // Debug: ดูข้อมูลที่อ่านได้
+            console.log('จำนวนแถวที่อ่านได้:', jsonData.length);
+            console.log('ข้อมูลทั้งหมด:', jsonData);
+
+            // ดูข้อมูลแต่ละแถว
+            jsonData.forEach((row, index) => {
+                console.log(`แถว ${index + 1}:`, row);
+
+                // หาชื่อคอลัมน์จริง
+                const columns = Object.keys(row);
+                const nameCol = columns.find(col => col.includes('ชื่อ'));
+                const surnameCol = columns.find(col => col.includes('นามสกุล'));
+                const ageCol = columns.find(col => col.includes('อายุ'));
+                const genderCol = columns.find(col => col.includes('เพศ'));
+
+                console.log(`  ชื่อ: "${row[nameCol]}"`);
+                console.log(`  นามสกุล: "${row[surnameCol]}"`);
+                console.log(`  อายุ: "${row[ageCol]}"`);
+                console.log(`  เพศ: "${row[genderCol]}"`);
+            });
+
             if (jsonData.length === 0) {
                 Swal.fire('ข้อผิดพลาด', 'ไฟล์ Excel ว่างเปล่า', 'error');
                 uploadArea.innerHTML = originalContent;
@@ -711,15 +732,11 @@ function handleFileUpload(event) {
             }
 
             // ตรวจสอบคอลัมน์ที่จำเป็น
-            const requiredColumns = ['ชื่อ', 'นามสกุล', 'อายุ', 'เพศ'];
+            const requiredColumnPrefixes = ['ชื่อ', 'นามสกุล', 'อายุ', 'เพศ'];
             const fileColumns = Object.keys(jsonData[0]);
-            const missingColumns = requiredColumns.filter(col => !fileColumns.includes(col));
-
-            if (missingColumns.length > 0) {
-                Swal.fire('ข้อผิดพลาด', `ไฟล์ขาดคอลัมน์ที่จำเป็น: ${missingColumns.join(', ')}`, 'error');
-                uploadArea.innerHTML = originalContent;
-                return;
-            }
+            const missingColumns = requiredColumnPrefixes.filter(prefix =>
+                !fileColumns.some(col => col.startsWith(prefix))
+            );
 
             // ตรวจสอบความถูกต้องของข้อมูล
             const validationErrors = validateExcelData(jsonData);
@@ -737,7 +754,7 @@ function handleFileUpload(event) {
             // เก็บข้อมูลและแสดงตัวอย่าง
             uploadedFileData = processExcelData(jsonData);
             displayFilePreview(uploadedFileData);
-            
+
             // อัปเดต UI สำเร็จ
             uploadArea.innerHTML = `
                 <div class="upload-icon"><i class="fa-regular fa-circle-check"></i></div>
@@ -752,7 +769,7 @@ function handleFileUpload(event) {
         }
     };
 
-    reader.onerror = function() {
+    reader.onerror = function () {
         Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดในการอ่านไฟล์', 'error');
         uploadArea.innerHTML = originalContent;
     };
@@ -763,33 +780,39 @@ function handleFileUpload(event) {
 // ฟังก์ชันตรวจสอบความถูกต้องของข้อมูล Excel
 function validateExcelData(data) {
     const errors = [];
-    const validGenders = ['ชาย', 'หญิง', 'อื่นๆ', 'male', 'female', 'other'];
-
+    
     data.forEach((row, index) => {
-        const rowNum = index + 2; // +2 เพราะเริ่มจากแถว 2 (แถว 1 เป็น header)
-
+        const rowNumber = index + 1;
+        
+        // ใช้ชื่อคอลัมน์เต็มๆ ตามที่อ่านได้จริง
+        const nameCol = 'ชื่อ *ไม่ต้องใส่คำนำหน้า';
+        const surnameCol = 'นามสกุล';
+        const ageCol = 'อายุ (ปี) *กรอกเฉพาะตัวเลข';
+        const genderCol = 'เพศ';
+        
         // ตรวจสอบชื่อ
-        if (!row['ชื่อ'] || row['ชื่อ'].toString().trim() === '') {
-            errors.push(`แถว ${rowNum}: ชื่อไม่สามารถเว้นว่างได้`);
+        if (!row[nameCol] || row[nameCol].toString().trim() === '') {
+            errors.push(`แถว ${rowNumber}: ชื่อไม่สามารถเว้นว่างได้`);
         }
-
+        
         // ตรวจสอบนามสกุล
-        if (!row['นามสกุล'] || row['นามสกุล'].toString().trim() === '') {
-            errors.push(`แถว ${rowNum}: นามสกุลไม่สามารถเว้นว่างได้`);
+        if (!row[surnameCol] || row[surnameCol].toString().trim() === '') {
+            errors.push(`แถว ${rowNumber}: นามสกุลไม่สามารถเว้นว่างได้`);
         }
-
+        
         // ตรวจสอบอายุ
-        const age = parseInt(row['อายุ']);
-        if (isNaN(age) || age < 0 || age > 150) {
-            errors.push(`แถว ${rowNum}: อายุต้องเป็นตัวเลข 0-150`);
+        const age = row[ageCol];
+        if (!age || isNaN(age) || age < 0 || age > 150) {
+            errors.push(`แถว ${rowNumber}: อายุต้องเป็นตัวเลข 0-150`);
         }
-
+        
         // ตรวจสอบเพศ
-        if (!row['เพศ'] || !validGenders.includes(row['เพศ'].toString().toLowerCase())) {
-            errors.push(`แถว ${rowNum}: เพศต้องเป็น ชาย, หญิง, หรือ อื่นๆ`);
+        const validGenders = ['ชาย', 'หญิง', 'อื่นๆ'];
+        if (!row[genderCol] || !validGenders.includes(row[genderCol].toString().trim())) {
+            errors.push(`แถว ${rowNumber}: เพศต้องเป็น ชาย, หญิง, หรือ อื่นๆ`);
         }
     });
-
+    
     return errors;
 }
 
@@ -803,9 +826,10 @@ function processExcelData(data) {
         else if (gender === 'อื่นๆ') gender = 'other';
 
         return {
-            first_name: row['ชื่อ'].toString().trim(),
+            // แก้ไขตรงนี้ - ใช้ชื่อคอลัมน์เต็มๆ
+            first_name: row['ชื่อ *ไม่ต้องใส่คำนำหน้า'].toString().trim(),
             last_name: row['นามสกุล'].toString().trim(),
-            age: parseInt(row['อายุ']),
+            age: parseInt(row['อายุ (ปี) *กรอกเฉพาะตัวเลข']),
             gender: gender,
             // หมายเหตุ: uuid จะถูกกำหนดเมื่อบันทึกข้อมูล
         };
@@ -839,11 +863,11 @@ function displayFilePreview(data) {
     `;
 
     previewData.forEach(row => {
-        const genderText = row.gender === 'male' || row.gender === 'M' ? 'ชาย' : 
-                          row.gender === 'female' || row.gender === 'F' ? 'หญิง' : 
-                          row.gender === 'other' || row.gender === 'O' ? 'อื่นๆ' : 
-                          row.gender ? row.gender : '-';
-        
+        const genderText = row.gender === 'male' || row.gender === 'M' ? 'ชาย' :
+            row.gender === 'female' || row.gender === 'F' ? 'หญิง' :
+                row.gender === 'other' || row.gender === 'O' ? 'อื่นๆ' :
+                    row.gender ? row.gender : '-';
+
         tableHtml += `
             <tr>
                 <td>${row.first_name}</td>
@@ -1012,7 +1036,7 @@ function validateGroupType(groupType) {
     if (groupType.length < 2 || groupType.length > 100) {
         return false;
     }
-    
+
     // ตรวจสอบอักขระพิเศษ (ถ้าต้องการจำกัด)
     const allowedPattern = /^[ก-ฮะ-์a-zA-Z0-9\s\-\/()]+$/;
     return allowedPattern.test(groupType);
@@ -1023,17 +1047,17 @@ function setupGroupTypeInput() {
     if (!groupTypeInput) return;
 
     // เพิ่มการแสดงคำแนะนำเมื่อ focus
-    groupTypeInput.addEventListener('focus', function() {
+    groupTypeInput.addEventListener('focus', function () {
         // สามารถเพิ่ม tooltip หรือ hint ได้ที่นี่
         this.placeholder = 'เช่น นักเรียนมัธยมต้น, ทัวร์ครอบครัว, พนักงานบริษัท ABC';
     });
 
-    groupTypeInput.addEventListener('blur', function() {
+    groupTypeInput.addEventListener('blur', function () {
         this.placeholder = 'กรอกประเภทกลุ่ม';
     });
 
     // เพิ่มการตรวจสอบแบบ real-time (ถ้าต้องการ)
-    groupTypeInput.addEventListener('input', function() {
+    groupTypeInput.addEventListener('input', function () {
         const value = this.value.trim();
         if (value && !validateGroupType(value)) {
             this.style.borderColor = '#ff6b6b';
@@ -1150,9 +1174,9 @@ async function fetchVisitors(filter = 'all') {
             // ฟังก์ชันแปลงเพศที่ถูกต้อง
             const formatGender = (genderValue) => {
                 if (!genderValue) return '-';
-                
+
                 const cleanGender = genderValue.toString().trim().toLowerCase();
-                
+
                 switch (cleanGender) {
                     case 'male':
                     case 'm':
@@ -1187,13 +1211,13 @@ async function fetchVisitors(filter = 'all') {
             } else if (filter === 'group') {
                 if (visitor.type === 'group') {
                     const ageRange = visitor.min_age && visitor.max_age ? `${visitor.min_age}-${visitor.max_age}` : '-';
-                    
+
                     // แก้ไขการแสดงสรุปเพศให้รวม other_count
                     let genderSummary = `M${visitor.male_count || 0} F${visitor.female_count || 0}`;
                     if (visitor.other_count && visitor.other_count > 0) {
                         genderSummary += ` O${visitor.other_count}`;
                     }
-                    
+
                     row = `
                         <tr style="background-color: #f8f9fa; font-weight: bold;">
                             <td>กลุ่ม</td>
@@ -1219,13 +1243,13 @@ async function fetchVisitors(filter = 'all') {
 
                 if (isGroup) {
                     const ageRange = visitor.min_age && visitor.max_age ? `${visitor.min_age}-${visitor.max_age}` : '-';
-                    
+
                     // แก้ไขการแสดงสรุปเพศให้รวม other_count
                     let genderSummary = `M${visitor.male_count || 0} F${visitor.female_count || 0}`;
                     if (visitor.other_count && visitor.other_count > 0) {
                         genderSummary += ` O${visitor.other_count}`;
                     }
-                    
+
                     row = `
                         <tr>
                             <td>กลุ่ม</td>
@@ -1339,6 +1363,6 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchVisitors();
     setupDragAndDrop();
     setupGroupTypeInput();
-    
+
     // ไม่ต้องเปลี่ยน onclick attribute เพราะใช้ฟังก์ชัน addGroupVisitor() ที่จะเลือกวิธีการเอง
 });

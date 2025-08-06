@@ -40,11 +40,36 @@ try {
     exit;
 }
 
-// ฟังก์ชันตรวจสอบเลขบัตรประชาชน
+// ฟังก์ชันตรวจสอบเลขบัตรประชาชนไทยที่ถูกต้อง 
 function validateNationalId($nationalId) {
+    // ตรวจสอบรูปแบบพื้นฐาน - ต้องเป็นตัวเลข 13 หลัก
     if (!preg_match('/^\d{13}$/', $nationalId)) {
         return ["isValid" => false, "message" => "เลขบัตรประชาชนต้องเป็นตัวเลข 13 หลัก"];
     }
+    
+    // อัลกอริทึมตรวจสอบ Check Digit สำหรับเลขบัตรประชาชนไทย
+    $digits = str_split($nationalId);
+    
+    // คำนวณผลรวมถ่วงน้ำหนัก (12 หลักแรก คูณด้วย 13, 12, 11, ..., 2)
+    $sum = 0;
+    for ($i = 0; $i < 12; $i++) {
+        $sum += (int)$digits[$i] * (13 - $i);
+    }
+    
+    // คำนวณเลขตรวจสอบ
+    $remainder = $sum % 11;
+    
+    if ($remainder < 2) {
+        $checkDigit = 1 - $remainder;
+    } else {
+        $checkDigit = 11 - $remainder;
+    }
+    
+    // ตรวจสอบว่าหลักสุดท้ายตรงกับเลขตรวจสอบหรือไม่
+    if ((int)$digits[12] !== $checkDigit) {
+        return ["isValid" => false, "message" => "เลขบัตรประชาชนไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง"];
+    }
+    
     return ["isValid" => true, "message" => ""];
 }
 
