@@ -138,10 +138,11 @@
                 <!-- Filter Bar (แก้ไขให้เหมือน visitor-register.html) -->
                 <div class="filter-bar">
                     <label for="deviceTypeFilter">แสดง</label>
-                    <select id="deviceTypeFilter" onchange="applyDeviceFilter()">
-                        <option value="all">ทั้งหมด</option>
-                        <option value="individual">แบบเดี่ยว</option>
-                        <option value="group">แบบกลุ่ม</option>
+                    <select id="deviceTypeFilter">
+                        <option value="all">All</option>
+                        <option value="available">Available</option>
+                        <option value="success">Success</option>
+                        <option value="damaged">Damaged</option>
                     </select>
                 </div>
 
@@ -150,7 +151,7 @@
                     <thead id="deviceTableHead"></thead>
                     <tbody id="deviceTableBody">
                         <tr>
-                            <td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td>
+                            <td colspan="8" class="no-data">กำลังโหลดข้อมูล...</td>
                         </tr>
                     </tbody>
                 </table>

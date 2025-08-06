@@ -102,17 +102,16 @@ function updateStats(data) {
 
 function applyDeviceFilter() {
     const filter = document.getElementById('deviceTypeFilter').value;
-    const thead = document.getElementById('deviceTableHead');
-    let headers = '';
-    if (filter === 'all') {
-        headers = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
-    } else if (filter === 'individual') {
-        headers = `<tr><th>ชื่อ</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
-    } else if (filter === 'group') {
-        headers = `<tr><th>ชื่อกลุ่ม</th><th>ชื่อสมาชิก</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
-    }
-    thead.innerHTML = headers;
-    loadDeviceTableByType(filter);
+    fetch('../../backend/staff/api/get_visitors.php')
+        .then(response => response.json())
+        .then(result => {
+            if (result.status !== 'success') return;
+            currentVisitorData = result.data;
+            renderFilteredRows(currentVisitorData, filter);
+        })
+        .catch(err => {
+            console.error("Error applying filter:", err);
+        });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -120,6 +119,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const lastname = localStorage.getItem("lastname");
     const role = localStorage.getItem("role");
     const loginTime = localStorage.getItem("loginTime");
+    const deviceFilter = document.getElementById('deviceTypeFilter');
+
+    if (deviceFilter) {
+        deviceFilter.addEventListener('change', applyDeviceFilter);
+    }
 
     if (firstname && lastname) document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
     if (role) {
@@ -214,12 +218,8 @@ function loadDeviceTableByType(type = "all") {
                 const displayName = v.type === 'group' ? (v.group_name || '-') : (v.name || '-');
                 const tag = v.tag_name || '-';
                 const uuid = v.uuid || '-';
-                const visitTime = formatDateTime(v.visit_date);
-                const lastSeen = v.last_seen ? formatDateTime(v.last_seen) : '-';
-                const duration = (v.visit_date && v.last_seen)
-                    ? `${visitTime} - ${lastSeen}`
-                    : '-';
-
+                const registerTime = formatDateTime(v.created_at);
+                const endedTime = (v.active == 1 || !v.ended_at) ? '-' : formatDateTime(v.ended_at);
                 const status = getTagStatus(v.last_seen, v.active);
                 const actionBtn = v.active == 1
                     ? `<button class="btn btn-return" onclick="returnEquipment('${v.id}', '${uuid}')">
@@ -231,7 +231,8 @@ function loadDeviceTableByType(type = "all") {
                     <td>${displayName}</td>
                     <td>${tag}</td>
                     <td>${uuid}</td>
-                    <td>${duration}</td>
+                    <td>${registerTime}</td>
+                    <td>${endedTime}</td>
                     <td>${status}</td>
                     <td>${actionBtn}</td>
                 </tr>`);
@@ -351,70 +352,68 @@ function applyDashboardFilter(type) {
 function renderFilteredRows(data, filter) {
     const tbody = document.getElementById('deviceTableBody');
     const thead = document.getElementById('deviceTableHead');
-    tbody.innerHTML = '';
+    let rows = [];
 
-    // ตั้งหัวตารางตามประเภท
-    if (filter === 'individual') {
-        thead.innerHTML = `<tr><th>ชื่อ</th><th>Tag</th><th>UUID</th><th>เวลาเข้าชม</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
-    } else if (filter === 'group') {
-        thead.innerHTML = `<tr><th>ชื่อกลุ่ม</th><th>ชื่อสมาชิก</th><th>Tag</th><th>UUID</th><th>เวลาเข้าชม</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
-    } else {
-        thead.innerHTML = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาเข้าชม</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
-    }
+    const now = new Date();
+    let filtered = data.filter(v => {
+        // ตรวจสมาชิกกรณีเป็นกลุ่ม
+        if (filter === 'available') {
+            if (v.active == 1) {
+                const seen = v.last_seen ? new Date(v.last_seen) : null;
+                const diff = seen ? (now - seen) / (1000 * 60) : Infinity;
+                return diff <= 5;
+            }
+            return false;
+        } else if (filter === 'success') {
+            return v.active == 0;
+        } else if (filter === 'damaged') {
+            if (v.active == 1) {
+                const seen = v.last_seen ? new Date(v.last_seen) : null;
+                const diff = seen ? (now - seen) / (1000 * 60) : Infinity;
+                return diff > 5;
+            }
+            return false;
+        } else {
+            return true; // all
+        }
+    });
 
-    if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="no-data">ไม่พบข้อมูล</td></tr>`;
+    // ตั้งหัวตาราง
+    thead.innerHTML = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="no-data">ไม่พบข้อมูล</td></tr>`;
         return;
     }
 
-    const rows = [];
-
-    data.forEach(v => {
-        const fullName = v.name || `${v.first_name || ''} ${v.last_name || ''}`.trim();
+    filtered.forEach(v => {
+        const typeLabel = v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
+        const name = v.name || '-';
         const tag = v.tag_name || '-';
         const uuid = v.uuid || '-';
-        const duration = calculateVisitDuration(v.visit_date || v.created_at);
-        const status = getTagStatus(v.last_seen, v.active !== 0);
-        const actionBtn = `<button class="btn btn-return" onclick="returnEquipment('${v.visitor_id || v.id}', '${uuid}', ${v.active !== 0})">
-            <i class="fas fa-undo"></i> คืน
-        </button>`;
+        const registerTime = formatDateTime(v.created_at);
+        const endedTime = (v.active == 1 || !v.ended_at) ? '-' : formatDateTime(v.ended_at);
+        const status = getTagStatus(v.last_seen, v.active);
+        const actionBtn = v.active == 1
+            ? `<button class="btn btn-return" onclick="returnEquipment('${v.visitor_id}', '${uuid}')">
+                    <i class="fas fa-undo"></i> คืน</button>`
+            : `<span class="text-muted">คืนแล้ว</span>`;
 
-        if (v.members && Array.isArray(v.members)) {
-            v.members.forEach(m => {
-                const memberName = `${m.first_name || ''} ${m.last_name || ''}`;
-                const memberDuration = calculateVisitDuration(m.visit_date || m.created_at);
-                const memberStatus = getTagStatus(m.last_seen, m.active !== 0);
-                const memberActionBtn = `<button class="btn btn-return" onclick="returnEquipment('${m.visitor_id || m.id}', '${m.uuid}', ${m.active !== 0})">
-                    <i class="fas fa-undo"></i> คืน
-                </button>`;
-
-                rows.push(`<tr>
-                    <td>${v.group_name || '-'}</td>
-                    <td>${memberName}</td>
-                    <td>${m.tag_name || '-'}</td>
-                    <td>${m.uuid || '-'}</td>
-                    <td>${memberDuration}</td>
-                    <td>${memberStatus}</td>
-                    <td>${memberActionBtn}</td>
-                </tr>`);
-            });
-        } else {
-            const typeLabel = v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
-            const nameOrGroup = v.type === 'group' ? v.group_name || '-' : fullName;
-            rows.push(`<tr>
-                <td>${typeLabel}</td>
-                <td>${nameOrGroup}</td>
-                <td>${tag}</td>
-                <td>${uuid}</td>
-                <td>${duration}</td>
-                <td>${status}</td>
-                <td>${actionBtn}</td>
-            </tr>`);
-        }
+        rows.push(`<tr>
+            <td>${typeLabel}</td>
+            <td>${name}</td>
+            <td>${tag}</td>
+            <td>${uuid}</td>
+            <td>${registerTime}</td>
+            <td>${endedTime}</td>
+            <td>${status}</td>
+            <td>${actionBtn}</td>
+        </tr>`);
     });
 
     tbody.innerHTML = rows.join('');
 }
+
 
 // ✅ เพิ่ม Event Listener ให้แต่ละ Dashboard card
 document.addEventListener('DOMContentLoaded', () => {
