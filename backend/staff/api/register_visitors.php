@@ -23,7 +23,8 @@ try {
             )
         ");
 
-        $gender = in_array($input['gender'] ?? '', ['male', 'female']) ? $input['gender'] : null;
+        // ✅ แก้ไข: เพิ่ม 'other' ในการตรวจสอบ
+        $gender = in_array($input['gender'] ?? '', ['male', 'female', 'other']) ? $input['gender'] : null;
 
         if (!$stmt->execute([
             $input['first_name'],
@@ -37,7 +38,6 @@ try {
         // ✅ ล้างค่า last_seen ของ tag ที่ใช้
         $resetStmt = $conn->prepare("UPDATE ibeacons_tag SET last_seen = NULL WHERE uuid = ?");
         $resetStmt->execute([$input['uuid']]);
-
 
         echo json_encode([
             'status' => 'success',
@@ -82,6 +82,7 @@ try {
             foreach ($members as $member) {
                 if (empty($member['first_name']) || empty($member['last_name'])) continue;
                 if (!isset($member['age']) || !is_numeric($member['age'])) continue;
+                // ✅ แก้ไข: เพิ่ม 'other' ในการตรวจสอบ
                 if (!in_array($member['gender'], ['male', 'female', 'other'])) continue;
 
                 $validMembers[] = $member;
@@ -123,7 +124,6 @@ try {
             // ✅ ล้างค่า last_seen ของ tag ที่ใช้
             $resetStmt = $conn->prepare("UPDATE ibeacons_tag SET last_seen = NULL WHERE uuid = ?");
             $resetStmt->execute([$uuid]);
-
 
             // สร้างตาราง group_members ถ้ายังไม่มี
             $conn->exec("
@@ -203,4 +203,3 @@ try {
             : $e->getMessage()
     ]);
 }
-
