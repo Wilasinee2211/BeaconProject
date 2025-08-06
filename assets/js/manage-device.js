@@ -560,41 +560,41 @@ function loadDeviceTableByType(type = "all") {
 
 // ✅ Modify returnEquipment to Update Row Position After Return
 function returnEquipment(visitorId, uuid) {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการคืนอุปกรณ์นี้?')) return;
-
-    fetch('../../backend/staff/api/return_equipment.php', {
+  confirmReturnDevice(visitorId, async function () {
+    try {
+      const response = await fetch('../../backend/staff/api/return_equipment.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ visitor_id: visitorId, uuid: uuid, action: 'return' })
-    })
-    .then(res => res.json())
-    .then(response => {
-        if (response.success) {
-            alert('คืนอุปกรณ์เรียบร้อยแล้ว');
+      });
 
-            // ✅ Update Current Data's active status and ended_at
-            const now = new Date().toISOString();
-            const visitor = currentVisitorData.find(v => v.id == visitorId);
-            if (visitor) {
-                visitor.active = 0;
-                visitor.ended_at = now;
-            }
+      const result = await response.json();
 
-            // ✅ Re-sort and re-render table without reload
-            const filter = document.getElementById('deviceTypeFilter').value;
-            const filtered = currentVisitorData.filter(v => filter === 'all' || v.type === filter);
-            const sorted = sortVisitorDataByStatusPriority(filtered);
-            renderVisitorRows(sorted);
-
-        } else {
-            alert('เกิดข้อผิดพลาด: ' + response.message);
+      if (result.success) {
+        // ✅ อัปเดตข้อมูลใน currentVisitorData
+        const now = new Date().toISOString();
+        const visitor = currentVisitorData.find(v => v.id == visitorId);
+        if (visitor) {
+          visitor.active = 0;
+          visitor.ended_at = now;
         }
-    })
-    .catch(err => {
-        console.error('Error returning device:', err);
-        alert('เกิดข้อผิดพลาดขณะคืนอุปกรณ์');
-    });
+
+        // ✅ รีเฟรชตาราง
+        const filter = document.getElementById('deviceTypeFilter').value;
+        const filtered = currentVisitorData.filter(v => filter === 'all' || v.type === filter);
+        const sorted = sortVisitorDataByStatusPriority(filtered);
+        renderVisitorRows(sorted);
+
+      } else {
+        Swal.fire('ผิดพลาด', result.message, 'error');
+      }
+    } catch (err) {
+      console.error('Error returning device:', err);
+      Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    }
+  });
 }
+
 
 // ✅ Rendering Rows Function
 function renderVisitorRows(data) {
@@ -620,6 +620,35 @@ function renderVisitorRows(data) {
     });
 
     tbody.innerHTML = rows.join('');
+}
+
+function confirmReturnDevice(deviceId, callback) {
+  Swal.fire({
+    title: 'ยืนยันการคืนอุปกรณ์',
+    text: 'คุณแน่ใจหรือไม่ว่าต้องการคืนอุปกรณ์นี้?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#2a8c78',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'ใช่, คืนอุปกรณ์',
+    cancelButtonText: 'ยกเลิก',
+    customClass: {
+      popup: 'swal2-rounded',
+      confirmButton: 'swal2-confirm',
+      cancelButton: 'swal2-cancel'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      callback(); // ✅ เรียกการคืนอุปกรณ์จริง
+      Swal.fire({
+        title: 'คืนอุปกรณ์สำเร็จ!',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true
+      });
+    }
+  });
 }
 
 
