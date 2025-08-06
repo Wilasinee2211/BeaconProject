@@ -551,15 +551,17 @@ function redirectToSearch() {
 
 // ✅ ฟังก์ชันดึง suggestion จาก API
 async function updateDatalist(keyword) {
+    const type = document.getElementById('searchType').value;
+
     try {
-        const res = await fetch(`../../backend/staff/api/search_suggestions.php?q=${encodeURIComponent(keyword)}`);
+        const res = await fetch(`../../backend/staff/api/search_suggestions.php?q=${encodeURIComponent(keyword)}&type=${type}`);
         const data = await res.json();
-        document.getElementById('visitorList').innerHTML =
-            data.map(item => `<option value="${item}">`).join('');
+        document.getElementById('visitorList').innerHTML = data.map(item => `<option value="${item}">`).join('');
     } catch (err) {
         console.error('Error loading suggestions:', err);
     }
 }
+
 
 
 

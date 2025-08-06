@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 // Database connection
 $host = "localhost";
-$port = 3306;
+$port = 8889;
 $dbname = "beacon_db";
 $username = "root";
 $password = "root";

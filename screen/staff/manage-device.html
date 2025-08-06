@@ -61,36 +61,6 @@
                 </div>
             </div>
 
-            <!-- Search Form -->
-            <div class="form-container">
-                <h2 style="margin-bottom: 20px; color: #2a8c78;">
-                    🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
-                </h2>
-
-                <div class="form-grid">
-                    <!-- Dropdown: ค้นหาจาก -->
-                    <div class="form-group">
-                        <label for="searchType">ค้นหาจาก</label>
-                        <select id="searchType">
-                            <option value="name">ชื่อ-นามสกุล</option>
-                            <option value="beacon">รหัส iBeacon Tag</option>
-                            <option value="group">ชื่อกลุ่ม</option>
-                        </select>
-                    </div>
-
-                    <!-- กล่องกรอกคำค้น -->
-                    <div class="form-group">
-                        <label for="searchValue">ค้นหา</label>
-                        <input type="text" id="searchValue" list="visitorList" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
-                        <datalist id="visitorList"></datalist>
-                    </div>
-                </div>
-
-                <!-- ปุ่มค้นหา -->
-                <button class="btn" onclick="searchVisitors()">ค้นหา</button>
-            </div>
-
-
             <!-- Dashboard Stats -->
             <div class="dashboard-grid">
                 <!-- Tag ที่ใช้งานทั้งหมด -->
@@ -134,6 +104,35 @@
                 </div>
             </div>
 
+            <!-- Search Form -->
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #2a8c78;">
+                    🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
+                </h2>
+
+                <div class="form-grid">
+                    <!-- Dropdown: ค้นหาจาก -->
+                    <div class="form-group">
+                        <label for="searchType">ค้นหาจาก</label>
+                        <select id="searchType">
+                            <option value="name">ชื่อ-นามสกุล</option>
+                            <option value="beacon">iBeacon Tag</option>
+                            <option value="group">ชื่อกลุ่ม</option>
+                        </select>
+                    </div>
+
+                    <!-- กล่องกรอกคำค้น -->
+                    <div class="form-group">
+                        <label for="searchValue">ค้นหา</label>
+                        <input type="text" id="searchValue" list="visitorList" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
+                        <datalist id="visitorList"></datalist>
+                    </div>
+                </div>
+
+                <!-- ปุ่มค้นหา -->
+                <button class="btn" onclick="searchVisitors()">ค้นหา</button>
+            </div>
+
             <!-- Device Table -->
             <div class="table-container">
                 <!-- Filter Bar (แก้ไขให้เหมือน visitor-register.html) -->
@@ -165,12 +164,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             applyDeviceFilter();
+
+            // ✅ รีเซ็ต datalist เมื่อเปลี่ยนประเภทการค้นหา
+            document.getElementById('searchType').addEventListener('change', () => {
+                document.getElementById('searchValue').value = '';
+                document.getElementById('visitorList').innerHTML = '';
+            });
         });
-        
+
         // ✅ Event: พิมพ์แล้วโหลด suggestion
         document.getElementById('searchValue').addEventListener('input', e => {
             if (e.target.value.length > 1) updateDatalist(e.target.value);
         });
+
+        document.getElementById('searchValue').addEventListener('input', e => {
+            console.log("กำลังโหลดคำแนะนำ", e.target.value); // DEBUG
+            if (e.target.value.length > 1) updateDatalist(e.target.value);
+        });
+
     </script>
 </body>
 
