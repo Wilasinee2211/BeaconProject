@@ -105,11 +105,11 @@ function applyDeviceFilter() {
     const thead = document.getElementById('deviceTableHead');
     let headers = '';
     if (filter === 'all') {
-        headers = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาเข้าชม</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
+        headers = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
     } else if (filter === 'individual') {
-        headers = `<tr><th>ชื่อ</th><th>Tag</th><th>UUID</th><th>เวลาเข้าชม</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
+        headers = `<tr><th>ชื่อ</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
     } else if (filter === 'group') {
-        headers = `<tr><th>ชื่อกลุ่ม</th><th>ชื่อสมาชิก</th><th>Tag</th><th>UUID</th><th>เวลาเข้าชม</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
+        headers = `<tr><th>ชื่อกลุ่ม</th><th>ชื่อสมาชิก</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
     }
     thead.innerHTML = headers;
     loadDeviceTableByType(filter);
@@ -161,33 +161,35 @@ function calculateVisitDuration(visitDate) {
 }
 
 // ✅ ฟังก์ชันกำหนดสถานะ iBeacon Tag
-function getTagStatus(lastSeen, isActive = true) {
-    // ถ้าอุปกรณ์ถูกคืนแล้ว (active = 0) จะเป็น Offline
-    if (!isActive) {
+function getTagStatus(lastSeen, active) {
+    if (active == 0) {
         return '<span class="status-badge status-offline">Offline</span>';
     }
 
-    // ถ้าไม่มีข้อมูล last_seen = Unknown
     if (!lastSeen) {
-        return '<span class="status-badge status-unknown">Unknown</span>';
+        return '<span class="status-badge status-damaged">Damaged</span>';
     }
 
     const now = new Date();
     const last = new Date(lastSeen);
-    const diffMinutes = (now - last) / (1000 * 60);
+    const diff = (now - last) / 1000; // วินาที
 
-    // Online: เมื่อได้ลงทะเบียนกับผู้เยี่ยมชมและ ESP32 ยังจับได้ (ภายใน 5 นาที)
-    if (diffMinutes <= 30) {
+    if (diff <= 300) {
         return '<span class="status-badge status-online">Online</span>';
-    }
-    // Damaged: เมื่อสถานะล่าสุดเป็น Online (มี last_seen) แต่ ESP32 จับไม่ได้กะทันหัน 
-    // และผู้ใช้ยังไม่ได้กดคืน (active = 1)
-    else if (isActive && diffMinutes > 5) {
+    } else {
         return '<span class="status-badge status-damaged">Damaged</span>';
     }
+}
 
-    // กรณีอื่นๆ ให้เป็น Unknown
-    return '<span class="status-badge status-unknown">Unknown</span>';
+
+// แสดงเวลาให้อ่านง่าย
+function formatDateTime(datetime) {
+    if (!datetime) return '-';
+    const date = new Date(datetime);
+    return date.toLocaleString('th-TH', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
 }
 
 // ✅ แก้ไขส่วนของ loadDeviceTableByType - การแสดงปุ่มการดำเนินการ
@@ -208,76 +210,36 @@ function loadDeviceTableByType(type = "all") {
             const rows = [];
 
             data.filter(v => type === 'all' || v.type === type).forEach(v => {
-                const fullName = v.name || `${v.first_name || ''} ${v.last_name || ''}`.trim();
+                const typeLabel = v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
+                const displayName = v.type === 'group' ? (v.group_name || '-') : (v.name || '-');
                 const tag = v.tag_name || '-';
                 const uuid = v.uuid || '-';
-                const visitDuration = calculateVisitDuration(v.visit_date || v.created_at);
-                const status = getTagStatus(v.last_seen, v.active !== 0);
+                const visitTime = formatDateTime(v.visit_date);
+                const lastSeen = v.last_seen ? formatDateTime(v.last_seen) : '-';
+                const duration = (v.visit_date && v.last_seen)
+                    ? `${visitTime} - ${lastSeen}`
+                    : '-';
 
-                // ✅ แก้ไข: แสดงปุ่ม "คืน" สำหรับทุกอุปกรณ์ที่มีการลงทะเบียนแล้ว
-                const actionBtn = `<button class="btn btn-return" 
-                    onclick="returnEquipment('${v.visitor_id || v.id}', '${uuid}', ${v.active !== 0})">
-                    <i class="fas fa-undo"></i> คืน
-                </button>`;
+                const status = getTagStatus(v.last_seen, v.active);
+                const actionBtn = v.active == 1
+                    ? `<button class="btn btn-return" onclick="returnEquipment('${v.id}', '${uuid}')">
+                        <i class="fas fa-undo"></i> คืน</button>`
+                    : `<span class="text-muted">คืนแล้ว</span>`;
 
-                // ส่วนที่เหลือเหมือนเดิม...
-                if (v.members && Array.isArray(v.members)) {
-                    v.members.forEach(m => {
-                        const memberName = m.name || `${m.first_name || ''} ${m.last_name || ''}`.trim();
-                        const memberDuration = calculateVisitDuration(m.visit_date || m.created_at);
-                        const memberStatus = getTagStatus(m.last_seen, m.active !== 0);
-                        const memberActionBtn = `<button class="btn btn-return" 
-                            onclick="returnEquipment('${m.visitor_id || m.id}', '${m.uuid}', ${m.active !== 0})">
-                            <i class="fas fa-undo"></i> คืน
-                        </button>`;
-
-                        rows.push(`<tr>
-                            <td>${v.group_name || '-'}</td>
-                            <td>${memberName}</td>
-                            <td>${m.tag_name || '-'}</td>
-                            <td>${m.uuid || '-'}</td>
-                            <td>${memberDuration}</td>
-                            <td>${memberStatus}</td>
-                            <td>${memberActionBtn}</td>
-                        </tr>`);
-                    });
-                } else {
-                    if (type === 'individual') {
-                        rows.push(`<tr>
-                            <td>${fullName}</td>
-                            <td>${tag}</td>
-                            <td>${uuid}</td>
-                            <td>${visitDuration}</td>
-                            <td>${status}</td>
-                            <td>${actionBtn}</td>
-                        </tr>`);
-                    } else if (type === 'group') {
-                        rows.push(`<tr>
-                            <td>${v.group_name || '-'}</td>
-                            <td>${fullName}</td>
-                            <td>${tag}</td>
-                            <td>${uuid}</td>
-                            <td>${visitDuration}</td>
-                            <td>${status}</td>
-                            <td>${actionBtn}</td>
-                        </tr>`);
-                    } else {
-                        const typeLabel = v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
-                        const nameOrGroup = v.type === 'group' ? v.group_name || '-' : fullName;
-                        rows.push(`<tr>
-                            <td>${typeLabel}</td>
-                            <td>${nameOrGroup}</td>
-                            <td>${tag}</td>
-                            <td>${uuid}</td>
-                            <td>${visitDuration}</td>
-                            <td>${status}</td>
-                            <td>${actionBtn}</td>
-                        </tr>`);
-                    }
-                }
+                rows.push(`<tr>
+                    <td>${typeLabel}</td>
+                    <td>${displayName}</td>
+                    <td>${tag}</td>
+                    <td>${uuid}</td>
+                    <td>${duration}</td>
+                    <td>${status}</td>
+                    <td>${actionBtn}</td>
+                </tr>`);
             });
 
-            tbody.innerHTML = rows.length > 0 ? rows.join('') : '<tr><td colspan="7" class="no-data">ไม่พบข้อมูล</td></tr>';
+            tbody.innerHTML = rows.length > 0
+                ? rows.join('')
+                : '<tr><td colspan="7" class="no-data">ไม่พบข้อมูล</td></tr>';
         })
         .catch(error => {
             console.error('Error loading visitors:', error);
@@ -287,73 +249,28 @@ function loadDeviceTableByType(type = "all") {
 
 
 // ✅ ฟังก์ชันคืนอุปกรณ์
-function returnEquipment(visitorId, uuid, isCurrentlyActive) {
-    // กำหนดข้อความตามสถานะปัจจุบัน
-    const actionText = isCurrentlyActive ? 'คืนอุปกรณ์' : 'เปิดใช้งานอุปกรณ์';
-    const confirmText = isCurrentlyActive ?
-        `คุณต้องการคืนอุปกรณ์ UUID: ${uuid} ใช่หรือไม่?` :
-        `คุณต้องการเปิดใช้งานอุปกรณ์ UUID: ${uuid} เพื่อให้สามารถลงทะเบียนกับผู้เยี่ยมชมใหม่ได้ใช่หรือไม่?`;
+function returnEquipment(visitorId, uuid) {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการคืนอุปกรณ์นี้?')) return;
 
-    Swal.fire({
-        title: `ยืนยัน${actionText}`,
-        text: confirmText,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2a8c78',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'ยืนยัน',
-        cancelButtonText: 'ยกเลิก'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // ส่งคำขอไปยัง API พร้อมระบุการทำงาน
-            fetch('../../backend/staff/api/return_equipment.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    visitor_id: visitorId,
-                    uuid: uuid,
-                    action: isCurrentlyActive ? 'return' : 'reactivate' // ✅ เพิ่ม action
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const successText = isCurrentlyActive ?
-                            'คืนอุปกรณ์เรียบร้อยแล้ว อุปกรณ์จะแสดงสถานะ Offline' :
-                            'เปิดใช้งานอุปกรณ์เรียบร้อยแล้ว สามารถลงทะเบียนกับผู้เยี่ยมชมใหม่ได้';
-
-                        Swal.fire({
-                            title: 'สำเร็จ!',
-                            text: successText,
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            // รีโหลดข้อมูลใหม่
-                            applyDeviceFilter();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: 'เกิดข้อผิดพลาด!',
-                            text: data.message || `ไม่สามารถ${actionText}ได้`,
-                            icon: 'error'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error processing equipment:', error);
-                    Swal.fire({
-                        title: 'เกิดข้อผิดพลาด!',
-                        text: 'ไม่สามารถติดต่อเซิร์ฟเวอร์ได้',
-                        icon: 'error'
-                    });
-                });
+    fetch('../../backend/staff/api/return_equipment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visitor_id: visitorId, uuid: uuid, action: 'return' })
+    })
+    .then(res => res.json())
+    .then(response => {
+        if (response.success) {
+            alert('คืนอุปกรณ์เรียบร้อยแล้ว');
+            loadDeviceTableByType(); // รีโหลดข้อมูลใหม่
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + response.message);
         }
+    })
+    .catch(err => {
+        console.error('Error returning device:', err);
+        alert('เกิดข้อผิดพลาดขณะคืนอุปกรณ์');
     });
 }
-
 function logout() {
     Swal.fire({
         title: 'ออกจากระบบ',

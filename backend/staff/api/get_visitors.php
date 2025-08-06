@@ -58,9 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     v.created_at,
                     v.active,
                     v.type,
+                    r.ended_at,
                     COALESCE(i.tag_name, 'ไม่พบ iBeacon Tag') as tag_name
                 FROM visitors v
                 LEFT JOIN ibeacons_tag i ON CONVERT(v.uuid USING utf8) = i.uuid
+                LEFT JOIN equipment_return_log r ON v.id = r.visitor_id
                 WHERE v.type = 'individual'
                 ORDER BY v.created_at DESC
             ");
@@ -82,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     'visit_date' => $v['visit_date'],
                     'created_at' => $v['created_at'],
                     'last_seen' => null, // ตั้งค่าเป็น null เนื่องจากไม่มีคอลัมน์นี้
+                    'ended_at' => $v['ended_at'],
                     'active' => $v['active'],
                     'status' => $v['active'] == 1 ? 'active' : 'returned'
                 ];
@@ -104,10 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             gm.first_name, 
             gm.last_name, 
             gm.age,
+            r.ended_at,
             gm.gender
         FROM visitors v
         LEFT JOIN ibeacons_tag i ON CONVERT(v.uuid USING utf8) = i.uuid
         LEFT JOIN group_members gm ON v.id = gm.group_visitor_id
+        LEFT JOIN equipment_return_log r ON v.id = r.visitor_id
         WHERE v.type = 'group'
         ORDER BY v.created_at DESC
     ");
@@ -135,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'visit_date' => $row['visit_date'],
                 'created_at' => $row['created_at'],
                 'last_seen' => null,
+                'ended_at' => $row['ended_at'],
                 'active' => $row['active'],
                 'status' => $row['active'] == 1 ? 'active' : 'returned',
                 'members' => []
