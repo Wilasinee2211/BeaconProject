@@ -1342,3 +1342,32 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // ไม่ต้องเปลี่ยน onclick attribute เพราะใช้ฟังก์ชัน addGroupVisitor() ที่จะเลือกวิธีการเอง
 });
+
+async function loadOfflineTags() {
+    try {
+        const res = await fetch('../../backend/staff/api/get_offline_tags.php');
+        const tags = await res.json();
+
+        const individualSelect = document.getElementById('visitorBeacon');
+        const groupSelect = document.getElementById('groupBeacon');
+
+        individualSelect.innerHTML = '<option value="">-- เลือก Tag --</option>';
+        groupSelect.innerHTML = '<option value="">-- เลือก Tag --</option>';
+
+        tags.forEach(tag => {
+            const option = document.createElement('option');
+            option.value = tag.id;
+            option.textContent = `${tag.tag_name} (${tag.uuid})`;
+            individualSelect.appendChild(option.cloneNode(true));
+            groupSelect.appendChild(option.cloneNode(true));
+        });
+    } catch (err) {
+        console.error('ไม่สามารถโหลด tag สถานะ offline ได้:', err);
+    }
+}
+
+// เรียกใช้เมื่อโหลดหน้า
+window.onload = () => {
+    loadOfflineTags();
+    // อื่น ๆ ที่มีใน window.onload เดิม ถ้ามี
+};
