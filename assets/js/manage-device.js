@@ -398,6 +398,9 @@ function renderFilteredRows(data, filter) {
         }
     });
 
+    // ✅ เพิ่มส่วนนี้เพื่อจัดเรียงลำดับ Damaged → Online → Offline
+    filtered = sortVisitorDataByStatusPriority(filtered);
+    
     // ตั้งหัวตาราง
     thead.innerHTML = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
 
