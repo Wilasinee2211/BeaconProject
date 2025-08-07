@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../../assets/css/manage_device.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 
 <body>
@@ -61,36 +62,6 @@
                 </div>
             </div>
 
-            <!-- Search Form -->
-            <div class="form-container">
-                <h2 style="margin-bottom: 20px; color: #2a8c78;">
-                    🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
-                </h2>
-
-                <div class="form-grid">
-                    <!-- Dropdown: ค้นหาจาก -->
-                    <div class="form-group">
-                        <label for="searchType">ค้นหาจาก</label>
-                        <select id="searchType">
-                            <option value="name">ชื่อ-นามสกุล</option>
-                            <option value="beacon">รหัส iBeacon Tag</option>
-                            <option value="group">ชื่อกลุ่ม</option>
-                        </select>
-                    </div>
-
-                    <!-- กล่องกรอกคำค้น -->
-                    <div class="form-group">
-                        <label for="searchValue">ค้นหา</label>
-                        <input type="text" id="searchValue" list="visitorList" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
-                        <datalist id="visitorList"></datalist>
-                    </div>
-                </div>
-
-                <!-- ปุ่มค้นหา -->
-                <button class="btn" onclick="searchVisitors()">ค้นหา</button>
-            </div>
-
-
             <!-- Dashboard Stats -->
             <div class="dashboard-grid">
                 <!-- Tag ที่ใช้งานทั้งหมด -->
@@ -134,15 +105,45 @@
                 </div>
             </div>
 
+            <!-- Search Form -->
+            <div class="form-container">
+                <h2 style="margin-bottom: 20px; color: #2a8c78;">
+                    🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
+                </h2>
+
+                <div class="form-grid">
+                    <!-- Dropdown: ค้นหาจาก -->
+                    <div class="form-group">
+                        <label for="searchType">ค้นหาจาก</label>
+                        <select id="searchType">
+                            <option value="name">ชื่อ-นามสกุล</option>
+                            <option value="beacon">iBeacon Tag</option>
+                            <option value="group">ชื่อกลุ่ม</option>
+                        </select>
+                    </div>
+
+                    <!-- กล่องกรอกคำค้น -->
+                    <div class="form-group">
+                        <label for="searchValue">ค้นหา</label>
+                        <input type="text" id="searchValue" list="visitorList" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
+                        <datalist id="visitorList"></datalist>
+                    </div>
+                </div>
+
+                <!-- ปุ่มค้นหา -->
+                <button class="btn" onclick="searchVisitors()">ค้นหา</button>
+            </div>
+
             <!-- Device Table -->
             <div class="table-container">
                 <!-- Filter Bar (แก้ไขให้เหมือน visitor-register.html) -->
                 <div class="filter-bar">
                     <label for="deviceTypeFilter">แสดง</label>
-                    <select id="deviceTypeFilter" onchange="applyDeviceFilter()">
-                        <option value="all">ทั้งหมด</option>
-                        <option value="individual">แบบเดี่ยว</option>
-                        <option value="group">แบบกลุ่ม</option>
+                    <select id="deviceTypeFilter">
+                        <option value="all">All</option>
+                        <option value="available">Available</option>
+                        <option value="success">Success</option>
+                        <option value="damaged">Damaged</option>
                     </select>
                 </div>
 
@@ -151,7 +152,7 @@
                     <thead id="deviceTableHead"></thead>
                     <tbody id="deviceTableBody">
                         <tr>
-                            <td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td>
+                            <td colspan="8" class="no-data">กำลังโหลดข้อมูล...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -165,12 +166,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             applyDeviceFilter();
+
+            // ✅ รีเซ็ต datalist เมื่อเปลี่ยนประเภทการค้นหา
+            document.getElementById('searchType').addEventListener('change', () => {
+                document.getElementById('searchValue').value = '';
+                document.getElementById('visitorList').innerHTML = '';
+            });
         });
-        
+
         // ✅ Event: พิมพ์แล้วโหลด suggestion
         document.getElementById('searchValue').addEventListener('input', e => {
             if (e.target.value.length > 1) updateDatalist(e.target.value);
         });
+
+        document.getElementById('searchValue').addEventListener('input', e => {
+            console.log("กำลังโหลดคำแนะนำ", e.target.value); // DEBUG
+            if (e.target.value.length > 1) updateDatalist(e.target.value);
+        });
+
     </script>
 </body>
 

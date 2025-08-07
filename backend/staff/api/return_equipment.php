@@ -152,11 +152,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // บันทึก log การทำงาน (ถ้าต้องการ) - ปรับให้ไม่ใช้ updated_at
         try {
             $stmt = $conn->prepare("
-                INSERT INTO equipment_return_log (visitor_id, uuid, action, action_time, created_at)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                ON DUPLICATE KEY UPDATE action = VALUES(action), action_time = CURRENT_TIMESTAMP
+                INSERT INTO equipment_return_log (visitor_id, ended_at)
+                VALUES (?, CURRENT_TIMESTAMP)
+                ON DUPLICATE KEY UPDATE ended_at = CURRENT_TIMESTAMP
             ");
-            $stmt->execute([$visitor_id, $uuid, $action]);
+            $stmt->execute([$visitor_id]);
         } catch (PDOException $e) {
             // ถ้าตาราง log ไม่มีก็ไม่เป็นไร
             error_log("Equipment log table not found: " . $e->getMessage());
