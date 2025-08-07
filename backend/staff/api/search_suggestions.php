@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
-require_once '../../config/db_connect.php';
+require_once __DIR__ . '/config/db_connect.php';
 
 $q = $_GET['q'] ?? '';
 $type = $_GET['type'] ?? 'group'; // ค่าเริ่มต้นคือ group
