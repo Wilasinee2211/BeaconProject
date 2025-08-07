@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="../../assets/css/visitor-register.css" />
     <link rel="stylesheet" href="../../assets/css/manage_device.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- เพิ่ม Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
@@ -34,17 +36,17 @@
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a class="nav-link" href="visitor-register.html">
-                        📝 ลงทะเบียนผู้เยี่ยมชม
+                        <i class="bi bi-person-plus"></i> ลงทะเบียนผู้เยี่ยมชม
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="register-device.html">
-                        📟 ลงทะเบียนอุปกรณ์
+                        <i class="bi bi-router"></i> ลงทะเบียนอุปกรณ์
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" href="manage-device.html">
-                        🛠️ จัดการอุปกรณ์
+                        <i class="bi bi-tools"></i> จัดการอุปกรณ์
                     </a>
                 </li>
             </ul>
@@ -67,7 +69,9 @@
                 <!-- Tag ที่ใช้งานทั้งหมด -->
                 <div class="card totalRegister-card dashboard-filter" data-filter="registered">
                     <div class="card-header">
-                        <div class="card-icon">📊</div>
+                        <div class="card-icon">
+                            <i class="bi bi-journal-check"></i>
+                        </div>
                         <h3 class="card-title">Tag ที่ลงทะเบียนทั้งหมด</h3>
                     </div>
                     <div class="stat-number" id="totalRegisterCount">0</div>
@@ -77,7 +81,9 @@
                 <!-- Tag ที่ใช้งานทั้งหมด -->
                 <div class="card total-card dashboard-filter" data-filter="in_use">
                     <div class="card-header">
-                        <div class="card-icon">📊</div>
+                        <div class="card-icon">
+                            <i class="bi bi-bar-chart"></i>
+                        </div>
                         <h3 class="card-title">Tag ที่ใช้งานทั้งหมด</h3>
                     </div>
                     <div class="stat-number" id="totalCount">0</div>
@@ -87,7 +93,9 @@
                 <!-- คืนแล้ว -->
                 <div class="card returned-card dashboard-filter" data-filter="returned">
                     <div class="card-header">
-                        <div class="card-icon">✅</div>
+                        <div class="card-icon">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
                         <h3 class="card-title">คืนแล้ว</h3>
                     </div>
                     <div class="stat-number" id="returnedCount">0</div>
@@ -97,7 +105,9 @@
                 <!-- ยังไม่คืน -->
                 <div class="card active-card dashboard-filter" data-filter="not_returned">
                     <div class="card-header">
-                        <div class="card-icon">⏳</div>
+                        <div class="card-icon">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
                         <h3 class="card-title">ยังไม่คืน</h3>
                     </div>
                     <div class="stat-number" id="activeCount">0</div>
@@ -108,13 +118,17 @@
             <!-- Search Form -->
             <div class="form-container">
                 <h2 style="margin-bottom: 20px; color: #2a8c78;">
-                    🔍 ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
+                    <i class="bi bi-search" style="margin-right: 10px;"></i>
+                    ค้นหาผู้เยี่ยมชมเพื่อคืนอุปกรณ์
                 </h2>
 
                 <div class="form-grid">
                     <!-- Dropdown: ค้นหาจาก -->
                     <div class="form-group">
-                        <label for="searchType">ค้นหาจาก</label>
+                        <label for="searchType">
+                            <i class="bi bi-funnel" style="margin-right: 5px;"></i>
+                            ค้นหาจาก
+                        </label>
                         <select id="searchType">
                             <option value="name">ชื่อ-นามสกุล</option>
                             <option value="beacon">iBeacon Tag</option>
@@ -124,20 +138,27 @@
 
                     <!-- กล่องกรอกคำค้น -->
                     <div class="form-group">
-                        <label for="searchValue">ค้นหา</label>
+                        <label for="searchValue">
+                            <i class="bi bi-search" style="margin-right: 5px;"></i>
+                            ค้นหา
+                        </label>
                         <input type="text" id="searchValue" list="visitorList" placeholder="กรอกข้อมูลที่ต้องการค้นหา">
                         <datalist id="visitorList"></datalist>
                     </div>
                 </div>
 
                 <!-- ปุ่มค้นหา -->
-                <button class="btn" onclick="searchVisitors()">ค้นหา</button>
+                <button class="btn" onclick="searchVisitors()">
+                    <i class="bi bi-search" style="margin-right: 8px;"></i>
+                    ค้นหา
+                </button>
             </div>
 
             <!-- Device Table -->
             <div class="table-container">
                 <!-- Filter Bar (แก้ไขให้เหมือน visitor-register.html) -->
                 <div class="filter-bar">
+                    <i class="bi bi-filter" style="margin-right: 8px; color: #2a8c78;"></i>
                     <label for="deviceTypeFilter">แสดง</label>
                     <select id="deviceTypeFilter">
                         <option value="all">All</option>
@@ -149,10 +170,24 @@
 
                 <!-- Table -->
                 <table class="table">
-                    <thead id="deviceTableHead"></thead>
+                    <thead id="deviceTableHead">
+                        <tr>
+                            <th><i class="bi bi-hash" style="margin-right: 5px;"></i>ลำดับ</th>
+                            <th><i class="bi bi-person" style="margin-right: 5px;"></i>ชื่อ-นามสกุล</th>
+                            <th><i class="bi bi-broadcast" style="margin-right: 5px;"></i>iBeacon</th>
+                            <th><i class="bi bi-people" style="margin-right: 5px;"></i>กลุ่ม</th>
+                            <th><i class="bi bi-calendar" style="margin-right: 5px;"></i>วันที่เยี่ยมชม</th>
+                            <th><i class="bi bi-clock" style="margin-right: 5px;"></i>เวลา</th>
+                            <th><i class="bi bi-info-circle" style="margin-right: 5px;"></i>สถานะ</th>
+                            <th><i class="bi bi-gear" style="margin-right: 5px;"></i>การจัดการ</th>
+                        </tr>
+                    </thead>
                     <tbody id="deviceTableBody">
                         <tr>
-                            <td colspan="8" class="no-data">กำลังโหลดข้อมูล...</td>
+                            <td colspan="8" class="no-data">
+                                <i class="bi bi-hourglass-split" style="margin-right: 8px;"></i>
+                                กำลังโหลดข้อมูล...
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -191,7 +226,6 @@
                 applyDeviceFilter();
             }
         });
-
     </script>
 </body>
 
