@@ -660,7 +660,3 @@ function confirmReturnDevice(deviceId, callback) {
     }
   });
 }
-
-
-
-

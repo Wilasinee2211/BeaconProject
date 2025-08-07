@@ -184,6 +184,14 @@
             if (e.target.value.length > 1) updateDatalist(e.target.value);
         });
 
+        document.getElementById('searchValue').addEventListener('input', e => {
+            const value = e.target.value.trim();
+            if (value === "") {
+                // โหลดข้อมูลทั้งหมดเมื่อช่องค้นหาว่าง
+                applyDeviceFilter();
+            }
+        });
+
     </script>
 </body>
 
