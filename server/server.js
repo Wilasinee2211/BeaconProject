@@ -7,7 +7,7 @@ const dayjs = require('dayjs');
 // ===========================
 
 // MQTT Broker (TLS/SSL)
-const MQTT_SERVER   = "mqtts://c08f12c863ea4fcea81ae1d7226bddab.s1.eu.hivemq.cloud";
+const MQTT_SERVER   = "mqtts://1723070ff8c842a18f954078cd5289af.s1.eu.hivemq.cloud";
 const MQTT_USERNAME = "test1";
 const MQTT_PASSWORD = "Test12345";
 const MQTT_TOPIC    = "ble/ibeacons";
@@ -16,6 +16,7 @@ const CONTROL_TOPIC = "ble/commands";
 // MySQL Database
 const MYSQL_CONFIG = {
   host:     'localhost',
+  port:     8889,
   user:     'root',
   password: 'root',
   database: 'beacon_db',
@@ -47,14 +48,19 @@ function formatDatetime(dt) {
     console.log(`🔍 Looking for active visitors with visit_date = ${todayDate}`);
 
     const [matchedVisitors] = await db.execute(`
-      SELECT id, uuid, age, gender FROM visitors
+      SELECT id, uuid, type, first_name, last_name, age, gender, group_name, group_size, group_type
+      FROM visitors
       WHERE visit_date = ? AND active = TRUE
     `, [todayDate]);
 
     if (matchedVisitors.length > 0) {
       console.log(`🙋‍♀️ Found ${matchedVisitors.length} active visitor(s) for today:`);
       matchedVisitors.forEach(v => {
-        console.log(` - ID: ${v.id}, UUID: ${v.uuid}, Age: ${v.age}, Gender: ${v.gender}`);
+        if (v.type === 'individual') {
+          console.log(`  👤 Individual - ID: ${v.id}, UUID: ${v.uuid}, Name: ${v.first_name} ${v.last_name}, Age: ${v.age}, Gender: ${v.gender}`);
+        } else if (v.type === 'group') {
+          console.log(`  👥 Group - ID: ${v.id}, UUID: ${v.uuid}, Name: ${v.group_name}, Size: ${v.group_size}, Type: ${v.group_type}, Age: ${v.age}, Gender: ${v.gender}`);
+        }
       });
     } else {
       console.log("👻 No active visitors found for today.");
@@ -93,21 +99,26 @@ function formatDatetime(dt) {
           const matchedUuid = command.uuid.slice(-8);
 
           const [rows] = await db.execute(`
-            SELECT id FROM visitors
+            SELECT id, type, first_name, last_name, group_name FROM visitors
             WHERE uuid = ?
             ORDER BY visit_date DESC, id DESC
             LIMIT 1
           `, [matchedUuid]);
 
           if (rows.length > 0) {
-            const visitorId = rows[0].id;
+            const visitor = rows[0];
+            const visitorId = visitor.id;
+            const displayName = visitor.type === 'group' 
+              ? `Group: ${visitor.group_name}` 
+              : `Individual: ${visitor.first_name} ${visitor.last_name}`;
+
             if (command.action === 'deactivate_uuid') {
               await db.execute(`UPDATE visitors SET active = FALSE WHERE id = ?`, [visitorId]);
-              console.log(`❎ UUID ${matchedUuid} ถูกปิดใช้งาน`);
+              console.log(`❎ UUID ${matchedUuid} (${displayName}) ถูกปิดใช้งาน`);
             }
             if (command.action === 'reactivate_uuid') {
               await db.execute(`UPDATE visitors SET active = TRUE WHERE id = ?`, [visitorId]);
-              console.log(`✅ UUID ${matchedUuid} ถูกเปิดใช้งานใหม่`);
+              console.log(`✅ UUID ${matchedUuid} (${displayName}) ถูกเปิดใช้งานใหม่`);
             }
           } else {
             console.log(`⚠️ ไม่พบ visitor สำหรับ UUID: ${matchedUuid}`);
@@ -137,14 +148,15 @@ function formatDatetime(dt) {
 
       // 2) หาคนล่าสุดที่ใช้ UUID นี้ และยัง active
       const [visitorRows] = await db.execute(`
-        SELECT age, gender FROM visitors
+        SELECT type, age, gender, first_name, last_name, group_name, group_size, group_type
+        FROM visitors
         WHERE uuid = ? AND active = TRUE
         ORDER BY visit_date DESC, id DESC
         LIMIT 1
       `, [matchedUuid]);
 
       if (visitorRows.length > 0) {
-        const { age, gender } = visitorRows[0];
+        const visitor = visitorRows[0];
 
         // ตรวจสอบซ้ำก่อน INSERT
         const [existingRows] = await db.execute(`
@@ -154,12 +166,18 @@ function formatDatetime(dt) {
         `, [timestamp, macAddress, uuid]);
 
         if (existingRows.length === 0) {
+          // ใช้ฟิลด์เดิมเท่านั้น โดยเก็บข้อมูลแตกต่างกันตาม type
           await db.execute(`
             INSERT INTO beacon_visits
               (timestamp, mac_address, rssi, host_name, uuid_full, matched_uuid, age, gender)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-          `, [timestamp, macAddress, rssi, HostName, uuid, matchedUuid, age, gender]);
-          console.log(`🙋‍♂️ [Visit] Match saved → age=${age}, gender=${gender}`);
+          `, [timestamp, macAddress, rssi, HostName, uuid, matchedUuid, visitor.age, visitor.gender]);
+          
+          if (visitor.type === 'individual') {
+            console.log(`👤 [Visit-Individual] ${visitor.first_name} ${visitor.last_name} → age=${visitor.age}, gender=${visitor.gender}`);
+          } else if (visitor.type === 'group') {
+            console.log(`👥 [Visit-Group] ${visitor.group_name} (${visitor.group_type}, ${visitor.group_size} คน) → age=${visitor.age}, gender=${visitor.gender}`);
+          }
         } else {
           console.log(`⚠️ [Visit] Duplicate entry skipped`);
         }

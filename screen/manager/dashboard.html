@@ -12,6 +12,11 @@
 </head>
 
 <body>
+  <!-- Connection Status Indicator -->
+  <div id="connectionStatus" class="connection-status disconnected">
+    <i class="fas fa-wifi"></i> กำลังเชื่อมต่อ...
+  </div>
+
   <div class="dashboard-layout">
     <!-- Sidebar -->
     <div class="sidebar">
@@ -42,7 +47,7 @@
     <div class="main-content">
       <div class="content-header">
         <h1>แดชบอร์ด</h1>
-        <p>ภาพรวมระบบติดตามผู้เยี่ยมชม</p>
+        <p>ภาพรวมระบบติดตามผู้เยี่ยมชม - <span id="lastUpdate">กำลังโหลด...</span></p>
       </div>
 
       <div class="tab-content active">
@@ -51,9 +56,14 @@
           <div class="card">
             <div class="card-header">
               <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">👥</div>
-              <div class="card-title">ผู้เยี่ยมชมวันนี้</div>
+              <div class="card-title">
+                ผู้เยี่ยมชมวันนี้
+                <i class="fas fa-search-plus view-all-visitors-btn" 
+                   title="ดูรายละเอียดผู้เยี่ยมชมทั้งหมด"
+                   style="margin-left: 8px; cursor: pointer; color: #3498db; font-size: 0.9em; opacity: 0.8;"></i>
+              </div>
             </div>
-            <div class="stat-number" id="totalVisitors">94</div>
+            <div class="stat-number" id="totalVisitors">-</div>
             <div class="stat-label">คน</div>
           </div>
           <div class="card">
@@ -69,7 +79,7 @@
               <div class="card-icon" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">📡</div>
               <div class="card-title">iBeacon ออนไลน์</div>
             </div>
-            <div class="stat-number">45</div>
+            <div class="stat-number" id="activeBeacons">-</div>
             <div class="stat-label">อุปกรณ์</div>
           </div>
           <div class="card">
@@ -77,7 +87,7 @@
               <div class="card-icon" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">⏱️</div>
               <div class="card-title">เวลาเฉลี่ย</div>
             </div>
-            <div class="stat-number" id="avgTime">22</div>
+            <div class="stat-number" id="avgTime">-</div>
             <div class="stat-label">นาที</div>
           </div>
         </div>
@@ -102,56 +112,56 @@
               <!-- Room markers positioned on the museum image -->
               <div class="room-marker" data-room="1" style="left: 32%; top: 78%;">
                 <div class="marker-circle capacity-green">
-                  <span class="visitor-count">12</span>
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 1</div>
               </div>
 
               <div class="room-marker" data-room="2" style="left: 13%; top: 60%;">
                 <div class="marker-circle capacity-green">
-                  <span class="visitor-count">8</span>
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 2</div>
               </div>
 
               <div class="room-marker" data-room="3" style="left: 25%; top: 25%;">
-                <div class="marker-circle capacity-yellow">
-                  <span class="visitor-count">15</span>
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 3</div>
               </div>
 
               <div class="room-marker" data-room="4" style="left: 42%; top: 28%;">
                 <div class="marker-circle capacity-green">
-                  <span class="visitor-count">6</span>
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 4</div>
               </div>
 
               <div class="room-marker" data-room="5" style="left: 68%; top: 68%;">
-                <div class="marker-circle capacity-yellow">
-                  <span class="visitor-count">20</span>
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 5</div>
               </div>
 
               <div class="room-marker" data-room="6" style="left: 90%; top: 38%;">
                 <div class="marker-circle capacity-green">
-                  <span class="visitor-count">4</span>
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 6</div>
               </div>
 
               <div class="room-marker" data-room="7" style="left: 78%; top: 26%;">
-                <div class="marker-circle capacity-red">
-                  <span class="visitor-count">18</span>
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 7</div>
               </div>
 
               <div class="room-marker" data-room="8" style="left: 62%; top: 32%;">
-                <div class="marker-circle capacity-yellow">
-                  <span class="visitor-count">11</span>
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
                 </div>
                 <div class="room-label">ห้อง 8</div>
               </div>
@@ -189,21 +199,14 @@
               </h4>
               <div id="topRooms">
                 <div class="quick-stat-item">
-                  <span class="quick-stat-label">#1 ห้อง 5</span>
-                  <span class="quick-stat-value">20 คน</span>
-                </div>
-                <div class="quick-stat-item">
-                  <span class="quick-stat-label">#2 ห้อง 7</span>
-                  <span class="quick-stat-value">18 คน</span>
-                </div>
-                <div class="quick-stat-item">
-                  <span class="quick-stat-label">#3 ห้อง 3</span>
-                  <span class="quick-stat-value">15 คน</span>
+                  <span class="quick-stat-label">กำลังโหลด...</span>
+                  <span class="quick-stat-value">-</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
         <!-- Analytics Section -->
         <div class="analytics-section">
           <h2 class="section-title">
@@ -262,6 +265,7 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/dashboard.js"></script>
 
 </body>

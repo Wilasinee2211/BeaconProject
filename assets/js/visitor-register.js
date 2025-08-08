@@ -174,7 +174,12 @@ async function addIndividualVisitor() {
 
         if (result.status === 'success') {
             Swal.fire('สำเร็จ', result.message, 'success');
-            fetchVisitors();
+            if (typeof loadDeviceTableByType === 'function') {
+                loadDeviceTableByType();
+            }
+            if (typeof loadDashboardStats === 'function') {
+                loadDashboardStats();
+            }
 
             // ล้างฟอร์ม
             document.getElementById('individualFirstName').value = '';
@@ -625,7 +630,13 @@ async function addGroupVisitorManual() {
 
             // ล้างฟอร์มและข้อมูล
             clearGroupForm();
-            fetchVisitors(); // รีเฟรชตารางข้อมูล
+            if (typeof loadDeviceTableByType === 'function') {
+                loadDeviceTableByType();
+            }
+            if (typeof loadDashboardStats === 'function') {
+                loadDashboardStats();
+            }
+
 
         } else {
             Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถลงทะเบียนได้', 'error');
@@ -780,39 +791,39 @@ function handleFileUpload(event) {
 // ฟังก์ชันตรวจสอบความถูกต้องของข้อมูล Excel
 function validateExcelData(data) {
     const errors = [];
-    
+
     data.forEach((row, index) => {
         const rowNumber = index + 1;
-        
+
         // ใช้ชื่อคอลัมน์เต็มๆ ตามที่อ่านได้จริง
         const nameCol = 'ชื่อ *ไม่ต้องใส่คำนำหน้า';
         const surnameCol = 'นามสกุล';
         const ageCol = 'อายุ (ปี) *กรอกเฉพาะตัวเลข';
         const genderCol = 'เพศ';
-        
+
         // ตรวจสอบชื่อ
         if (!row[nameCol] || row[nameCol].toString().trim() === '') {
             errors.push(`แถว ${rowNumber}: ชื่อไม่สามารถเว้นว่างได้`);
         }
-        
+
         // ตรวจสอบนามสกุล
         if (!row[surnameCol] || row[surnameCol].toString().trim() === '') {
             errors.push(`แถว ${rowNumber}: นามสกุลไม่สามารถเว้นว่างได้`);
         }
-        
+
         // ตรวจสอบอายุ
         const age = row[ageCol];
         if (!age || isNaN(age) || age < 0 || age > 150) {
             errors.push(`แถว ${rowNumber}: อายุต้องเป็นตัวเลข 0-150`);
         }
-        
+
         // ตรวจสอบเพศ
         const validGenders = ['ชาย', 'หญิง', 'อื่นๆ'];
         if (!row[genderCol] || !validGenders.includes(row[genderCol].toString().trim())) {
             errors.push(`แถว ${rowNumber}: เพศต้องเป็น ชาย, หญิง, หรือ อื่นๆ`);
         }
     });
-    
+
     return errors;
 }
 

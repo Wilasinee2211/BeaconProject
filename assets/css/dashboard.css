@@ -598,3 +598,34 @@ body {
         grid-template-columns: 1fr !important;
     }
 }
+
+.connection-status {
+  position: fixed; /* ไม่ดัน layout */
+  top: 10px;        /* อยู่บน */
+  right: 10px;      /* ชิดขวา */
+  background-color: #ffc107;
+  color: #000;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.connection-status.connecting {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.connection-status.connected {
+  background-color: #28a745;
+  color: white;
+}
+
+.connection-status.disconnected {
+  background-color: #dc3545;
+  color: white;
+}
