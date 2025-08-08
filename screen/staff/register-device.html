@@ -7,9 +7,8 @@
 
     <link rel="stylesheet" href="../../assets/css/sidebar.css" />
     <link rel="stylesheet" href="../../assets/css/manage_device.css" />
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -26,9 +25,21 @@
                 <div class="profile-time" id="sidebarLoginTime">เข้าสู่ระบบ: --:--</div>
             </div>
             <ul class="nav-menu">
-                <li class="nav-item"><a class="nav-link" href="visitor-register.html">📝 ลงทะเบียนผู้เยี่ยมชม</a></li>
-                <li class="nav-item"><a class="nav-link active" href="register-device.html">📟 ลงทะเบียนอุปกรณ์</a></li>
-                <li class="nav-item"><a class="nav-link" href="manage-device.html">🛠️ จัดการอุปกรณ์</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="visitor-register.html">
+                        <i class="bi bi-person-plus"></i> ลงทะเบียนผู้เยี่ยมชม
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="register-device.html">
+                        <i class="bi bi-router"></i> ลงทะเบียนอุปกรณ์
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="manage-device.html">
+                        <i class="bi bi-tools"></i> จัดการอุปกรณ์
+                    </a>
+                </li>
             </ul>
             <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
         </div>
@@ -40,7 +51,10 @@
             </div>
 
             <div class="form-container">
-                <h2 style="color:#2a8c78;">🖥️ ลงทะเบียน ESP32 (Host)</h2>
+                <h2 style="color:#2a8c78;">
+                    <i class="bi bi-router" style="margin-right: 10px;"></i>
+                    ลงทะเบียน ESP32 (Host)
+                </h2>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>ชื่อโฮสต์</label>
@@ -55,7 +69,10 @@
             </div>
 
             <div class="form-container">
-                <h2 style="color:#2a8c78;">📡 ลงทะเบียน iBeacon Tag</h2>
+                <h2 style="color:#2a8c78;">
+                    <i class="bi bi-broadcast" style="margin-right: 10px;"></i>
+                    ลงทะเบียน iBeacon Tag
+                </h2>
                 <div class="form-grid">
                     <div class="form-group">
                         <label>ชื่อ Tag</label>

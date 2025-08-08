@@ -275,11 +275,12 @@ function returnEquipment(visitor_id, uuid) {
                         title: 'สำเร็จ',
                         text: result.message,
                         icon: 'success',
-                        timer: 2000,
+                        timer: 1000,
                         showConfirmButton: false
                     });
                     // reload หรือ refresh table
                     applyDeviceFilter();
+                    loadDashboardStats(); // โหลด dashboard ทันทีหลังคืน
                 } else {
                     Swal.fire('ผิดพลาด', result.message, 'error');
                 }
@@ -333,6 +334,13 @@ async function loadDashboardStats() {
         console.error("Error loading dashboard stats:", err);
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadDashboardStats();                       // เรียกทันทีเมื่อโหลดหน้า
+    setInterval(loadDashboardStats, 5000);     // รีเฟรชทุก 5 วิ
+});
+
+
 
 function applyDashboardFilter(type) {
     const tbody = document.getElementById('deviceTableBody');
@@ -398,6 +406,8 @@ function renderFilteredRows(data, filter) {
         }
     });
 
+    // ✅ เพิ่มส่วนนี้เพื่อจัดเรียงลำดับ Damaged → Online → Offline
+    filtered = sortVisitorDataByStatusPriority(filtered);
     // ตั้งหัวตาราง
     thead.innerHTML = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
 
@@ -650,7 +660,3 @@ function confirmReturnDevice(deviceId, callback) {
     }
   });
 }
-
-
-
-
