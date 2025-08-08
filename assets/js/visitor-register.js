@@ -13,6 +13,7 @@ let currentGroupMethod = 'file'; // เริ่มต้นด้วยกา�
 // ตัวแปรเก็บข้อมูลสมาชิกที่เพิ่มแบบรายคน
 let manualGroupMembers = [];
 
+// ฟังก์ชันโหลด iBeacons ที่แสดงเฉพาะ available tags
 async function loadIBeacons() {
     const beaconDropdownIds = ['visitorBeacon', 'groupBeacon'];
 
@@ -43,25 +44,37 @@ async function loadIBeacons() {
                 const select = document.getElementById(id);
                 if (!select) return;
 
-                select.innerHTML = '<option value="">เลือก iBeacon</option>';
+                select.innerHTML = '<option value="">เลือก iBeacon (Available)</option>';
 
                 result.data.forEach(beacon => {
                     const option = document.createElement('option');
+                    
+                    // ✅ ให้ value เป็น UUID เต็ม (8 ตัวหลังของคุณก็ได้ถ้า API ส่งมาแบบนั้น)
                     option.value = beacon.uuid;
-                    option.textContent = `${beacon.tag_name} (UUID: ${beacon.uuid})`;
+
+                    // แสดงชื่อ tag + UUID ใน text
+                    option.textContent = `${beacon.tag_name} (${beacon.uuid})`;
+
+                    // เก็บข้อมูลเพิ่มเพื่อ debug หรือใช้ต่อ
+                    option.dataset.tagId = beacon.tag_id;
+                    option.dataset.tagName = beacon.tag_name;
+                    option.dataset.uuid = beacon.uuid;
+
                     select.appendChild(option);
                 });
             });
+
+            console.log('✅ iBeacons loaded successfully:', result.data);
         } else {
             beaconDropdownIds.forEach(id => {
                 const select = document.getElementById(id);
                 if (!select) return;
-                select.innerHTML = '<option value="">ไม่พบ iBeacon</option>';
+                select.innerHTML = '<option value="">ไม่พบ iBeacon ที่พร้อมใช้งาน</option>';
             });
-            Swal.fire('ข้อมูล', result.message || 'ไม่พบข้อมูล iBeacon', 'info');
+            Swal.fire('ข้อมูล', result.message || 'ไม่พบข้อมูล iBeacon ที่พร้อมใช้งาน', 'info');
         }
     } catch (error) {
-        console.error('Error loading iBeacons:', error);
+        console.error('❌ Error loading iBeacons:', error);
         beaconDropdownIds.forEach(id => {
             const select = document.getElementById(id);
             if (select) {
@@ -130,8 +143,26 @@ async function addIndividualVisitor() {
     const firstName = document.getElementById('individualFirstName').value.trim();
     const lastName = document.getElementById('individualLastName').value.trim();
     const gender = document.getElementById('individualGender').value;
-    const beaconUUID = document.getElementById('visitorBeacon').value;
+    const beaconElement = document.getElementById('visitorBeacon');
+    const beaconUUID = beaconElement.value;
     const birthdate = document.getElementById('visitorBirthdate').value;
+
+    // 🔧 เพิ่มการ debug ข้อมูล
+    console.log('=== INDIVIDUAL REGISTRATION DEBUG ===');
+    console.log('firstName:', firstName);
+    console.log('lastName:', lastName);
+    console.log('gender:', gender);
+    console.log('birthdate:', birthdate);
+    console.log('beaconElement:', beaconElement);
+    console.log('beaconUUID:', beaconUUID);
+    console.log('beaconElement.selectedIndex:', beaconElement.selectedIndex);
+    if (beaconElement.selectedIndex > 0) {
+        const selectedOption = beaconElement.options[beaconElement.selectedIndex];
+        console.log('selectedOption:', selectedOption);
+        console.log('selectedOption.value:', selectedOption.value);
+        console.log('selectedOption.text:', selectedOption.text);
+        console.log('selectedOption data-uuid:', selectedOption.getAttribute('data-uuid'));
+    }
 
     if (!firstName || !lastName || !birthdate || !gender || !beaconUUID) {
         Swal.fire('กรอกไม่ครบ', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
@@ -156,6 +187,8 @@ async function addIndividualVisitor() {
         uuid: beaconUUID
     };
 
+    console.log('📤 Payload to send:', data);
+
     try {
         const response = await fetch(REGISTER_VISITOR_API_URL, {
             method: 'POST',
@@ -163,14 +196,19 @@ async function addIndividualVisitor() {
             body: JSON.stringify(data)
         });
 
+        // 🔧 เพิ่มการ debug response
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Server error response:', errorText);
+            console.error('❌ Server error response:', errorText);
             Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', 'error');
             return;
         }
 
         const result = await response.json();
+        console.log('📥 Server response:', result);
 
         if (result.status === 'success') {
             Swal.fire('สำเร็จ', result.message, 'success');
@@ -188,11 +226,14 @@ async function addIndividualVisitor() {
             document.getElementById('ageDisplay').textContent = '';
             document.getElementById('individualGender').value = '';
             document.getElementById('visitorBeacon').value = '';
+
+            // โหลด iBeacons ใหม่เพื่ออัปเดตสถานะ
+            await loadIBeacons();
         } else {
             Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
         }
     } catch (err) {
-        console.error('Error:', err);
+        console.error('❌ Error:', err);
         Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเพิ่มข้อมูลได้', 'error');
     }
 }
@@ -271,6 +312,310 @@ function addGroupMember() {
         timer: 1500,
         showConfirmButton: false
     });
+}
+
+// ฟังก์ชันล้างฟอร์มเพิ่มสมาชิก
+function clearMemberForm() {
+    document.getElementById('memberFirstName').value = '';
+    document.getElementById('memberLastName').value = '';
+    document.getElementById('memberAge').value = '';
+    document.getElementById('memberGender').value = '';
+}
+
+// ฟังก์ชันอัปเดตรายชื่อสมาชิก
+function updateMembersList() {
+    const membersList = document.getElementById('membersList');
+    const memberCount = document.getElementById('memberCount');
+    const clearAllBtn = document.querySelector('.clear-all-btn');
+
+    if (!membersList || !memberCount) return;
+
+    // อัปเดตจำนวนสมาชิก
+    memberCount.textContent = manualGroupMembers.length;
+
+    if (manualGroupMembers.length === 0) {
+        // แสดงสถานะว่าง
+        membersList.innerHTML = `
+            <div class="empty-members-state">
+                <div class="empty-icon">👥</div>
+                <p>ยังไม่มีสมาชิกในกลุ่ม</p>
+                <p class="empty-hint">เริ่มเพิ่มสมาชิกคนแรกได้เลย</p>
+            </div>
+        `;
+        if (clearAllBtn) clearAllBtn.style.display = 'none';
+    } else {
+        // แสดงรายชื่อสมาชิกแบบ Card Layout
+        let membersHTML = '';
+        manualGroupMembers.forEach((member, index) => {
+            const genderText = member.gender === 'male' ? 'ชาย' :
+                member.gender === 'female' ? 'หญิง' :
+                    member.gender === 'other' ? 'อื่นๆ' :
+                        member.gender ? member.gender : '-';
+
+            membersHTML += `
+                <div class="member-item" data-member-id="${member.id}">
+                    <div class="member-info">
+                        <div class="member-name">${member.first_name} ${member.last_name}</div>
+                        <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
+                    </div>
+                    <div class="member-actions">
+                        <button type="button" class="btn-remove-member" onclick="removeMember(${member.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        membersList.innerHTML = membersHTML;
+        if (clearAllBtn) clearAllBtn.style.display = 'inline-flex';
+    }
+}
+
+// แทนที่ฟังก์ชัน updateMembersSummary() เดิม
+function updateMembersSummary() {
+    const summarySection = document.getElementById('membersSummary');
+
+    if (!summarySection) return;
+
+    if (manualGroupMembers.length === 0) {
+        summarySection.style.display = 'none';
+        return;
+    }
+
+    // คำนวณสถิติ
+    const maleCount = manualGroupMembers.filter(m => m.gender === 'male').length;
+    const femaleCount = manualGroupMembers.filter(m => m.gender === 'female').length;
+    const otherCount = manualGroupMembers.filter(m => m.gender !== 'male' && m.gender !== 'female').length;
+    const totalCount = manualGroupMembers.length;
+
+    // อัปเดต UI
+    const totalMaleElement = document.getElementById('totalMaleMembers');
+    const totalFemaleElement = document.getElementById('totalFemaleMembers');
+    const totalOtherElement = document.getElementById('totalOtherMembers');
+    const totalAllElement = document.getElementById('totalAllMembers');
+
+    if (totalMaleElement) totalMaleElement.textContent = maleCount;
+    if (totalFemaleElement) totalFemaleElement.textContent = femaleCount;
+    if (totalOtherElement) totalOtherElement.textContent = otherCount;
+    if (totalAllElement) totalAllElement.textContent = totalCount;
+
+    summarySection.style.display = 'block';
+
+    console.log('Members Summary:', {
+        male: maleCount,
+        female: femaleCount,
+        other: otherCount,
+        total: totalCount
+    });
+}
+
+// เพิ่มการรองรับ Enter key สำหรับฟอร์มเพิ่มสมาชิก
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        // ตรวจสอบว่าอยู่ในฟอร์มเพิ่มสมาชิกหรือไม่
+        const activeElement = document.activeElement;
+        const formInputs = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
+
+        if (formInputs.includes(activeElement.id)) {
+            addGroupMember();
+        }
+    }
+});
+
+// ฟังก์ชันลบสมาชิก (อัปเดตให้ใช้ SweetAlert2)
+function removeMember(memberId) {
+    const memberIndex = manualGroupMembers.findIndex(member => member.id === memberId);
+    if (memberIndex === -1) return;
+
+    const member = manualGroupMembers[memberIndex];
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'ยืนยันการลบ',
+            text: `คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ลบ',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ลบสมาชิกออกจาก array
+                manualGroupMembers.splice(memberIndex, 1);
+
+                // อัปเดต UI
+                updateMembersList();
+                updateMembersSummary();
+
+                Swal.fire({
+                    title: 'ลบสำเร็จ',
+                    text: `ลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มแล้ว`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    } else {
+        if (confirm(`คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`)) {
+            // ลบสมาชิกออกจาก array
+            manualGroupMembers.splice(memberIndex, 1);
+
+            // อัปเดต UI
+            updateMembersList();
+            updateMembersSummary();
+        }
+    }
+
+    console.log('Removed member:', member);
+    console.log('Current members:', manualGroupMembers);
+}
+
+// ฟังก์ชันล้างสมาชิกทั้งหมด (อัปเดตให้ใช้ SweetAlert2)
+function clearAllMembers() {
+    if (manualGroupMembers.length === 0) return;
+
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'ยืนยันการล้างข้อมูล',
+            text: `คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ใช่, ล้างทั้งหมด',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: '#dc3545'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // ล้างข้อมูลทั้งหมด
+                manualGroupMembers = [];
+
+                // อัปเดต UI
+                updateMembersList();
+                updateMembersSummary();
+
+                Swal.fire({
+                    title: 'ล้างข้อมูลสำเร็จ',
+                    text: 'ลบสมาชิกทั้งหมดออกจากกลุ่มแล้ว',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    } else {
+        if (confirm(`คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`)) {
+            // ล้างข้อมูลทั้งหมด
+            manualGroupMembers = [];
+
+            // อัปเดต UI
+            updateMembersList();
+            updateMembersSummary();
+        }
+    }
+
+    console.log('Cleared all members');
+}
+
+// ฟังก์ชันลงทะเบียนกลุ่มแบบรายคน
+async function addGroupVisitorManual() {
+    const groupName = document.getElementById('groupName').value.trim();
+    const groupType = document.getElementById('groupType').value.trim();
+    const beaconElement = document.getElementById('groupBeacon');
+    const beaconUUID = beaconElement.value;
+
+    // 🔧 เพิ่มการ debug ข้อมูลกลุ่ม
+    console.log('=== GROUP REGISTRATION DEBUG ===');
+    console.log('groupName:', groupName);
+    console.log('groupType:', groupType);
+    console.log('beaconElement:', beaconElement);
+    console.log('beaconUUID:', beaconUUID);
+    console.log('manualGroupMembers:', manualGroupMembers);
+
+    // ตรวจสอบข้อมูลพื้นฐาน
+    if (!groupName || !groupType || !beaconUUID) {
+        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกชื่อกลุ่ม ประเภทกลุ่ม และเลือก iBeacon', 'warning');
+        return;
+    }
+
+    // ตรวจสอบสมาชิกในกลุ่ม
+    if (manualGroupMembers.length === 0) {
+        Swal.fire('ไม่มีสมาชิก', 'กรุณาเพิ่มสมาชิกในกลุ่มอย่างน้อย 1 คน', 'warning');
+        return;
+    }
+
+    // เตรียมข้อมูลสำหรับส่งไปยัง API
+    const groupData = {
+        type: 'group',
+        group_name: groupName,
+        group_type: groupType,
+        group_size: manualGroupMembers.length,
+        uuid: beaconUUID,
+        members: manualGroupMembers,
+        registration_method: 'manual' // ระบุวิธีการลงทะเบียน
+    };
+
+    console.log('📤 Manual group data to be sent:', groupData);
+
+    try {
+        // แสดงสถานะกำลังบันทึก
+        Swal.fire({
+            title: 'กำลังบันทึกข้อมูล...',
+            text: `กำลังลงทะเบียนกลุ่ม ${groupName} (${groupType}) จำนวน ${manualGroupMembers.length} คน`,
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const response = await fetch(REGISTER_VISITOR_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(groupData)
+        });
+
+        console.log('📡 Group Response status:', response.status);
+        console.log('📡 Group Response ok:', response.ok);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Server error response:', errorText);
+            Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', 'error');
+            return;
+        }
+
+        const result = await response.json();
+        console.log('📥 Group Server response:', result);
+
+        if (result.status === 'success') {
+            Swal.fire({
+                title: 'สำเร็จ!',
+                text: `ลงทะเบียนกลุ่ม ${groupName} (${groupType}) สำเร็จ จำนวน ${manualGroupMembers.length} คน`,
+                icon: 'success',
+                confirmButtonText: 'ตกลง'
+            });
+
+            // ล้างฟอร์มและข้อมูล
+            clearGroupForm();
+            if (typeof loadDeviceTableByType === 'function') {
+                loadDeviceTableByType();
+            }
+            if (typeof loadDashboardStats === 'function') {
+                loadDashboardStats();
+            }
+
+            // โหลด iBeacons ใหม่เพื่ออัปเดตสถานะ
+            await loadIBeacons();
+
+        } else {
+            Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถลงทะเบียนได้', 'error');
+        }
+
+    } catch (error) {
+        console.error('❌ Error registering manual group:', error);
+        Swal.fire('ข้อผิดพลาด', `ไม่สามารถลงทะเบียนได้: ${error.message}`, 'error');
+    }
 }
 
 // ฟังก์ชันล้างฟอร์มเพิ่มสมาชิก
@@ -1370,39 +1715,8 @@ function downloadTemplate() {
 document.addEventListener("DOMContentLoaded", function () {
     loadUserProfile();
     setupBirthdateInput();
-    loadIBeacons();
+    loadIBeacons(); // ใช้ฟังก์ชันเดียว
     fetchVisitors();
     setupDragAndDrop();
     setupGroupTypeInput();
-
-    // ไม่ต้องเปลี่ยน onclick attribute เพราะใช้ฟังก์ชัน addGroupVisitor() ที่จะเลือกวิธีการเอง
 });
-
-async function loadOfflineTags() {
-    try {
-        const res = await fetch('../../backend/staff/api/get_offline_tags.php');
-        const tags = await res.json();
-
-        const individualSelect = document.getElementById('visitorBeacon');
-        const groupSelect = document.getElementById('groupBeacon');
-
-        individualSelect.innerHTML = '<option value="">-- เลือก Tag --</option>';
-        groupSelect.innerHTML = '<option value="">-- เลือก Tag --</option>';
-
-        tags.forEach(tag => {
-            const option = document.createElement('option');
-            option.value = tag.id;
-            option.textContent = `${tag.tag_name} (${tag.uuid})`;
-            individualSelect.appendChild(option.cloneNode(true));
-            groupSelect.appendChild(option.cloneNode(true));
-        });
-    } catch (err) {
-        console.error('ไม่สามารถโหลด tag สถานะ offline ได้:', err);
-    }
-}
-
-// เรียกใช้เมื่อโหลดหน้า
-window.onload = () => {
-    loadOfflineTags();
-    // อื่น ๆ ที่มีใน window.onload เดิม ถ้ามี
-};

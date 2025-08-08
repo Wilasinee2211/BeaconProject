@@ -5,6 +5,16 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// Handle preflight requests
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
 require_once(__DIR__ . '/config/db_connect.php');
 
 try {
@@ -12,56 +22,146 @@ try {
     if (!$input) throw new Exception('ไม่มีข้อมูลที่ส่งเข้ามา');
 
     $type = $input['type'] ?? null;
+    $uuid = $input['uuid'] ?? null;
+
+    // 🔧 เพิ่มการ log ข้อมูลที่รับเข้ามา
+    error_log("=== REGISTER VISITORS DEBUG ===");
+    error_log("Received input: " . json_encode($input));
+    error_log("Type: " . $type);
+    error_log("UUID: " . $uuid);
+
+    if (!$uuid) {
+        throw new Exception('ไม่พบค่า UUID ที่ส่งเข้ามา');
+    }
+
+    // 🔧 ตรวจสอบ UUID ในฐานข้อมูล (ใช้ครั้งเดียว)
+    $checkUuidStmt = $conn->prepare("
+        SELECT tag_id, tag_name, uuid, status 
+        FROM ibeacons_tag 
+        WHERE uuid = ?
+    ");
+    $checkUuidStmt->execute([$uuid]);
+    $tagData = $checkUuidStmt->fetch(PDO::FETCH_ASSOC);
+
+    error_log("Tag data found: " . json_encode($tagData));
+
+    if (!$tagData) {
+        throw new Exception('ไม่พบ iBeacon tag ที่เลือก (UUID: ' . $uuid . ')');
+    }
+
+    if ($tagData['status'] !== 'available') {
+        throw new Exception('iBeacon tag ที่เลือกไม่พร้อมใช้งาน (สถานะ: ' . $tagData['status'] . ')');
+    }
 
     if ($type === 'individual') {
-        // การลงทะเบียนแบบบุคคล
-        $stmt = $conn->prepare("
-            INSERT INTO visitors (
-                type, first_name, last_name, age, gender, uuid, visit_date, created_at
-            ) VALUES (
-                'individual', ?, ?, ?, ?, ?, NOW(), NOW()
-            )
-        ");
+        // เริ่ม transaction เพื่อความปลอดภัย
+        $conn->beginTransaction();
+        
+        try {
+            // การลงทะเบียนแบบบุคคล
+            $stmt = $conn->prepare("
+                INSERT INTO visitors (
+                    type, first_name, last_name, age, gender, uuid, visit_date, created_at
+                ) VALUES (
+                    'individual', ?, ?, ?, ?, ?, NOW(), NOW()
+                )
+            ");
 
-        // ✅ แก้ไข: เพิ่ม 'other' ในการตรวจสอบ
-        $gender = in_array($input['gender'] ?? '', ['male', 'female', 'other']) ? $input['gender'] : null;
+            $gender = in_array($input['gender'] ?? '', ['male', 'female', 'other']) ? $input['gender'] : null;
 
-        if (!$stmt->execute([
-            $input['first_name'],
-            $input['last_name'],
-            $input['age'],
-            $gender,
-            $input['uuid']
-        ])) {
-            throw new Exception('บันทึกข้อมูลบุคคลล้มเหลว');
+            $executeResult = $stmt->execute([
+                $input['first_name'],
+                $input['last_name'],
+                $input['age'],
+                $gender,
+                $tagData['uuid'] // ใช้ UUID จากฐานข้อมูล
+            ]);
+
+            if (!$executeResult) {
+                $errorInfo = $stmt->errorInfo();
+                throw new Exception('บันทึกข้อมูลบุคคลล้มเหลว: ' . $errorInfo[2]);
+            }
+
+            $visitorId = $conn->lastInsertId();
+            error_log("Individual visitor inserted with ID: " . $visitorId);
+
+            // อัปเดตสถานะ tag เป็น 'in_use'
+            $updateTagStmt = $conn->prepare("
+                UPDATE ibeacons_tag 
+                SET status = 'in_use', last_seen = NOW() 
+                WHERE uuid = ?
+            ");
+            
+            $updateResult = $updateTagStmt->execute([$tagData['uuid']]);
+            
+            if (!$updateResult) {
+                $errorInfo = $updateTagStmt->errorInfo();
+                throw new Exception('อัปเดตสถานะ iBeacon tag ล้มเหลว: ' . $errorInfo[2]);
+            }
+
+            // ตรวจสอบว่าอัปเดตสำเร็จ
+            if ($updateTagStmt->rowCount() === 0) {
+                throw new Exception('ไม่สามารถอัปเดตสถานะ iBeacon tag ได้');
+            }
+
+            error_log("Tag status updated to 'in_use' for UUID: " . $tagData['uuid']);
+
+            $conn->commit();
+
+            echo json_encode([
+                'status' => 'success',
+                'message' => 'บันทึกข้อมูลบุคคลเรียบร้อยแล้ว และอัปเดตสถานะ iBeacon tag เป็น in_use',
+                'visitor_id' => $visitorId,
+                'tag_info' => $tagData
+            ]);
+
+        } catch (Exception $e) {
+            $conn->rollback();
+            error_log("Individual registration error: " . $e->getMessage());
+            throw $e;
         }
-        // ✅ ล้างค่า last_seen ของ tag ที่ใช้
-        $resetStmt = $conn->prepare("UPDATE ibeacons_tag SET last_seen = NULL WHERE uuid = ?");
-        $resetStmt->execute([$input['uuid']]);
-
-        echo json_encode([
-            'status' => 'success',
-            'message' => 'บันทึกข้อมูลบุคคลเรียบร้อยแล้ว'
-        ]);
 
     } elseif ($type === 'group') {
-        $groupName = $input['group_name'] ?? null;
-        $groupType = $input['group_type'] ?? null;
-        $groupSize = $input['group_size'] ?? 0;
-        $uuid = $input['uuid'] ?? null;
-        $members = $input['members'] ?? [];
-        $registrationMethod = $input['registration_method'] ?? 'summary';
-
-        if (!$groupName || !$groupType || !$uuid) {
-            throw new Exception('ข้อมูลกลุ่มไม่ครบถ้วน: ต้องมีชื่อกลุ่ม ประเภทกลุ่ม และ UUID');
+        // ...โค้ดส่วนการลงทะเบียนกลุ่ม...
+        
+        // 🔧 แก้ไขคำสั่ง SQL ให้ตรงไปตรงมา
+        $checkUuidStmt = $conn->prepare("
+            SELECT tag_id, tag_name, uuid, status 
+            FROM ibeacons_tag 
+            WHERE uuid = ?
+        ");
+        $checkUuidStmt->execute([$uuid]); // ใช้ $uuid ที่ได้จาก input
+        $tagData = $checkUuidStmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$tagData) {
+            throw new Exception('ไม่พบ iBeacon tag ที่เลือกสำหรับกลุ่ม (UUID: ' . $uuid . ')');
+        }
+        
+        if ($tagData['status'] !== 'available') {
+            throw new Exception('iBeacon tag ที่เลือกไม่พร้อมใช้งาน (สถานะ: ' . $tagData['status'] . ')');
         }
 
-        $checkUuidStmt = $conn->prepare("SELECT COUNT(*) FROM ibeacons_tag WHERE uuid = ?");
-        $checkUuidStmt->execute([$uuid]);
-        if ($checkUuidStmt->fetchColumn() == 0) {
-            throw new Exception('UUID ที่เลือกไม่ถูกต้องหรือไม่มีในระบบ');
+        // 🔧 แก้ไข: ตรวจสอบ UUID สำหรับกลุ่ม
+        $checkUuidStmt = $conn->prepare("
+            SELECT tag_id, tag_name, uuid, status 
+            FROM ibeacons_tag 
+            WHERE uuid = ? OR tag_id = ?
+        ");
+        $checkUuidStmt->execute([$uuid, $uuid]);
+        $tagData = $checkUuidStmt->fetch(PDO::FETCH_ASSOC);
+        
+        error_log("Group - Searching for UUID: " . $uuid);
+        error_log("Group - Found tag data: " . print_r($tagData, true));
+        
+        if (!$tagData) {
+            throw new Exception('ไม่พบ iBeacon tag ที่เลือกสำหรับกลุ่ม (UUID: ' . $uuid . ')');
+        }
+        
+        if ($tagData['status'] !== 'available') {
+            throw new Exception('iBeacon tag ที่เลือกไม่พร้อมใช้งาน (สถานะ: ' . $tagData['status'] . ')');
         }
 
+        // ตรวจสอบและสร้าง columns ถ้าจำเป็น
         $checkColumns = $conn->query("SHOW COLUMNS FROM visitors LIKE 'group_size'")->rowCount();
         if ($checkColumns == 0) {
             $conn->exec("
@@ -82,7 +182,6 @@ try {
             foreach ($members as $member) {
                 if (empty($member['first_name']) || empty($member['last_name'])) continue;
                 if (!isset($member['age']) || !is_numeric($member['age'])) continue;
-                // ✅ แก้ไข: เพิ่ม 'other' ในการตรวจสอบ
                 if (!in_array($member['gender'], ['male', 'female', 'other'])) continue;
 
                 $validMembers[] = $member;
@@ -112,7 +211,7 @@ try {
                 $groupName,
                 count($validMembers),
                 $groupType,
-                $uuid,
+                $tagData['uuid'], // 🔧 ใช้ UUID จากฐานข้อมูล
                 $ageSummary,
                 $genderSummary
             ])) {
@@ -121,9 +220,22 @@ try {
             }
 
             $groupId = $conn->lastInsertId();
-            // ✅ ล้างค่า last_seen ของ tag ที่ใช้
-            $resetStmt = $conn->prepare("UPDATE ibeacons_tag SET last_seen = NULL WHERE uuid = ?");
-            $resetStmt->execute([$uuid]);
+
+            // อัปเดตสถานะ tag เป็น 'IN_USE'
+            $updateTagStmt = $conn->prepare("
+                UPDATE ibeacons_tag 
+                SET status = 'IN_USE', last_seen = NOW() 
+                WHERE uuid = ? OR tag_id = ?
+            ");
+            
+            if (!$updateTagStmt->execute([$tagData['uuid'], $tagData['tag_id']])) {
+                throw new Exception('อัปเดตสถานะ iBeacon tag ล้มเหลว');
+            }
+
+            // ตรวจสอบว่าอัปเดตสำเร็จ
+            if ($updateTagStmt->rowCount() === 0) {
+                throw new Exception('ไม่สามารถอัปเดตสถานะ iBeacon tag ได้');
+            }
 
             // สร้างตาราง group_members ถ้ายังไม่มี
             $conn->exec("
@@ -161,9 +273,10 @@ try {
 
             echo json_encode([
                 'status' => 'success',
-                'message' => "ลงทะเบียนกลุ่ม '$groupName' สำเร็จ จำนวน $inserted คน",
+                'message' => "ลงทะเบียนกลุ่ม '$groupName' สำเร็จ จำนวน $inserted คน และอัปเดตสถานะ iBeacon tag เป็น IN_USE",
                 'group_id' => $groupId,
-                'members_count' => $inserted
+                'members_count' => $inserted,
+                'tag_info' => $tagData
             ]);
 
         } catch (Exception $e) {
@@ -176,30 +289,16 @@ try {
     }
 
 } catch (Exception $e) {
-    $rollbackSuccess = false;
-
-    if (isset($conn)) {
-        try {
-            if (method_exists($conn, 'inTransaction') && $conn->inTransaction()) {
-                $conn->rollback();
-                $rollbackSuccess = true;
-            }
-        } catch (Exception $rollbackError) {
-            error_log("Rollback failed but ignored: " . $rollbackError->getMessage());
-        }
+    if (isset($conn) && method_exists($conn, 'inTransaction') && $conn->inTransaction()) {
+        $conn->rollback();
     }
 
     error_log("Register visitors error: " . $e->getMessage());
     error_log("Input data: " . print_r($input ?? 'No input', true));
 
-    $isSafeError = str_contains($e->getMessage(), 'There is no active transaction');
-
-    http_response_code($isSafeError ? 200 : 500);
-
+    http_response_code(500);
     echo json_encode([
-        'status' => $isSafeError ? 'success' : 'error',
-        'message' => $isSafeError
-            ? 'ข้อมูลถูกบันทึกเรียบร้อยแล้ว (บางส่วน)'
-            : $e->getMessage()
+        'status' => 'error',
+        'message' => $e->getMessage()
     ]);
 }

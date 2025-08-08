@@ -1,8 +1,8 @@
 <?php
-// backend/staff/api/register_device_api.php (ชื่อใหม่ที่แนะนำ)
+// backend/staff/api/register_device_api.php (แก้ไขแล้ว)
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *'); // อนุญาตให้ทุกโดเมนเรียกใช้ได้ (ควรจำกัดใน production)
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
@@ -12,14 +12,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-// โหลดไฟล์ db_connect.php
-// จาก backend/staff/api/ ไปยัง config/db_connect.php
-// Path จะเป็น ./config/db_connect.php (ใช้ . แทน __DIR__ ได้)
 require_once __DIR__ . '/config/db_connect.php'; 
 
-// ตรวจสอบว่า $conn ถูกกำหนดและเป็น PDO object
 if (!isset($conn) || !$conn instanceof PDO) {
-    http_response_code(500); // Internal Server Error
+    http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'Database connection not established.']);
     exit();
 }
@@ -57,22 +53,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($type === 'ibeacon') {
             $tagName = trim($data['tagName'] ?? '');
             $tagUUID = trim($data['tagUUID'] ?? '');
+            $status = trim($data['status'] ?? 'available'); // รับ status จาก frontend หรือใช้ default 'available'
 
             if (empty($tagName) || empty($tagUUID) || strlen($tagUUID) !== 8) {
                 echo json_encode(['status' => 'error', 'message' => 'กรุณากรอกชื่อ Tag และ UUID ให้ครบถ้วน (8 ตัวอักษร)']);
                 exit();
             }
 
-            // ตรวจสอบว่าเป็น Hexadecimal หรือไม่ในฝั่ง Server เพื่อความปลอดภัย
-            if (!preg_match('/^[0-9A-F]{8}$/i', $tagUUID)) { // /i คือ case-insensitive
+            if (!preg_match('/^[0-9A-F]{8}$/i', $tagUUID)) {
                 echo json_encode(['status' => 'error', 'message' => 'รูปแบบ UUID ไม่ถูกต้อง. UUID ควรประกอบด้วยตัวเลข (0-9) และตัวอักษร A-F เท่านั้น.']);
                 exit();
             }
 
-            // ใช้ชื่อตาราง 'ibeacons_tag' ตามที่คุณแจ้ง
-            $stmt = $conn->prepare("INSERT INTO ibeacons_tag (tag_name, uuid) VALUES (:tag_name, :uuid)");
+            // เพิ่ม status ใน INSERT statement
+            $stmt = $conn->prepare("INSERT INTO ibeacons_tag (tag_name, uuid, status) VALUES (:tag_name, :uuid, :status)");
             $stmt->bindParam(':tag_name', $tagName);
             $stmt->bindParam(':uuid', $tagUUID);
+            $stmt->bindParam(':status', $status); // เพิ่มการ bind status
 
             if ($stmt->execute()) {
                 echo json_encode(['status' => 'success', 'message' => 'ลงทะเบียน iBeacon Tag เรียบร้อยแล้ว']);
@@ -83,16 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['status' => 'error', 'message' => 'Invalid registration type.']);
         }
     } catch (PDOException $e) {
-        // Error code 23000 สำหรับ MySQL Duplicate Entry
         if ($e->getCode() == '23000') {
             echo json_encode(['status' => 'error', 'message' => 'UUID นี้ถูกใช้ไปแล้ว กรุณาใช้ UUID อื่น.']);
         } else {
-            // บันทึกข้อผิดพลาดจริงไปที่ PHP error log
             error_log("[register_device_api.php][PDO Error] " . $e->getMessage());
             echo json_encode(['status' => 'error', 'message' => 'Database operation failed: ' . $e->getMessage()]);
         }
     } finally {
-        $conn = null; // ปิด connection
+        $conn = null;
     }
 
 } else {
