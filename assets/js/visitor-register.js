@@ -13,6 +13,216 @@ let currentGroupMethod = 'file'; // เริ่มต้นด้วยกา�
 // ตัวแปรเก็บข้อมูลสมาชิกที่เพิ่มแบบรายคน
 let manualGroupMembers = [];
 
+// ฟังก์ชันเพิ่มเครื่องหมาย * สีแดงให้กับ label ที่จำเป็น
+function addRequiredIndicators() {
+    // ช่องกรอกสำหรับรายบุคคล
+    const individualRequiredFields = [
+        { id: 'individualFirstName', labelText: 'ชื่อ' },
+        { id: 'individualLastName', labelText: 'นามสกุล' },
+        { id: 'visitorBirthdate', labelText: 'วันเกิด' },
+        { id: 'individualGender', labelText: 'เพศ' },
+        { id: 'visitorBeacon', labelText: 'iBeacon' }
+    ];
+
+    // ช่องกรอกสำหรับกลุ่ม
+    const groupRequiredFields = [
+        { id: 'groupName', labelText: 'ชื่อกลุ่ม' },
+        { id: 'groupType', labelText: 'ประเภทกลุ่ม' },
+        { id: 'groupBeacon', labelText: 'iBeacon' }
+    ];
+
+    // ช่องกรอกสำหรับเพิ่มสมาชิกแบบรายคน
+    const memberRequiredFields = [
+        { id: 'memberFirstName', labelText: 'ชื่อ' },
+        { id: 'memberLastName', labelText: 'นามสกุล' },
+        { id: 'memberAge', labelText: 'อายุ' },
+        { id: 'memberGender', labelText: 'เพศ' }
+    ];
+
+    // ฟังก์ชันช่วยในการเพิ่มเครื่องหมาย *
+    function addAsteriskToLabel(fieldId, labelText) {
+        // หา label ที่เกี่ยวข้องกับ field
+        let label = document.querySelector(`label[for="${fieldId}"]`);
+        
+        // ถ้าไม่เจอ label ที่มี for attribute ให้หาแบบอื่น
+        if (!label) {
+            const field = document.getElementById(fieldId);
+            if (field && field.closest('.form-group')) {
+                label = field.closest('.form-group').querySelector('label');
+            }
+        }
+
+        if (label && !label.querySelector('.required-asterisk')) {
+            // สร้าง span สำหรับเครื่องหมาย *
+            const asterisk = document.createElement('span');
+            asterisk.className = 'required-asterisk';
+            asterisk.style.color = '#dc3545'; // สีแดง Bootstrap
+            asterisk.style.marginLeft = '2px';
+            asterisk.innerHTML = ' *';
+            
+            // เพิ่มเครื่องหมาย * ต่อท้าย label
+            label.appendChild(asterisk);
+            
+            console.log(`Added required indicator to: ${labelText}`);
+        }
+    }
+
+    // เพิ่มเครื่องหมาย * สำหรับช่องกรอกรายบุคคล
+    individualRequiredFields.forEach(field => {
+        addAsteriskToLabel(field.id, field.labelText);
+    });
+
+    // เพิ่มเครื่องหมาย * สำหรับช่องกรอกกลุ่ม
+    groupRequiredFields.forEach(field => {
+        addAsteriskToLabel(field.id, field.labelText);
+    });
+
+    // เพิ่มเครื่องหมาย * สำหรับช่องกรอกสมาชิก
+    memberRequiredFields.forEach(field => {
+        addAsteriskToLabel(field.id, field.labelText);
+    });
+
+    // เพิ่ม CSS style สำหรับ required fields
+    addRequiredFieldStyles();
+}
+
+// ฟังก์ชันเพิ่ม CSS styles สำหรับช่องกรอกที่จำเป็น
+function addRequiredFieldStyles() {
+    // ตรวจสอบว่ามี style แล้วหรือยัง
+    if (document.getElementById('required-field-styles')) {
+        return;
+    }
+
+    const style = document.createElement('style');
+    style.id = 'required-field-styles';
+    style.textContent = `
+        .required-asterisk {
+            color: #dc3545 !important;
+            font-weight: bold;
+        }
+        
+        /* เพิ่ม hover effect สำหรับ label ที่มี required */
+        label:has(.required-asterisk):hover {
+            color: #495057;
+        }
+        
+        /* Style สำหรับช่องกรอกที่จำเป็น */
+        .form-control.required:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        /* Style สำหรับช่องกรอกที่ไม่ถูกต้อง */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// ฟังก์ชันเพิ่ม class required ให้กับช่องกรอกที่จำเป็น
+function markRequiredFields() {
+    const requiredFieldIds = [
+        // รายบุคคล
+        'individualFirstName', 'individualLastName', 'visitorBirthdate', 
+        'individualGender', 'visitorBeacon',
+        
+        // กลุ่ม
+        'groupName', 'groupType', 'groupBeacon',
+        
+        // สมาชิก
+        'memberFirstName', 'memberLastName', 'memberAge', 'memberGender'
+    ];
+
+    requiredFieldIds.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.classList.add('required');
+            // เพิ่ม required attribute สำหรับ HTML5 validation
+            field.setAttribute('required', 'required');
+        }
+    });
+}
+
+// ฟังก์ชันตรวจสอบและแสดงข้อผิดพลาดสำหรับช่องกรอกที่จำเป็น
+function validateRequiredField(fieldId, fieldName) {
+    const field = document.getElementById(fieldId);
+    if (!field) return true;
+
+    const value = field.value.trim();
+    if (!value) {
+        field.classList.add('is-invalid');
+        
+        // แสดงข้อความแจ้งเตือน
+        Swal.fire({
+            title: 'กรอกข้อมูลไม่ครบ',
+            text: `กรุณากรอก ${fieldName}`,
+            icon: 'warning',
+            confirmButtonText: 'ตกลง'
+        });
+        
+        // Focus ไปที่ช่องที่ยังไม่ได้กรอก
+        field.focus();
+        return false;
+    } else {
+        field.classList.remove('is-invalid');
+        return true;
+    }
+}
+
+// ฟังก์ชันตรวจสอบข้อมูลรายบุคคล
+function validateIndividualForm() {
+    const requiredFields = [
+        { id: 'individualFirstName', name: 'ชื่อ' },
+        { id: 'individualLastName', name: 'นามสกุล' },
+        { id: 'visitorBirthdate', name: 'วันเกิด' },
+        { id: 'individualGender', name: 'เพศ' },
+        { id: 'visitorBeacon', name: 'iBeacon' }
+    ];
+
+    for (let field of requiredFields) {
+        if (!validateRequiredField(field.id, field.name)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// ฟังก์ชันตรวจสอบข้อมูลกลุ่ม
+function validateGroupForm() {
+    const requiredFields = [
+        { id: 'groupName', name: 'ชื่อกลุ่ม' },
+        { id: 'groupType', name: 'ประเภทกลุ่ม' },
+        { id: 'groupBeacon', name: 'iBeacon' }
+    ];
+
+    for (let field of requiredFields) {
+        if (!validateRequiredField(field.id, field.name)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// ฟังก์ชันตรวจสอบข้อมูลสมาชิก
+function validateMemberForm() {
+    const requiredFields = [
+        { id: 'memberFirstName', name: 'ชื่อ' },
+        { id: 'memberLastName', name: 'นามสกุล' },
+        { id: 'memberAge', name: 'อายุ' },
+        { id: 'memberGender', name: 'เพศ' }
+    ];
+
+    for (let field of requiredFields) {
+        if (!validateRequiredField(field.id, field.name)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // ฟังก์ชันโหลด iBeacons ที่แสดงเฉพาะ available tags
 async function loadIBeacons() {
     const beaconDropdownIds = ['visitorBeacon', 'groupBeacon'];
@@ -44,7 +254,7 @@ async function loadIBeacons() {
                 const select = document.getElementById(id);
                 if (!select) return;
 
-                select.innerHTML = '<option value="">เลือก iBeacon (Available)</option>';
+                select.innerHTML = '<option value="">เลือก iBeacon (Available) *</option>';
 
                 result.data.forEach(beacon => {
                     const option = document.createElement('option');
@@ -108,6 +318,9 @@ function setupBirthdateInput() {
                     age--;
                 }
                 ageDisplay.textContent = `อายุ: ${age} ปี`;
+                
+                // ลบ invalid class เมื่อมีการเลือกวันที่
+                birthdateInput.classList.remove('is-invalid');
             } else {
                 ageDisplay.textContent = '';
             }
@@ -138,8 +351,13 @@ function selectRegistrationType(type) {
     }
 }
 
-// ฟังก์ชันลงทะเบียนผู้เยี่ยมชมเดี่ยว
+// ฟังก์ชันลงทะเบียนผู้เยี่ยมชมเดี่ยว (อัปเดตให้ใช้ validation)
 async function addIndividualVisitor() {
+    // ตรวจสอบข้อมูลก่อนส่ง
+    if (!validateIndividualForm()) {
+        return;
+    }
+
     const firstName = document.getElementById('individualFirstName').value.trim();
     const lastName = document.getElementById('individualLastName').value.trim();
     const gender = document.getElementById('individualGender').value;
@@ -155,19 +373,6 @@ async function addIndividualVisitor() {
     console.log('birthdate:', birthdate);
     console.log('beaconElement:', beaconElement);
     console.log('beaconUUID:', beaconUUID);
-    console.log('beaconElement.selectedIndex:', beaconElement.selectedIndex);
-    if (beaconElement.selectedIndex > 0) {
-        const selectedOption = beaconElement.options[beaconElement.selectedIndex];
-        console.log('selectedOption:', selectedOption);
-        console.log('selectedOption.value:', selectedOption.value);
-        console.log('selectedOption.text:', selectedOption.text);
-        console.log('selectedOption data-uuid:', selectedOption.getAttribute('data-uuid'));
-    }
-
-    if (!firstName || !lastName || !birthdate || !gender || !beaconUUID) {
-        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
-        return;
-    }
 
     // คำนวณอายุจากวันเกิด
     const birthDateObj = new Date(birthdate);
@@ -196,7 +401,6 @@ async function addIndividualVisitor() {
             body: JSON.stringify(data)
         });
 
-        // 🔧 เพิ่มการ debug response
         console.log('📡 Response status:', response.status);
         console.log('📡 Response ok:', response.ok);
 
@@ -219,13 +423,8 @@ async function addIndividualVisitor() {
                 loadDashboardStats();
             }
 
-            // ล้างฟอร์ม
-            document.getElementById('individualFirstName').value = '';
-            document.getElementById('individualLastName').value = '';
-            document.getElementById('visitorBirthdate').value = '';
-            document.getElementById('ageDisplay').textContent = '';
-            document.getElementById('individualGender').value = '';
-            document.getElementById('visitorBeacon').value = '';
+            // ล้างฟอร์มและลบ class invalid
+            clearIndividualForm();
 
             // โหลด iBeacons ใหม่เพื่ออัปเดตสถานะ
             await loadIBeacons();
@@ -235,6 +434,28 @@ async function addIndividualVisitor() {
     } catch (err) {
         console.error('❌ Error:', err);
         Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเพิ่มข้อมูลได้', 'error');
+    }
+}
+
+// ฟังก์ชันล้างฟอร์มรายบุคคล
+function clearIndividualForm() {
+    const fields = [
+        'individualFirstName', 'individualLastName', 'visitorBirthdate',
+        'individualGender', 'visitorBeacon'
+    ];
+    
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = '';
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    // ล้างการแสดงอายุ
+    const ageDisplay = document.getElementById('ageDisplay');
+    if (ageDisplay) {
+        ageDisplay.textContent = '';
     }
 }
 
@@ -267,21 +488,22 @@ function selectGroupMethod(method) {
     }
 }
 
-// ฟังก์ชันเพิ่มสมาชิกในกลุ่มแบบรายคน
+// ฟังก์ชันเพิ่มสมาชิกในกลุ่มแบบรายคน (อัปเดตให้ใช้ validation)
 function addGroupMember() {
+    // ตรวจสอบข้อมูลก่อน
+    if (!validateMemberForm()) {
+        return;
+    }
+
     const firstName = document.getElementById('memberFirstName').value.trim();
     const lastName = document.getElementById('memberLastName').value.trim();
     const age = parseInt(document.getElementById('memberAge').value);
     const gender = document.getElementById('memberGender').value;
 
-    // ตรวจสอบข้อมูล
-    if (!firstName || !lastName || !age || !gender) {
-        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกข้อมูลสมาชิกให้ครบถ้วน', 'warning');
-        return;
-    }
-
+    // ตรวจสอบช่วงอายุ
     if (age < 0 || age > 150) {
         Swal.fire('ข้อมูลไม่ถูกต้อง', 'อายุต้องอยู่ระหว่าง 0-150 ปี', 'warning');
+        document.getElementById('memberAge').focus();
         return;
     }
 
@@ -316,10 +538,15 @@ function addGroupMember() {
 
 // ฟังก์ชันล้างฟอร์มเพิ่มสมาชิก
 function clearMemberForm() {
-    document.getElementById('memberFirstName').value = '';
-    document.getElementById('memberLastName').value = '';
-    document.getElementById('memberAge').value = '';
-    document.getElementById('memberGender').value = '';
+    const fields = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
+    
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = '';
+            field.classList.remove('is-invalid');
+        }
+    });
 }
 
 // ฟังก์ชันอัปเดตรายชื่อสมาชิก
@@ -372,7 +599,7 @@ function updateMembersList() {
     }
 }
 
-// แทนที่ฟังก์ชัน updateMembersSummary() เดิม
+// ฟังก์ชันอัปเดตสรุปข้อมูลสมาชิก
 function updateMembersSummary() {
     const summarySection = document.getElementById('membersSummary');
 
@@ -409,19 +636,6 @@ function updateMembersSummary() {
         total: totalCount
     });
 }
-
-// เพิ่มการรองรับ Enter key สำหรับฟอร์มเพิ่มสมาชิก
-document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        // ตรวจสอบว่าอยู่ในฟอร์มเพิ่มสมาชิกหรือไม่
-        const activeElement = document.activeElement;
-        const formInputs = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
-
-        if (formInputs.includes(activeElement.id)) {
-            addGroupMember();
-        }
-    }
-});
 
 // ฟังก์ชันลบสมาชิก (อัปเดตให้ใช้ SweetAlert2)
 function removeMember(memberId) {
@@ -517,12 +731,23 @@ function clearAllMembers() {
     console.log('Cleared all members');
 }
 
-// ฟังก์ชันลงทะเบียนกลุ่มแบบรายคน
+// ฟังก์ชันลงทะเบียนกลุ่มแบบรายคน (อัปเดตให้ใช้ validation)
 async function addGroupVisitorManual() {
+    // ตรวจสอบข้อมูลก่อนส่ง
+    if (!validateGroupForm()) {
+        return;
+    }
+
     const groupName = document.getElementById('groupName').value.trim();
     const groupType = document.getElementById('groupType').value.trim();
     const beaconElement = document.getElementById('groupBeacon');
     const beaconUUID = beaconElement.value;
+
+    // ตรวจสอบสมาชิกในกลุ่ม
+    if (manualGroupMembers.length === 0) {
+        Swal.fire('ไม่มีสมาชิก', 'กรุณาเพิ่มสมาชิกในกลุ่มอย่างน้อย 1 คน', 'warning');
+        return;
+    }
 
     // 🔧 เพิ่มการ debug ข้อมูลกลุ่ม
     console.log('=== GROUP REGISTRATION DEBUG ===');
@@ -531,18 +756,6 @@ async function addGroupVisitorManual() {
     console.log('beaconElement:', beaconElement);
     console.log('beaconUUID:', beaconUUID);
     console.log('manualGroupMembers:', manualGroupMembers);
-
-    // ตรวจสอบข้อมูลพื้นฐาน
-    if (!groupName || !groupType || !beaconUUID) {
-        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกชื่อกลุ่ม ประเภทกลุ่ม และเลือก iBeacon', 'warning');
-        return;
-    }
-
-    // ตรวจสอบสมาชิกในกลุ่ม
-    if (manualGroupMembers.length === 0) {
-        Swal.fire('ไม่มีสมาชิก', 'กรุณาเพิ่มสมาชิกในกลุ่มอย่างน้อย 1 คน', 'warning');
-        return;
-    }
 
     // เตรียมข้อมูลสำหรับส่งไปยัง API
     const groupData = {
@@ -591,7 +804,7 @@ async function addGroupVisitorManual() {
         if (result.status === 'success') {
             Swal.fire({
                 title: 'สำเร็จ!',
-                text: `ลงทะเบียนกลุ่ม ${groupName}  สำเร็จ `,
+                text: `ลงทะเบียนกลุ่ม ${groupName} สำเร็จ`,
                 icon: 'success',
                 confirmButtonText: 'ตกลง'
             });
@@ -614,381 +827,6 @@ async function addGroupVisitorManual() {
 
     } catch (error) {
         console.error('❌ Error registering manual group:', error);
-        Swal.fire('ข้อผิดพลาด', `ไม่สามารถลงทะเบียนได้: ${error.message}`, 'error');
-    }
-}
-
-// ฟังก์ชันล้างฟอร์มเพิ่มสมาชิก
-function clearMemberForm() {
-    document.getElementById('memberFirstName').value = '';
-    document.getElementById('memberLastName').value = '';
-    document.getElementById('memberAge').value = '';
-    document.getElementById('memberGender').value = '';
-}
-
-// ฟังก์ชันอัปเดตรายชื่อสมาชิก
-function updateMembersList() {
-    const membersList = document.getElementById('membersList');
-    const memberCount = document.getElementById('memberCount');
-    const clearAllBtn = document.querySelector('.clear-all-btn');
-
-    if (!membersList || !memberCount) return;
-
-    // อัปเดตจำนวนสมาชิก
-    memberCount.textContent = manualGroupMembers.length;
-
-    if (manualGroupMembers.length === 0) {
-        // แสดงสถานะว่าง
-        membersList.innerHTML = `
-            <div class="empty-members-state">
-                <div class="empty-icon">👥</div>
-                <p>ยังไม่มีสมาชิกในกลุ่ม</p>
-                <p class="empty-hint">เริ่มเพิ่มสมาชิกคนแรกได้เลย</p>
-            </div>
-        `;
-        if (clearAllBtn) clearAllBtn.style.display = 'none';
-    } else {
-        // แสดงรายชื่อสมาชิกแบบ Card Layout
-        let membersHTML = '';
-        manualGroupMembers.forEach((member, index) => {
-            const genderText = member.gender === 'male' ? 'ชาย' :
-                member.gender === 'female' ? 'หญิง' :
-                    member.gender === 'other' ? 'อื่นๆ' :
-                        member.gender ? member.gender : '-';
-
-            membersHTML += `
-                <div class="member-item" data-member-id="${member.id}">
-                    <div class="member-info">
-                        <div class="member-name">${member.first_name} ${member.last_name}</div>
-                        <div class="member-details">อายุ ${member.age} ปี | ${genderText}</div>
-                    </div>
-                    <div class="member-actions">
-                        <button type="button" class="btn-remove-member" onclick="removeMember(${member.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-
-        membersList.innerHTML = membersHTML;
-        if (clearAllBtn) clearAllBtn.style.display = 'inline-flex';
-    }
-}
-
-// แทนที่ฟังก์ชัน updateMembersSummary() เดิม
-function updateMembersSummary() {
-    const summarySection = document.getElementById('membersSummary');
-
-    if (!summarySection) return;
-
-    if (manualGroupMembers.length === 0) {
-        summarySection.style.display = 'none';
-        return;
-    }
-
-    // คำนวณสถิติ
-    const maleCount = manualGroupMembers.filter(m => m.gender === 'male').length;
-    const femaleCount = manualGroupMembers.filter(m => m.gender === 'female').length;
-    const otherCount = manualGroupMembers.filter(m => m.gender !== 'male' && m.gender !== 'female').length;
-    const totalCount = manualGroupMembers.length;
-
-    // อัปเดต UI
-    const totalMaleElement = document.getElementById('totalMaleMembers');
-    const totalFemaleElement = document.getElementById('totalFemaleMembers');
-    const totalOtherElement = document.getElementById('totalOtherMembers');
-    const totalAllElement = document.getElementById('totalAllMembers');
-
-    if (totalMaleElement) totalMaleElement.textContent = maleCount;
-    if (totalFemaleElement) totalFemaleElement.textContent = femaleCount;
-    if (totalOtherElement) totalOtherElement.textContent = otherCount;
-    if (totalAllElement) totalAllElement.textContent = totalCount;
-
-    summarySection.style.display = 'block';
-
-    console.log('Members Summary:', {
-        male: maleCount,
-        female: femaleCount,
-        other: otherCount,
-        total: totalCount
-    });
-}
-
-// เพิ่มการรองรับ Enter key สำหรับฟอร์มเพิ่มสมาชิก
-document.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        // ตรวจสอบว่าอยู่ในฟอร์มเพิ่มสมาชิกหรือไม่
-        const activeElement = document.activeElement;
-        const formInputs = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
-
-        if (formInputs.includes(activeElement.id)) {
-            addGroupMember();
-        }
-    }
-});
-
-// ฟังก์ชันเพิ่มสมาชิกในกลุ่มแบบรายคน (อัปเดตให้ใช้ SweetAlert2)
-function addGroupMember() {
-    const firstName = document.getElementById('memberFirstName').value.trim();
-    const lastName = document.getElementById('memberLastName').value.trim();
-    const age = parseInt(document.getElementById('memberAge').value);
-    const gender = document.getElementById('memberGender').value;
-
-    // ตรวจสอบข้อมูล
-    if (!firstName || !lastName || !age || !gender) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('กรอกไม่ครบ', 'กรุณากรอกข้อมูลสมาชิกให้ครบถ้วน', 'warning');
-        } else {
-            alert('กรุณากรอกข้อมูลสมาชิกให้ครบถ้วน');
-        }
-        return;
-    }
-
-    if (age < 0 || age > 150) {
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('ข้อมูลไม่ถูกต้อง', 'อายุต้องอยู่ระหว่าง 0-150 ปี', 'warning');
-        } else {
-            alert('อายุต้องอยู่ระหว่าง 0-150 ปี');
-        }
-        return;
-    }
-
-    // สร้างข้อมูลสมาชิก
-    const member = {
-        id: Date.now() + Math.random(), // สร้าง ID ชั่วคราว
-        first_name: firstName,
-        last_name: lastName,
-        age: age,
-        gender: gender
-    };
-
-    // เพิ่มสมาชิกเข้า array
-    manualGroupMembers.push(member);
-
-    // อัปเดต UI
-    updateMembersList();
-    updateMembersSummary();
-
-    // ล้างฟอร์ม
-    clearMemberForm();
-
-    // แสดงการแจ้งเตือน
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'เพิ่มสมาชิกสำเร็จ',
-            text: `เพิ่ม ${firstName} ${lastName} เข้ากลุ่มแล้ว`,
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
-        });
-    }
-
-    console.log('Added member:', member);
-    console.log('Current members:', manualGroupMembers);
-}
-
-// ฟังก์ชันลบสมาชิก (อัปเดตให้ใช้ SweetAlert2)
-function removeMember(memberId) {
-    const memberIndex = manualGroupMembers.findIndex(member => member.id === memberId);
-    if (memberIndex === -1) return;
-
-    const member = manualGroupMembers[memberIndex];
-
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'ยืนยันการลบ',
-            text: `คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonText: 'ใช่, ลบ',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#dc3545'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // ลบสมาชิกออกจาก array
-                manualGroupMembers.splice(memberIndex, 1);
-
-                // อัปเดต UI
-                updateMembersList();
-                updateMembersSummary();
-
-                Swal.fire({
-                    title: 'ลบสำเร็จ',
-                    text: `ลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มแล้ว`,
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
-        });
-    } else {
-        if (confirm(`คุณต้องการลบ ${member.first_name} ${member.last_name} ออกจากกลุ่มใช่หรือไม่?`)) {
-            // ลบสมาชิกออกจาก array
-            manualGroupMembers.splice(memberIndex, 1);
-
-            // อัปเดต UI
-            updateMembersList();
-            updateMembersSummary();
-        }
-    }
-
-    console.log('Removed member:', member);
-    console.log('Current members:', manualGroupMembers);
-}
-
-// ฟังก์ชันล้างสมาชิกทั้งหมด (อัปเดตให้ใช้ SweetAlert2)
-function clearAllMembers() {
-    if (manualGroupMembers.length === 0) return;
-
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: 'ยืนยันการล้างข้อมูล',
-            text: `คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'ใช่, ล้างทั้งหมด',
-            cancelButtonText: 'ยกเลิก',
-            confirmButtonColor: '#dc3545'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // ล้างข้อมูลทั้งหมด
-                manualGroupMembers = [];
-
-                // อัปเดต UI
-                updateMembersList();
-                updateMembersSummary();
-
-                Swal.fire({
-                    title: 'ล้างข้อมูลสำเร็จ',
-                    text: 'ลบสมาชิกทั้งหมดออกจากกลุ่มแล้ว',
-                    icon: 'success',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
-        });
-    } else {
-        if (confirm(`คุณต้องการลบสมาชิกทั้งหมด ${manualGroupMembers.length} คน ออกจากกลุ่มใช่หรือไม่?`)) {
-            // ล้างข้อมูลทั้งหมด
-            manualGroupMembers = [];
-
-            // อัปเดต UI
-            updateMembersList();
-            updateMembersSummary();
-        }
-    }
-
-    console.log('Cleared all members');
-}
-
-// ฟังก์ชันอัปเดตสรุปข้อมูลสมาชิก
-function updateMembersSummary() {
-    const summarySection = document.getElementById('membersSummary');
-
-    if (!summarySection) return;
-
-    if (manualGroupMembers.length === 0) {
-        summarySection.style.display = 'none';
-        return;
-    }
-
-    // คำนวณสถิติ
-    const maleCount = manualGroupMembers.filter(m => m.gender === 'male').length;
-    const femaleCount = manualGroupMembers.filter(m => m.gender === 'female').length;
-    const otherCount = manualGroupMembers.filter(m => m.gender !== 'male' && m.gender !== 'female').length;
-    const totalCount = manualGroupMembers.length;
-
-    // อัปเดต UI
-    document.getElementById('totalMaleMembers').textContent = maleCount;
-    document.getElementById('totalFemaleMembers').textContent = femaleCount;
-    document.getElementById('totalOtherMembers').textContent = otherCount;
-    document.getElementById('totalAllMembers').textContent = totalCount;
-
-    summarySection.style.display = 'block';
-}
-
-// ฟังก์ชันลงทะเบียนกลุ่มแบบรายคน
-async function addGroupVisitorManual() {
-    const groupName = document.getElementById('groupName').value.trim();
-    const groupType = document.getElementById('groupType').value.trim();
-    const beaconUUID = document.getElementById('groupBeacon').value;
-
-    // ตรวจสอบข้อมูลพื้นฐาน
-    if (!groupName || !groupType || !beaconUUID) {
-        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกชื่อกลุ่ม ประเภทกลุ่ม และเลือก iBeacon', 'warning');
-        return;
-    }
-
-    // ตรวจสอบสมาชิกในกลุ่ม
-    if (manualGroupMembers.length === 0) {
-        Swal.fire('ไม่มีสมาชิก', 'กรุณาเพิ่มสมาชิกในกลุ่มอย่างน้อย 1 คน', 'warning');
-        return;
-    }
-
-    // เตรียมข้อมูลสำหรับส่งไปยัง API
-    const groupData = {
-        type: 'group',
-        group_name: groupName,
-        group_type: groupType,
-        group_size: manualGroupMembers.length,
-        uuid: beaconUUID,
-        members: manualGroupMembers,
-        registration_method: 'manual' // ระบุวิธีการลงทะเบียน
-    };
-
-    console.log('Manual group data to be sent:', groupData);
-
-    try {
-        // แสดงสถานะกำลังบันทึก
-        Swal.fire({
-            title: 'กำลังบันทึกข้อมูล...',
-            text: `กำลังลงทะเบียนกลุ่ม ${groupName} (${groupType}) จำนวน ${manualGroupMembers.length} คน`,
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        const response = await fetch(REGISTER_VISITOR_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(groupData)
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Server error response:', errorText);
-            Swal.fire('ข้อผิดพลาด', 'เกิดข้อผิดพลาดจากเซิร์ฟเวอร์', 'error');
-            return;
-        }
-
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            Swal.fire({
-                title: 'สำเร็จ!',
-                text: `ลงทะเบียนกลุ่ม ${groupName} สำเร็จ`,
-                icon: 'success',
-                confirmButtonText: 'ตกลง'
-            });
-
-            // ล้างฟอร์มและข้อมูล
-            clearGroupForm();
-            if (typeof loadDeviceTableByType === 'function') {
-                loadDeviceTableByType();
-            }
-            if (typeof loadDashboardStats === 'function') {
-                loadDashboardStats();
-            }
-
-
-        } else {
-            Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถลงทะเบียนได้', 'error');
-        }
-
-    } catch (error) {
-        console.error('Error registering manual group:', error);
         Swal.fire('ข้อผิดพลาด', `ไม่สามารถลงทะเบียนได้: ${error.message}`, 'error');
     }
 }
@@ -1064,35 +902,11 @@ function handleFileUpload(event) {
             console.log('จำนวนแถวที่อ่านได้:', jsonData.length);
             console.log('ข้อมูลทั้งหมด:', jsonData);
 
-            // ดูข้อมูลแต่ละแถว
-            jsonData.forEach((row, index) => {
-                console.log(`แถว ${index + 1}:`, row);
-
-                // หาชื่อคอลัมน์จริง
-                const columns = Object.keys(row);
-                const nameCol = columns.find(col => col.includes('ชื่อ'));
-                const surnameCol = columns.find(col => col.includes('นามสกุล'));
-                const ageCol = columns.find(col => col.includes('อายุ'));
-                const genderCol = columns.find(col => col.includes('เพศ'));
-
-                console.log(`  ชื่อ: "${row[nameCol]}"`);
-                console.log(`  นามสกุล: "${row[surnameCol]}"`);
-                console.log(`  อายุ: "${row[ageCol]}"`);
-                console.log(`  เพศ: "${row[genderCol]}"`);
-            });
-
             if (jsonData.length === 0) {
                 Swal.fire('ข้อผิดพลาด', 'ไฟล์ Excel ว่างเปล่า', 'error');
                 uploadArea.innerHTML = originalContent;
                 return;
             }
-
-            // ตรวจสอบคอลัมน์ที่จำเป็น
-            const requiredColumnPrefixes = ['ชื่อ', 'นามสกุล', 'อายุ', 'เพศ'];
-            const fileColumns = Object.keys(jsonData[0]);
-            const missingColumns = requiredColumnPrefixes.filter(prefix =>
-                !fileColumns.some(col => col.startsWith(prefix))
-            );
 
             // ตรวจสอบความถูกต้องของข้อมูล
             const validationErrors = validateExcelData(jsonData);
@@ -1187,7 +1001,6 @@ function processExcelData(data) {
             last_name: row['นามสกุล'].toString().trim(),
             age: parseInt(row['อายุ (ปี) *กรอกเฉพาะตัวเลข']),
             gender: gender,
-            // หมายเหตุ: uuid จะถูกกำหนดเมื่อบันทึกข้อมูล
         };
     });
 }
@@ -1272,17 +1085,16 @@ function displayFilePreview(data) {
     preview.style.display = 'block';
 }
 
-// ฟังก์ชันลงทะเบียนกลุ่มด้วยไฟล์ Excel
+// ฟังก์ชันลงทะเบียนกลุ่มด้วยไฟล์ Excel (อัปเดตให้ใช้ validation)
 async function addGroupVisitorFromFile() {
-    const groupName = document.getElementById('groupName').value.trim();
-    const groupType = document.getElementById('groupType').value.trim(); // เพิ่ม .trim()
-    const beaconUUID = document.getElementById('groupBeacon').value;
-
-    // ตรวจสอบข้อมูลพื้นฐาน
-    if (!groupName || !groupType || !beaconUUID) {
-        Swal.fire('กรอกไม่ครบ', 'กรุณากรอกชื่อกลุ่ม ประเภทกลุ่ม และเลือก iBeacon', 'warning');
+    // ตรวจสอบข้อมูลก่อนส่ง
+    if (!validateGroupForm()) {
         return;
     }
+
+    const groupName = document.getElementById('groupName').value.trim();
+    const groupType = document.getElementById('groupType').value.trim();
+    const beaconUUID = document.getElementById('groupBeacon').value;
 
     // ตรวจสอบไฟล์ที่อัปโหลด
     if (!uploadedFileData || uploadedFileData.length === 0) {
@@ -1294,7 +1106,7 @@ async function addGroupVisitorFromFile() {
     const groupData = {
         type: 'group',
         group_name: groupName,
-        group_type: groupType, // ตอนนี้จะเป็นค่าที่กรอกเอง
+        group_type: groupType,
         group_size: uploadedFileData.length,
         uuid: beaconUUID,
         members: uploadedFileData,
@@ -1340,7 +1152,9 @@ async function addGroupVisitorFromFile() {
 
             // ล้างฟอร์มและข้อมูล
             clearGroupForm();
-            fetchVisitors(); // รีเฟรชตารางข้อมูล
+            if (typeof fetchVisitors === 'function') {
+                fetchVisitors(); // รีเฟรชตารางข้อมูล
+            }
 
         } else {
             Swal.fire('เกิดข้อผิดพลาด', result.message || 'ไม่สามารถลงทะเบียนได้', 'error');
@@ -1354,10 +1168,15 @@ async function addGroupVisitorFromFile() {
 
 // ฟังก์ชันล้างฟอร์มกลุ่ม
 function clearGroupForm() {
-    // ล้างข้อมูลพื้นฐาน
-    document.getElementById('groupName').value = '';
-    document.getElementById('groupType').value = ''; // input text แทน select
-    document.getElementById('groupBeacon').value = '';
+    // ล้างข้อมูลพื้นฐานและลบ class invalid
+    const groupFields = ['groupName', 'groupType', 'groupBeacon'];
+    groupFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = '';
+            field.classList.remove('is-invalid');
+        }
+    });
 
     // ล้างข้อมูลไฟล์
     uploadedFileData = null;
@@ -1404,7 +1223,6 @@ function setupGroupTypeInput() {
 
     // เพิ่มการแสดงคำแนะนำเมื่อ focus
     groupTypeInput.addEventListener('focus', function () {
-        // สามารถเพิ่ม tooltip หรือ hint ได้ที่นี่
         this.placeholder = 'เช่น นักเรียนมัธยมต้น, ทัวร์ครอบครัว, พนักงานบริษัท ABC';
     });
 
@@ -1419,6 +1237,48 @@ function setupGroupTypeInput() {
             this.style.borderColor = '#ff6b6b';
         } else {
             this.style.borderColor = '';
+        }
+    });
+}
+
+// เพิ่มการรองรับ Enter key สำหรับฟอร์มเพิ่มสมาชิก
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        // ตรวจสอบว่าอยู่ในฟอร์มเพิ่มสมาชิกหรือไม่
+        const activeElement = document.activeElement;
+        const formInputs = ['memberFirstName', 'memberLastName', 'memberAge', 'memberGender'];
+
+        if (formInputs.includes(activeElement.id)) {
+            e.preventDefault(); // ป้องกันการ submit form
+            addGroupMember();
+        }
+    }
+});
+
+// เพิ่ม event listener สำหรับการลบ class is-invalid เมื่อ user เริ่มพิมพ์
+function setupInputValidation() {
+    const requiredFields = [
+        'individualFirstName', 'individualLastName', 'visitorBirthdate',
+        'individualGender', 'visitorBeacon',
+        'groupName', 'groupType', 'groupBeacon',
+        'memberFirstName', 'memberLastName', 'memberAge', 'memberGender'
+    ];
+
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid') && this.value.trim()) {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // สำหรับ select elements
+            field.addEventListener('change', function() {
+                if (this.classList.contains('is-invalid') && this.value) {
+                    this.classList.remove('is-invalid');
+                }
+            });
         }
     });
 }
@@ -1457,7 +1317,6 @@ function applyVisitorFilter() {
 }
 
 // แก้ไขในฟังก์ชัน fetchVisitors() ใน visitor-register.js
-
 async function fetchVisitors(filter = 'all') {
     const visitorsTableHead = document.querySelector('.table thead');
     const visitorsTableBody = document.getElementById('visitorsTable');
@@ -1713,10 +1572,21 @@ function downloadTemplate() {
 
 // ฟังก์ชันเมื่อ DOM พร้อมทำงาน
 document.addEventListener("DOMContentLoaded", function () {
+    console.log('DOM loaded, initializing...');
+    
+    // โหลดข้อมูลพื้นฐาน
     loadUserProfile();
     setupBirthdateInput();
-    loadIBeacons(); // ใช้ฟังก์ชันเดียว
+    loadIBeacons();
     fetchVisitors();
     setupDragAndDrop();
     setupGroupTypeInput();
+    
+    // เพิ่มเครื่องหมาย * และตั้งค่า validation
+    setTimeout(() => {
+        addRequiredIndicators();
+        markRequiredFields();
+        setupInputValidation();
+        console.log('Required field indicators added successfully');
+    }, 100); // รอให้ DOM render เสร็จก่อน
 });
