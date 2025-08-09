@@ -219,7 +219,10 @@ body {
 }
 
 .table tr:hover {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+    transform: scale(1.01);
+    box-shadow: 0 4px 15px rgba(42, 140, 120, 0.1);
+    transition: all 0.3s ease; /* ทำให้ลื่นขึ้น */
 }
 
 .no-data {

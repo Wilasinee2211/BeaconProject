@@ -1,7 +1,8 @@
 <?php
-// backend/staff/api/return_equipment.php
+// backend/staff/api/return_equipment.php - แก้ไขปัญหา Column not found
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -12,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-// หา path ของ db_connect.php
+// หา path ของ database config
 $possible_paths = [
     __DIR__ . '/../../config/db_connect.php',
     __DIR__ . '/../../../config/db_connect.php',
@@ -28,15 +29,9 @@ foreach ($possible_paths as $path) {
     }
 }
 
-if (!$db_path_found) {
+if (!$db_path_found || !isset($conn) || !$conn instanceof PDO) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'DB file not found.']);
-    exit();
-}
-
-if (!isset($conn) || !$conn instanceof PDO) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Invalid DB connection.']);
+    echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
     exit();
 }
 
@@ -44,26 +39,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $input = json_decode(file_get_contents('php://input'), true);
         
-        if (!$input || !isset($input['visitor_id']) || !isset($input['uuid'])) {
+        if (!$input || !isset($input['visitor_id'])) {
             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => 'ข้อมูลไม่ครบถ้วน']);
+            echo json_encode(['success' => false, 'message' => 'ข้อมูลไม่ครบถ้วน - ไม่พบ visitor_id']);
             exit();
         }
         
         $visitor_id = $input['visitor_id'];
-        $uuid = $input['uuid'];
-        $action = $input['action'] ?? 'return'; // รับค่า action (return หรือ reactivate)
+        $uuid = $input['uuid'] ?? null;
         
         // เริ่ม transaction
         $conn->beginTransaction();
         
-        // ตรวจสอบว่า visitor นี้มีอยู่จริง
+        // ✅ ตรวจสอบว่าผู้เยี่ยมชมมีอยู่จริง
         $stmt = $conn->prepare("
-            SELECT id, uuid, active, type
+            SELECT id, first_name, last_name, group_name, type, uuid, active
             FROM visitors
-            WHERE id = ? AND uuid = ?
+            WHERE id = ?
         ");
-        $stmt->execute([$visitor_id, $uuid]);
+        $stmt->execute([$visitor_id]);
         $visitor = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$visitor) {
@@ -72,124 +66,128 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
         
-        // ตรวจสอบการทำงานตาม action
-        if ($action === 'return') {
-            // การคืนอุปกรณ์: active = 1 -> 0 (ทำให้เป็น Offline)
-            if ($visitor['active'] == 0) {
-                $conn->rollBack();
-                echo json_encode(['success' => false, 'message' => 'อุปกรณ์นี้ถูกคืนแล้ว']);
-                exit();
-            }
-            
-            // อัปเดตสถานะผู้เยี่ยมชมเป็น inactive (คืนอุปกรณ์แล้ว) - ลบ updated_at ออก
-            $stmt = $conn->prepare("
-                UPDATE visitors
-                SET active = 0
-                WHERE id = ?
-            ");
-            $updateResult = $stmt->execute([$visitor_id]);
-            $message = 'คืนอุปกรณ์เรียบร้อยแล้ว อุปกรณ์จะแสดงสถานะ Offline';
-            
-        } elseif ($action === 'reactivate') {
-            // การเปิดใช้งานอุปกรณ์: active = 0 -> 1 (ทำให้สามารถลงทะเบียนใหม่ได้)
-            if ($visitor['active'] == 1) {
-                $conn->rollBack();
-                echo json_encode(['success' => false, 'message' => 'อุปกรณ์นี้ยังอยู่ในสถานะใช้งาน']);
-                exit();
-            }
-            
-            // อัปเดตสถานะผู้เยี่ยมชมเป็น active (เปิดใช้งานใหม่) - ลบ updated_at ออก
-            $stmt = $conn->prepare("
-                UPDATE visitors
-                SET active = 1
-                WHERE id = ?
-            ");
-            $updateResult = $stmt->execute([$visitor_id]);
-            $message = 'เปิดใช้งานอุปกรณ์เรียบร้อยแล้ว สามารถลงทะเบียนกับผู้เยี่ยมชมใหม่ได้';
-            
-        } else {
+        if ($visitor['active'] != 1) {
             $conn->rollBack();
-            echo json_encode(['success' => false, 'message' => 'การทำงานไม่ถูกต้อง']);
+            echo json_encode(['success' => false, 'message' => 'ผู้เยี่ยมชมนี้คืนอุปกรณ์ไปแล้ว']);
             exit();
         }
         
-        if (!$updateResult) {
+        // ✅ หา tag ที่ผู้เยี่ยมชมใช้อยู่
+        $tag_uuid = $uuid ?? $visitor['uuid'];
+        $stmt = $conn->prepare("
+            SELECT tag_id, tag_name, uuid, status
+            FROM ibeacons_tag
+            WHERE uuid = ?
+        ");
+        $stmt->execute([$tag_uuid]);
+        $tag = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$tag) {
+            $conn->rollBack();
+            echo json_encode(['success' => false, 'message' => 'ไม่พบข้อมูล iBeacon Tag']);
+            exit();
+        }
+        
+        // ✅ อัปเดต tag status เป็น available
+        $stmt = $conn->prepare("
+            UPDATE ibeacons_tag
+            SET status = 'available', last_seen = CURRENT_TIMESTAMP
+            WHERE tag_id = ?
+        ");
+        $updateTagResult = $stmt->execute([$tag['tag_id']]);
+        
+        if (!$updateTagResult) {
+            $conn->rollBack();
+            echo json_encode(['success' => false, 'message' => 'ไม่สามารถอัปเดตสถานะ Tag ได้']);
+            exit();
+        }
+        
+        // ✅ อัปเดตผู้เยี่ยมชม
+        $stmt = $conn->prepare("
+            UPDATE visitors
+            SET active = 0, ended_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ");
+        $updateVisitorResult = $stmt->execute([$visitor_id]);
+        
+        if (!$updateVisitorResult) {
             $conn->rollBack();
             echo json_encode(['success' => false, 'message' => 'ไม่สามารถอัปเดตสถานะผู้เยี่ยมชมได้']);
             exit();
         }
         
-        // อัปเดต iBeacon tag status ตามการทำงาน
-        if ($action === 'return') {
-            // เมื่อคืนอุปกรณ์: อัปเดต last_seen เป็นเวลาปัจจุบัน (จะแสดงเป็น Offline)
-            $stmt = $conn->prepare("
-                UPDATE ibeacons_tag
-                SET last_seen = CURRENT_TIMESTAMP
-                WHERE uuid = ?
-            ");
-        } else { // reactivate
-            // เมื่อเปิดใช้งานใหม่: ล้างค่า last_seen (จะแสดงเป็น Unknown จนกว่าจะมีการจับสัญญาณใหม่)
-            $stmt = $conn->prepare("
-                UPDATE ibeacons_tag
-                SET last_seen = NULL
-                WHERE uuid = ?
-            ");
-        }
-        $stmt->execute([$uuid]);
-        
-        // ถ้าเป็นกลุ่ม ให้ log การทำงาน
-        if ($visitor['type'] === 'group') {
-            $stmt = $conn->prepare("
-                SELECT COUNT(*) as member_count
-                FROM group_members
-                WHERE group_visitor_id = ?
-            ");
-            $stmt->execute([$visitor_id]);
-            $memberCount = $stmt->fetch(PDO::FETCH_ASSOC)['member_count'];
-            error_log("Equipment action '$action' for group visitor_id: $visitor_id, members: $memberCount");
-        }
-        
-        // บันทึก log การทำงาน (ถ้าต้องการ) - ปรับให้ไม่ใช้ updated_at
+        // ✅ บันทึก log การคืนอุปกรณ์ (ตรวจคอลัมน์ก่อน)
         try {
-            $stmt = $conn->prepare("
-                INSERT INTO equipment_return_log (visitor_id, ended_at)
-                VALUES (?, CURRENT_TIMESTAMP)
-                ON DUPLICATE KEY UPDATE ended_at = CURRENT_TIMESTAMP
-            ");
-            $stmt->execute([$visitor_id]);
+            $stmt = $conn->prepare("SHOW TABLES LIKE 'equipment_return_log'");
+            $stmt->execute();
+            $table_exists = $stmt->fetch() !== false;
+            
+            if ($table_exists) {
+                // ตรวจว่ามีคอลัมน์ tag_id หรือไม่
+                $stmt = $conn->prepare("SHOW COLUMNS FROM equipment_return_log LIKE 'tag_id'");
+                $stmt->execute();
+                $has_tag_id = $stmt->fetch() !== false;
+
+                if ($has_tag_id) {
+                    $stmt = $conn->prepare("
+                        INSERT INTO equipment_return_log (visitor_id, tag_id, ended_at)
+                        VALUES (?, ?, CURRENT_TIMESTAMP)
+                    ");
+                    $stmt->execute([$visitor_id, $tag['tag_id']]);
+                } else {
+                    $stmt = $conn->prepare("
+                        INSERT INTO equipment_return_log (visitor_id, ended_at)
+                        VALUES (?, CURRENT_TIMESTAMP)
+                    ");
+                    $stmt->execute([$visitor_id]);
+                }
+            }
         } catch (PDOException $e) {
-            // ถ้าตาราง log ไม่มีก็ไม่เป็นไร
-            error_log("Equipment log table not found: " . $e->getMessage());
+            error_log("Equipment return log error (non-critical): " . $e->getMessage());
         }
         
-        // Commit transaction
+        // ✅ Commit transaction
         $conn->commit();
+        
+        // ชื่อผู้เยี่ยมชมสำหรับแสดงผล
+        $visitor_display_name = '';
+        if ($visitor['type'] === 'individual') {
+            $visitor_display_name = trim($visitor['first_name'] . ' ' . $visitor['last_name']);
+        } elseif ($visitor['type'] === 'group') {
+            $visitor_display_name = $visitor['group_name'] ?: 'กลุ่ม #' . $visitor['id'];
+        }
         
         echo json_encode([
             'success' => true,
-            'message' => $message,
+            'message' => 'คืนอุปกรณ์เรียบร้อยแล้ว Tag "' . $tag['tag_name'] . '" พร้อมใช้งานใหม่',
             'data' => [
-                'visitor_id' => $visitor_id,
-                'uuid' => $uuid,
-                'type' => $visitor['type'],
-                'action' => $action,
-                'new_active_status' => $action === 'return' ? 0 : 1,
-                'action_time' => date('Y-m-d H:i:s')
+                'visitor_id'     => $visitor_id,
+                'tag_id'         => $tag['tag_id'],
+                'tag_name'       => $tag['tag_name'],
+                'uuid'           => $tag['uuid'],
+                'visitor_name'   => $visitor_display_name,
+                'visitor_type'   => $visitor['type'],
+                'returned_at'    => date('Y-m-d H:i:s'),
+                'tag_status'     => 'available'
             ]
         ]);
         
     } catch (PDOException $e) {
-        $conn->rollBack();
-        error_log("Equipment action error: " . $e->getMessage());
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        error_log("Equipment return error: " . $e->getMessage());
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'เกิดข้อผิดพลาดในการทำงาน: ' . $e->getMessage()
+            'message' => 'เกิดข้อผิดพลาดในการคืนอุปกรณ์: ' . $e->getMessage()
         ]);
         
     } catch (Exception $e) {
-        $conn->rollBack();
-        error_log("Equipment action general error: " . $e->getMessage());
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+        error_log("Equipment return general error: " . $e->getMessage());
         http_response_code(500);
         echo json_encode([
             'success' => false,

@@ -102,15 +102,24 @@ function updateStats(data) {
 
 function applyDeviceFilter() {
     const filter = document.getElementById('deviceTypeFilter').value;
+    
+    // แสดง loading
+    const tbody = document.getElementById('deviceTableBody');
+    tbody.innerHTML = '<tr><td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td></tr>';
+    
     fetch('../../backend/staff/api/get_visitors.php')
         .then(response => response.json())
         .then(result => {
-            if (result.status !== 'success') return;
+            if (result.status !== 'success') {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+                return;
+            }
             currentVisitorData = result.data;
             renderFilteredRows(currentVisitorData, filter);
         })
         .catch(err => {
             console.error("Error applying filter:", err);
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data" style="color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
         });
 }
 
@@ -165,7 +174,22 @@ function calculateVisitDuration(visitDate) {
 }
 
 // ✅ ฟังก์ชันกำหนดสถานะ iBeacon Tag
-function getTagStatus(lastSeen, active) {
+function getTagStatus(lastSeen, active, dbStatus = null) {
+    // ✅ ถ้ามี database status ให้ใช้ก่อน (สำหรับ Tag management)
+    if (dbStatus) {
+        switch (dbStatus.toLowerCase()) {
+            case 'in_use':
+                return '<span class="status-badge status-online">In Use</span>';
+            case 'available':
+                return '<span class="status-badge status-online">Available</span>';
+            case 'offline':
+                return '<span class="status-badge status-offline">Offline</span>';
+            case 'damaged':
+                return '<span class="status-badge status-damaged">Damaged</span>';
+        }
+    }
+    
+    // ✅ สำหรับ Visitor management (ตรวจสอบตามเวลา)
     if (active == 0) {
         return '<span class="status-badge status-offline">Offline</span>';
     }
@@ -178,13 +202,28 @@ function getTagStatus(lastSeen, active) {
     const last = new Date(lastSeen);
     const diff = (now - last) / 1000; // วินาที
 
-    if (diff <= 300) {
+    if (diff <= 300) { // 5 นาที
         return '<span class="status-badge status-online">Online</span>';
     } else {
         return '<span class="status-badge status-damaged">Damaged</span>';
     }
 }
 
+// ✅ เพิ่มฟังก์ชันเพื่อรีเฟรชข้อมูลหลังคืนอุปกรณ์
+async function refreshVisitorData() {
+    try {
+        const response = await fetch('../../backend/staff/api/get_visitors.php');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            currentVisitorData = result.data;
+            const filter = document.getElementById('deviceTypeFilter').value;
+            renderFilteredRows(currentVisitorData, filter);
+        }
+    } catch (error) {
+        console.error('Error refreshing visitor data:', error);
+    }
+}
 
 // แสดงเวลาให้อ่านง่าย
 function formatDateTime(datetime) {
@@ -219,7 +258,7 @@ function loadDeviceTableByType(type = "all") {
                 const tag = v.tag_name || '-';
                 const uuid = v.uuid || '-';
                 const registerTime = formatDateTime(v.created_at);
-                const endedTime = (v.active == 1 || !v.ended_at) ? '-' : formatDateTime(v.ended_at);
+                const endedTime = (v.active == 1 || v.ended_at === null || v.ended_at === '0000-00-00 00:00:00') ? '-' : formatDateTime(v.ended_at);
                 const status = getTagStatus(v.last_seen, v.active);
                 const actionBtn = v.active == 1
                     ? `<button class="btn btn-return" onclick="returnEquipment('${v.id}', '${uuid}')">
@@ -230,7 +269,6 @@ function loadDeviceTableByType(type = "all") {
                     <td>${typeLabel}</td>
                     <td>${displayName}</td>
                     <td>${tag}</td>
-                    <td>${uuid}</td>
                     <td>${registerTime}</td>
                     <td>${endedTime}</td>
                     <td>${status}</td>
@@ -250,47 +288,80 @@ function loadDeviceTableByType(type = "all") {
 
 
 // ✅ ฟังก์ชันคืนอุปกรณ์
-function returnEquipment(visitor_id, uuid) {
-    Swal.fire({
+async function returnEquipment(visitorId, uuid) {
+    const result = await Swal.fire({
         title: 'คืนอุปกรณ์',
         text: "คุณต้องการคืนอุปกรณ์นี้ใช่หรือไม่?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'ยืนยัน',
         cancelButtonText: 'ยกเลิก',
-        reverseButtons: true,
         confirmButtonColor: '#28a745',
         cancelButtonColor: '#d33'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch('../../backend/staff/api/return_equipment.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ visitor_id: visitor_id, uuid: uuid })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    Swal.fire({
-                        title: 'สำเร็จ',
-                        text: result.message,
-                        icon: 'success',
-                        timer: 1000,
-                        showConfirmButton: false
-                    });
-                    // reload หรือ refresh table
-                    applyDeviceFilter();
-                    loadDashboardStats(); // โหลด dashboard ทันทีหลังคืน
-                } else {
-                    Swal.fire('ผิดพลาด', result.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
-            });
-        }
     });
+
+    if (!result.isConfirmed) return;
+
+    // แสดง loading
+    Swal.fire({
+        title: 'กำลังประมวลผล...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading()
+    });
+    
+    try {
+        const response = await fetch('../../backend/staff/api/return_equipment.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                visitor_id: visitorId, 
+                uuid: uuid 
+            })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+            // ✅ แสดงผลสำเร็จ
+            await Swal.fire({
+                title: 'สำเร็จ',
+                text: result.message,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                timerProgressBar: true
+            });
+            
+            // ✅ อัปเดตข้อมูลใน currentVisitorData
+            const visitor = currentVisitorData.find(v => 
+                v.id == visitorId || v.visitor_id == visitorId
+            );
+            
+            if (visitor) {
+                visitor.active = 0;
+                visitor.ended_at = new Date().toISOString();
+                visitor.status = 'returned';
+            }
+            
+            // ✅ รีเฟรชตารางและสถิติ
+            applyDeviceFilter();
+            loadDashboardStats();
+            
+            // ✅ หากอยู่หน้าจัดการ Tag ให้รีเฟรชด้วย
+            if (typeof loadTagManagement === 'function') {
+                loadTagManagement();
+            }
+            
+        } else {
+            Swal.fire('ผิดพลาด', result.message || 'เกิดข้อผิดพลาดในการคืนอุปกรณ์', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error returning equipment:', error);
+        Swal.fire('ผิดพลาด', 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    }
 }
 
 function logout() {
@@ -384,7 +455,6 @@ function renderFilteredRows(data, filter) {
 
     const now = new Date();
     let filtered = data.filter(v => {
-        // ตรวจสมาชิกกรณีเป็นกลุ่ม
         if (filter === 'available') {
             if (v.active == 1) {
                 const seen = v.last_seen ? new Date(v.last_seen) : null;
@@ -402,38 +472,48 @@ function renderFilteredRows(data, filter) {
             }
             return false;
         } else {
-            return true; // all
+            return true;
         }
     });
 
-    // ✅ เพิ่มส่วนนี้เพื่อจัดเรียงลำดับ Damaged → Online → Offline
     filtered = sortVisitorDataByStatusPriority(filtered);
-    // ตั้งหัวตาราง
-    thead.innerHTML = `<tr><th>ประเภท</th><th>ชื่อ/ชื่อกลุ่ม</th><th>Tag</th><th>UUID</th><th>เวลาลงทะเบียน</th><th>เวลาสิ้นสุด</th><th>สถานะ</th><th>การดำเนินการ</th></tr>`;
+    
+    thead.innerHTML = `<tr>
+        <th>ประเภท</th>
+        <th>ชื่อ/ชื่อกลุ่ม</th>
+        <th>Tag</th>
+        <th>เวลาลงทะเบียน</th>
+        <th>เวลาสิ้นสุด</th>
+        <th>สถานะ</th>
+        <th>การดำเนินการ</th>
+    </tr>`;
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="no-data">ไม่พบข้อมูล</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="no-data">ไม่พบข้อมูล</td></tr>`;
         return;
     }
 
     filtered.forEach(v => {
         const typeLabel = v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
-        const name = v.name || '-';
+        const name = v.name || (v.first_name && v.last_name ? `${v.first_name} ${v.last_name}` : v.group_name || '-');
         const tag = v.tag_name || '-';
         const uuid = v.uuid || '-';
         const registerTime = formatDateTime(v.created_at);
-        const endedTime = (v.active == 1 || !v.ended_at) ? '-' : formatDateTime(v.ended_at);
+        const endedTime = v.ended_at ? formatDateTime(v.ended_at) : '-';
+        
+        // ✅ ใช้ getTagStatus โดยไม่ส่ง dbStatus (ใช้การตรวจสอบตามเวลา)
         const status = getTagStatus(v.last_seen, v.active);
+        
+        const visitorId = v.visitor_id || v.id;
         const actionBtn = v.active == 1
-            ? `<button class="btn btn-return" onclick="returnEquipment('${v.visitor_id}', '${uuid}')">
+            ? `<button class="btn btn-return" onclick="returnEquipment('${visitorId}', '${uuid}')">
                     <i class="fas fa-undo"></i> คืน</button>`
             : `<span class="text-muted">คืนแล้ว</span>`;
 
-        rows.push(`<tr>
+        rows.push(`<tr data-visitor-id="${visitorId}" data-active="${v.active}">
             <td>${typeLabel}</td>
             <td>${name}</td>
             <td>${tag}</td>
-            <td>${uuid}</td>
             <td>${registerTime}</td>
             <td>${endedTime}</td>
             <td>${status}</td>
@@ -444,6 +524,33 @@ function renderFilteredRows(data, filter) {
     tbody.innerHTML = rows.join('');
 }
 
+// ✅ สำหรับหน้าจัดการ Tag โดยเฉพาะ (ใช้ database status)
+function renderTagManagementTable(tags) {
+    const tbody = document.getElementById('tagTableBody');
+    let rows = [];
+    
+    tags.forEach(tag => {
+        const status = getTagStatus(tag.last_seen, null, tag.status); // ✅ ส่ง dbStatus
+        const visitorName = tag.visitor_name || '-';
+        const lastSeen = formatDateTime(tag.last_seen);
+        
+        rows.push(`<tr>
+            <td>${tag.tag_name}</td>
+            <td>${tag.uuid}</td>
+            <td>${status}</td>
+            <td>${visitorName}</td>
+            <td>${lastSeen}</td>
+            <td>
+                ${tag.status === 'in_use' && tag.visitor_id 
+                    ? `<button class="btn btn-return" onclick="returnEquipment('${tag.visitor_id}', '${tag.uuid}')">คืน</button>`
+                    : '<span class="text-muted">-</span>'
+                }
+            </td>
+        </tr>`);
+    });
+    
+    tbody.innerHTML = rows.join('');
+}
 
 // ✅ เพิ่ม Event Listener ให้แต่ละ Dashboard card
 document.addEventListener('DOMContentLoaded', () => {
@@ -564,7 +671,7 @@ function loadDeviceTableByType(type = "all") {
         })
         .catch(error => {
             console.error('Error loading visitors:', error);
-            tbody.innerHTML = '<tr><td colspan="8" class="no-data" style="color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data" style="color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
         });
 }
 
@@ -621,7 +728,6 @@ function renderVisitorRows(data) {
             <td>${v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว'}</td>
             <td>${v.name || '-'}</td>
             <td>${v.tag_name || '-'}</td>
-            <td>${v.uuid || '-'}</td>
             <td>${formatDateTime(v.created_at)}</td>
             <td>${v.active == 1 ? '-' : formatDateTime(v.ended_at)}</td>
             <td>${status}</td>

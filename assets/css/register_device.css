@@ -248,84 +248,46 @@ body {
     box-shadow: 0 4px 15px rgba(42, 140, 120, 0.1);
 }
 
+/* ===== STATUS BADGES (โทนสีเข้มเหมือนตัวอย่างที่สอง) ===== */
 .status-badge {
-    padding: 6px 12px;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
+    display: inline-block;
     letter-spacing: 0.5px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
     transition: all 0.3s ease;
 }
 
-.status-badge::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-/* AVAILABLE - สีเขียว */
+/* AVAILABLE - เขียว */
 .status-available {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-    border: 1px solid #c3e6cb;
+    background-color: #28a745;
+    color: #fff;
 }
 
-.status-available::before {
-    background: #28a745;
-    animation: pulse 2s infinite;
-}
-
-/* IN USE - สีน้ำเงิน */
+/* IN USE - น้ำเงิน */
 .status-in-use {
-    background: linear-gradient(135deg, #cce7ff, #b8daff);
-    color: #004085;
-    border: 1px solid #b8daff;
+    background-color: #007bff;
+    color: #fff;
 }
 
-.status-in-use::before {
-    background: #007bff;
-    animation: pulse 1.5s infinite;
-}
-
-/* OFFLINE - สีแดง */
+/* OFFLINE - แดง */
 .status-offline {
-    background: linear-gradient(135deg, #f8d7da, #f1b0b7);
-    color: #721c24;
-    border: 1px solid #f1b0b7;
+    background-color: #e74c3c;
+    color: #fff;
 }
 
-.status-offline::before {
-    background: #dc3545;
-}
-
-/* DAMAGED - สีส้ม/เหลือง */
+/* DAMAGED - ส้ม */
 .status-damaged {
-    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-    color: #856404;
-    border: 1px solid #ffeaa7;
+    background-color: #f39c12;
+    color: #fff;
 }
 
-.status-damaged::before {
-    background: #ffc107;
-    animation: blink 1.5s infinite;
-}
-
-/* สำหรับ status เก่าที่อาจยังมีอยู่ */
+/* ONLINE - เขียว (เหมือน available แต่คนละสถานะ) */
 .status-online {
-    background: linear-gradient(135deg, #d4edda, #c3e6cb);
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.status-online::before {
-    background: #28a745;
-    animation: pulse 2s infinite;
+    background-color: #28a745;
+    color: #fff;
 }
 
 .no-data {
