@@ -591,7 +591,7 @@ async function addGroupVisitorManual() {
         if (result.status === 'success') {
             Swal.fire({
                 title: 'สำเร็จ!',
-                text: `ลงทะเบียนกลุ่ม ${groupName} (${groupType}) สำเร็จ จำนวน ${manualGroupMembers.length} คน`,
+                text: `ลงทะเบียนกลุ่ม ${groupName}  สำเร็จ `,
                 icon: 'success',
                 confirmButtonText: 'ตกลง'
             });
@@ -968,7 +968,7 @@ async function addGroupVisitorManual() {
         if (result.status === 'success') {
             Swal.fire({
                 title: 'สำเร็จ!',
-                text: `ลงทะเบียนกลุ่ม ${groupName} (${groupType}) สำเร็จ จำนวน ${manualGroupMembers.length} คน`,
+                text: `ลงทะเบียนกลุ่ม ${groupName} สำเร็จ`,
                 icon: 'success',
                 confirmButtonText: 'ตกลง'
             });
@@ -1333,7 +1333,7 @@ async function addGroupVisitorFromFile() {
         if (result.status === 'success') {
             Swal.fire({
                 title: 'สำเร็จ!',
-                text: `ลงทะเบียนกลุ่ม ${groupName} (${groupType}) สำเร็จ จำนวน ${uploadedFileData.length} คน`,
+                text: `ลงทะเบียนกลุ่ม ${groupName} สำเร็จ`,
                 icon: 'success',
                 confirmButtonText: 'ตกลง'
             });

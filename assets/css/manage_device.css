@@ -167,15 +167,19 @@ body {
     font-weight: 600;
     color: #333;
 }
+
 .totalRegister-card .card-icon {
     background: linear-gradient(45deg, #962eeb, #962eeb);
 }
+
 .total-card .card-icon {
     background: linear-gradient(45deg, #3498db, #2980b9);
 }
+
 .returned-card .card-icon {
     background: linear-gradient(45deg, #2a8c78, #1a6b5e);
 }
+
 .active-card .card-icon {
     background: linear-gradient(45deg, #f39c12, #e67e22);
 }
@@ -222,7 +226,8 @@ body {
     background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
     transform: scale(1.01);
     box-shadow: 0 4px 15px rgba(42, 140, 120, 0.1);
-    transition: all 0.3s ease; /* ทำให้ลื่นขึ้น */
+    transition: all 0.3s ease;
+    /* ทำให้ลื่นขึ้น */
 }
 
 .no-data {
@@ -239,75 +244,85 @@ body {
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    white-space: nowrap; /* เพิ่มจากโค้ดเดิมเพื่อไม่ให้ข้อความตกบรรทัด */
 }
 
-.status-active {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.status-returned {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-online {
+.status-badge.status-available,
+.status-badge.status-online { /* รวม Available และ Online เข้าด้วยกัน */
     background-color: #28a745;
     color: #fff;
 }
 
-.status-offline {
-    background-color: #e74c3c;
+.status-badge.status-in-use {
+    background-color: #007bff;
     color: #fff;
 }
 
-.status-damaged {
-    background-color: #f39c12;
+.status-badge.status-offline {
+    background-color: #e74c3c; /* ใช้สีแดงของ Offline จากโค้ดชุดแรก */
     color: #fff;
 }
 
-.status-unknown {
-    background-color: #95a5a6;
+.status-badge.status-damaged {
+    background-color: #f39c12; /* ใช้สีส้มของ Damaged จากโค้ดชุดแรก */
     color: #fff;
 }
 
+/* เพิ่ม status-warning ที่ไม่มีในโค้ดชุดแรกแต่มีในชุดที่สอง */
+.status-badge.status-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+/* เพิ่มเอฟเฟคสำหรับแถวที่มีปัญหา */
+tr[data-status="Damaged"] {
+    background-color: #fff5f5;
+    border-left: 3px solid #dc3545;
+}
+
+tr[data-status="Online"] {
+    background-color: #f8fff9;
+}
 
 /* ===== FILTER BAR (เหมือน visitor-register.css) ===== */
 
 /* ===== CUSTOM FILTER BAR STYLES ===== */
 .filter-bar {
-  background: white;
-  padding: 15px 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: 'Kanit', sans-serif;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Kanit', sans-serif;
 }
 
 .filter-bar label {
-  font-size: 16px;
-  font-weight: 500;
-  color: #2a8c78;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2a8c78;
 }
 
 .filter-bar select {
-  padding: 10px 15px;
-  font-size: 16px;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #f8f9fa;
-  color: #114345;
-  font-family: 'Kanit', sans-serif;
-  transition: all 0.3s;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    color: #114345;
+    font-family: 'Kanit', sans-serif;
+    transition: all 0.3s;
 }
 
 .filter-bar select:focus {
-  outline: none;
-  border-color: #2a8c78;
-  background-color: #e8f5e8;
+    outline: none;
+    border-color: #2a8c78;
+    background-color: #e8f5e8;
 }
 
 
@@ -318,16 +333,16 @@ body {
         position: relative;
         height: auto;
     }
-    
+
     .main-content {
         margin-left: 0;
         width: 100%;
     }
-    
+
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .dashboard-grid {
         grid-template-columns: 1fr;
     }

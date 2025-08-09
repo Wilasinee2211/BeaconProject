@@ -146,6 +146,15 @@ function formatDatetime(dt) {
 
       const matchedUuid = uuid.slice(-8);
 
+      // ---------- ADDED: อัปเดต last_seen ใน ibeacons_tag เสมอเมื่อมีการเห็น beacon ----------
+      const seenAt = dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss'); // ADDED
+      await db.execute(`
+        UPDATE ibeacons_tag
+        SET last_seen = ?
+        WHERE uuid = ?
+      `, [seenAt, matchedUuid]); // ADDED
+      // -------------------------------------------------------------------------------
+
       // 2) หาคนล่าสุดที่ใช้ UUID นี้ และยัง active
       const [visitorRows] = await db.execute(`
         SELECT type, age, gender, first_name, last_name, group_name, group_size, group_type
@@ -157,6 +166,14 @@ function formatDatetime(dt) {
 
       if (visitorRows.length > 0) {
         const visitor = visitorRows[0];
+
+        // ---------- ADDED: ถ้ามี visitor active ให้เซ็ต status เป็น in_use ----------
+        await db.execute(`
+          UPDATE ibeacons_tag
+          SET status = 'in_use'
+          WHERE uuid = ?
+        `, [matchedUuid]); // ADDED
+        // --------------------------------------------------------------------------
 
         // ตรวจสอบซ้ำก่อน INSERT
         const [existingRows] = await db.execute(`

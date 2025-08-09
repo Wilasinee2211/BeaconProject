@@ -8,7 +8,14 @@ window.onload = async () => {
     await loadDashboardStats();
     await loadData();
     await loadVisitorData();
+    
+    // อัปเดตสถานะ damaged tags ก่อนแสดงผล
+    await updateDamagedTags();
+    
     applyDeviceFilter();
+    
+    // ตั้งให้อัปเดตทุก 5 นาที
+    setInterval(updateDamagedTags, 5 * 60 * 1000);
 };
 
 async function loadData() {
@@ -44,7 +51,7 @@ function renderTable(data) {
         row.innerHTML = `
             <td><input type="checkbox" class="row-check" data-host-name="${item.host_name}" /></td>
             <td><span class="host-name">${item.host_name}</span><input type="text" class="edit-input" value="${item.host_name}" style="display: none;" /></td>
-            <td class="status-cell"><span class="status-badge ${isOnline ? 'status-online' : 'status-offline'}">${isOnline ? 'Online' : 'Offline'}</span></td>
+            <td class="status-cell"><span class="status-badge ${isOnline ? 'status-in-use' : 'status-offline'}">${isOnline ? 'Online' : 'Offline'}</span></td>
             <td class="last-update-cell">${formatDate(item.window_end) || '-'}</td>
             <td class="count-cell">${item.count || 0}</td>
             <td class="action-buttons">
@@ -100,27 +107,33 @@ function updateStats(data) {
     document.getElementById('totalCount').textContent = data.length;
 }
 
-function applyDeviceFilter() {
+async function applyDeviceFilter() {
     const filter = document.getElementById('deviceTypeFilter').value;
     
     // แสดง loading
     const tbody = document.getElementById('deviceTableBody');
     tbody.innerHTML = '<tr><td colspan="7" class="no-data">กำลังโหลดข้อมูล...</td></tr>';
     
-    fetch('../../backend/staff/api/get_visitors.php')
-        .then(response => response.json())
-        .then(result => {
-            if (result.status !== 'success') {
-                tbody.innerHTML = '<tr><td colspan="7" class="no-data">โหลดข้อมูลไม่สำเร็จ</td></tr>';
-                return;
-            }
-            currentVisitorData = result.data;
-            renderFilteredRows(currentVisitorData, filter);
-        })
-        .catch(err => {
-            console.error("Error applying filter:", err);
-            tbody.innerHTML = '<tr><td colspan="7" class="no-data" style="color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-        });
+    try {
+        // อัปเดตสถานะ damaged tags ก่อน
+        await updateDamagedTags();
+        
+        // โหลดข้อมูลใหม่
+        const response = await fetch('../../backend/staff/api/get_visitors.php');
+        const result = await response.json();
+        
+        if (result.status !== 'success') {
+            tbody.innerHTML = '<tr><td colspan="7" class="no-data">โหลดข้อมูลไม่สำเร็จ</td></tr>';
+            return;
+        }
+        
+        currentVisitorData = result.data;
+        renderFilteredRows(currentVisitorData, filter);
+        
+    } catch (error) {
+        console.error("Error applying filter:", error);
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data" style="color:red;">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -174,38 +187,49 @@ function calculateVisitDuration(visitDate) {
 }
 
 // ✅ ฟังก์ชันกำหนดสถานะ iBeacon Tag
-function getTagStatus(lastSeen, active, dbStatus = null) {
-    // ✅ ถ้ามี database status ให้ใช้ก่อน (สำหรับ Tag management)
+function getTagStatus(lastSeen, active, dbStatus = null, isInUse = false) {
+    // ✅ 1. หาก tag มี database status จาก Tag Management ให้ใช้แบบง่าย ๆ
     if (dbStatus) {
         switch (dbStatus.toLowerCase()) {
             case 'in_use':
-                return '<span class="status-badge status-online">In Use</span>';
+                return '<span class="status-badge status-in-use">In Use</span>';
             case 'available':
                 return '<span class="status-badge status-online">Available</span>';
             case 'offline':
                 return '<span class="status-badge status-offline">Offline</span>';
             case 'damaged':
                 return '<span class="status-badge status-damaged">Damaged</span>';
+            default:
+                return '<span class="status-badge status-offline">Unknown</span>';
         }
     }
     
-    // ✅ สำหรับ Visitor management (ตรวจสอบตามเวลา)
+    // ✅ 2. หาก tag กำลังถูกใช้งาน (active = 1) ให้แสดงเป็น In Use เสมอ
+    if (active == 1 || isInUse) {
+        return '<span class="status-badge status-in-use">In Use</span>';
+    }
+    
+    // ✅ 3. หาก tag ไม่ได้ใช้งาน (active = 0) ให้แสดงเป็น Available หรือ Offline
     if (active == 0) {
         return '<span class="status-badge status-offline">Offline</span>';
     }
-
+    
+    // ✅ 4. กรณีอื่น ๆ (fallback)
     if (!lastSeen) {
-        return '<span class="status-badge status-damaged">Damaged</span>';
+        return '<span class="status-badge status-damaged">No Signal</span>';
     }
-
+    
+    // ✅ 5. ตรวจสอบเวลา last_seen เฉพาะกรณีที่ไม่ได้อยู่ในสถานะ in_use
     const now = new Date();
     const last = new Date(lastSeen);
-    const diff = (now - last) / 1000; // วินาที
+    const diffMinutes = (now - last) / (1000 * 60); // นาที
 
-    if (diff <= 300) { // 5 นาที
+    if (diffMinutes <= 5) {
         return '<span class="status-badge status-online">Online</span>';
+    } else if (diffMinutes <= 15) {
+        return '<span class="status-badge status-warning">Warning</span>';
     } else {
-        return '<span class="status-badge status-damaged">Damaged</span>';
+        return '<span class="status-badge status-damaged">Lost Signal</span>';
     }
 }
 
@@ -454,8 +478,11 @@ function renderFilteredRows(data, filter) {
     let rows = [];
 
     const now = new Date();
-    let filtered = data.filter(v => {
-        if (filter === 'available') {
+    let filteredData = data.filter(v => {
+        if (filter === 'all') {
+            return true;
+        } else if (filter === 'available') {
+            // Available = tag ที่ active = 1 และมี signal ดี
             if (v.active == 1) {
                 const seen = v.last_seen ? new Date(v.last_seen) : null;
                 const diff = seen ? (now - seen) / (1000 * 60) : Infinity;
@@ -463,21 +490,27 @@ function renderFilteredRows(data, filter) {
             }
             return false;
         } else if (filter === 'success') {
+            // Success = tag ที่คืนแล้ว (active = 0)
             return v.active == 0;
         } else if (filter === 'damaged') {
+            // Damaged = tag ที่ active = 1 แต่ signal หาย
             if (v.active == 1) {
                 const seen = v.last_seen ? new Date(v.last_seen) : null;
                 const diff = seen ? (now - seen) / (1000 * 60) : Infinity;
-                return diff > 5;
+                return diff > 15; // เปลี่ยนจาก 5 เป็น 15 นาที
             }
             return false;
-        } else {
+        } else if (v.type === filter) {
             return true;
+        } else {
+            return false;
         }
     });
 
-    filtered = sortVisitorDataByStatusPriority(filtered);
-    
+    // จัดเรียงข้อมูลตามสถานะ
+    filteredData = sortVisitorDataByStatusPriority(filteredData);
+
+    // กำหนดหัวตารางให้ถูกต้องเหมือนเดิม
     thead.innerHTML = `<tr>
         <th>ประเภท</th>
         <th>ชื่อ/ชื่อกลุ่ม</th>
@@ -488,31 +521,36 @@ function renderFilteredRows(data, filter) {
         <th>การดำเนินการ</th>
     </tr>`;
 
-    if (filtered.length === 0) {
+    if (filteredData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="no-data">ไม่พบข้อมูล</td></tr>`;
         return;
     }
 
-    filtered.forEach(v => {
-        const typeLabel = v.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
-        const name = v.name || (v.first_name && v.last_name ? `${v.first_name} ${v.last_name}` : v.group_name || '-');
-        const tag = v.tag_name || '-';
-        const uuid = v.uuid || '-';
-        const registerTime = formatDateTime(v.created_at);
-        const endedTime = v.ended_at ? formatDateTime(v.ended_at) : '-';
-        
-        // ✅ ใช้ getTagStatus โดยไม่ส่ง dbStatus (ใช้การตรวจสอบตามเวลา)
-        const status = getTagStatus(v.last_seen, v.active);
-        
-        const visitorId = v.visitor_id || v.id;
-        const actionBtn = v.active == 1
+    filteredData.forEach(visitor => {
+        const typeLabel = visitor.type === 'group' ? 'กลุ่ม' : 'เดี่ยว';
+        const displayName = visitor.type === 'group' ? (visitor.group_name || '-') : (visitor.name || '-');
+        const tag = visitor.tag_name || '-';
+        const uuid = visitor.uuid || '-';
+        const registerTime = formatDateTime(visitor.created_at);
+        const endedTime = (visitor.active == 1 || visitor.ended_at === null || visitor.ended_at === '0000-00-00 00:00:00') ? '-' : formatDateTime(visitor.ended_at);
+
+        // ✅ ใช้ logic ใหม่ - ถ้า active = 1 ให้แสดง In Use เสมอ
+        const status = getTagStatus(
+            visitor.last_seen,
+            visitor.active,
+            null, // ไม่ใช้ database status ในหน้านี้
+            visitor.active == 1 // ส่ง isInUse flag
+        );
+
+        const visitorId = visitor.visitor_id || visitor.id;
+        const actionBtn = visitor.active == 1
             ? `<button class="btn btn-return" onclick="returnEquipment('${visitorId}', '${uuid}')">
-                    <i class="fas fa-undo"></i> คืน</button>`
+                <i class="fas fa-undo"></i> คืน</button>`
             : `<span class="text-muted">คืนแล้ว</span>`;
 
-        rows.push(`<tr data-visitor-id="${visitorId}" data-active="${v.active}">
+        rows.push(`<tr data-visitor-id="${visitorId}" data-active="${visitor.active}">
             <td>${typeLabel}</td>
-            <td>${name}</td>
+            <td>${displayName}</td>
             <td>${tag}</td>
             <td>${registerTime}</td>
             <td>${endedTime}</td>
@@ -736,6 +774,25 @@ function renderVisitorRows(data) {
     });
 
     tbody.innerHTML = rows.join('');
+}
+
+// ✅ ฟังก์ชันอัปเดตสถานะ damaged tags อัตโนมัติ
+async function updateDamagedTags() {
+    try {
+        const response = await fetch('../../backend/staff/api/update_damaged_tags.php');
+        const result = await response.json();
+        
+        if (result.success && result.updated_count > 0) {
+            console.log(`อัปเดตสถานะ damaged: ${result.updated_count} tags`);
+            
+            // รีเฟรชข้อมูลหลังอัปเดต
+            await refreshVisitorData();
+            await loadDashboardStats();
+        }
+        
+    } catch (error) {
+        console.error('Error updating damaged tags:', error);
+    }
 }
 
 function confirmReturnDevice(deviceId, callback) {

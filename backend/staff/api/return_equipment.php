@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ✅ อัปเดต tag status เป็น available
         $stmt = $conn->prepare("
             UPDATE ibeacons_tag
-            SET status = 'available', last_seen = CURRENT_TIMESTAMP
+            SET status = 'available'
             WHERE tag_id = ?
         ");
         $updateTagResult = $stmt->execute([$tag['tag_id']]);

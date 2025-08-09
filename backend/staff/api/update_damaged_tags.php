@@ -1,5 +1,5 @@
 <?php
-// backend/staff/api/update_damaged_tags.php - ฟังก์ชันอัปเดตสถานะ damaged อัตโนมัติ
+// backend/staff/api/update_damaged_tags.php - ฟังก์ชันอัปเดตสถานะ damaged อัตโนมัติ (แก้ไขแล้ว)
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
@@ -41,14 +41,17 @@ if (!$db_path_found || !$conn) {
 }
 
 try {
-    // อัปเดต tag ที่มี status = 'in_use' แต่ last_seen นานเกิน 10 นาที ให้เป็น damaged
+    // ✅ ปรับแก้: อัปเดต tag เป็น damaged เฉพาะที่ไม่ได้ใช้งาน (ไม่มี visitor active)
+    // และ last_seen นานเกิน 15 นาที
     $updateQuery = "
-        UPDATE ibeacons_tag 
-        SET status = 'damaged' 
-        WHERE status = 'in_use' 
+        UPDATE ibeacons_tag t
+        LEFT JOIN visitors v ON t.uuid = v.uuid AND v.active = 1
+        SET t.status = 'damaged' 
+        WHERE t.status IN ('in_use', 'available')
+        AND v.id IS NULL  -- ไม่มี visitor ที่ active อยู่
         AND (
-            last_seen IS NULL 
-            OR last_seen < DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+            t.last_seen IS NULL 
+            OR t.last_seen < DATE_SUB(NOW(), INTERVAL 15 MINUTE)  -- เพิ่มเป็น 15 นาที
         )
     ";
     
@@ -56,34 +59,61 @@ try {
     $stmt->execute();
     $affectedRows = $stmt->rowCount();
     
-    // ถ้ามี tag ที่เปลี่ยนเป็น damaged ให้อัปเดต visitor ที่เกี่ยวข้องให้เป็น inactive
+    // ✅ เพิ่ม: อัปเดต tag กลับเป็น available ถ้ามี last_seen ใหม่และไม่มี visitor ใช้
+    $recoverQuery = "
+        UPDATE ibeacons_tag t
+        LEFT JOIN visitors v ON t.uuid = v.uuid AND v.active = 1
+        SET t.status = 'available'
+        WHERE t.status = 'damaged'
+        AND v.id IS NULL  -- ไม่มี visitor ใช้
+        AND t.last_seen IS NOT NULL
+        AND t.last_seen >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)  -- มี signal ภายใน 5 นาที
+    ";
+    
+    $stmt2 = $conn->prepare($recoverQuery);
+    $stmt2->execute();
+    $recoveredRows = $stmt2->rowCount();
+    
+    // ✅ อัปเดต visitor ที่มี tag เป็น damaged ให้ inactive
     if ($affectedRows > 0) {
         $updateVisitorsQuery = "
             UPDATE visitors v
             INNER JOIN ibeacons_tag t ON v.uuid = t.uuid
-            SET v.active = 0, v.updated_at = CURRENT_TIMESTAMP
+            SET v.active = 0, v.updated_at = CURRENT_TIMESTAMP, v.ended_at = NOW()
             WHERE t.status = 'damaged' AND v.active = 1
         ";
         
-        $stmt2 = $conn->prepare($updateVisitorsQuery);
-        $stmt2->execute();
-        $affectedVisitors = $stmt2->rowCount();
-        
-        error_log("Updated {$affectedRows} tags to damaged status and deactivated {$affectedVisitors} visitors");
-        
-        echo json_encode([
-            'success' => true,
-            'updated_count' => $affectedRows,
-            'deactivated_visitors' => $affectedVisitors,
-            'message' => "อัปเดตสถานะ damaged สำเร็จ ({$affectedRows} tags, {$affectedVisitors} visitors deactivated)"
-        ]);
+        $stmt3 = $conn->prepare($updateVisitorsQuery);
+        $stmt3->execute();
+        $affectedVisitors = $stmt3->rowCount();
     } else {
-        echo json_encode([
-            'success' => true,
-            'updated_count' => 0,
-            'message' => 'ไม่มี tag ที่ต้องอัปเดตเป็น damaged'
-        ]);
+        $affectedVisitors = 0;
     }
+    
+    $message = [];
+    if ($affectedRows > 0) {
+        $message[] = "อัปเดต {$affectedRows} tags เป็น damaged";
+    }
+    if ($recoveredRows > 0) {
+        $message[] = "กู้คืน {$recoveredRows} tags เป็น available";
+    }
+    if ($affectedVisitors > 0) {
+        $message[] = "ปิดการใช้งาน {$affectedVisitors} visitors";
+    }
+    
+    if (empty($message)) {
+        $message[] = "ไม่มี tag ที่ต้องอัปเดต";
+    }
+    
+    error_log("Tag status update: " . implode(", ", $message));
+    
+    echo json_encode([
+        'success' => true,
+        'updated_count' => $affectedRows,
+        'recovered_count' => $recoveredRows,
+        'deactivated_visitors' => $affectedVisitors,
+        'message' => implode(", ", $message)
+    ]);
     
 } catch (Exception $e) {
     error_log("Error updating damaged tags: " . $e->getMessage());
