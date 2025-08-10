@@ -11,6 +11,38 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* สไตล์สำหรับ readonly input fields */
+        input[readonly] {
+            background-color: #f8f9fa !important;
+            color: #6c757d !important;
+            cursor: not-allowed !important;
+            border-color: #e9ecef !important;
+        }
+        
+        input[readonly]:focus {
+            box-shadow: none !important;
+            border-color: #e9ecef !important;
+        }
+        
+        /* เพิ่มไอคอนแสดงว่าเป็น auto-generated */
+        .auto-generated {
+            position: relative;
+        }
+        
+        .auto-generated::after {
+            content: '\F123'; /* Bootstrap icon for gear */
+            font-family: 'bootstrap-icons';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -60,7 +92,9 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>ชื่อโฮสต์</label>
-                        <input type="text" id="hostName" placeholder="เช่น: Host001">
+                        <div class="auto-generated">
+                            <input type="text" id="hostName" placeholder="Host001" readonly>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>ชื่อห้องหรือ Location</label>
@@ -78,7 +112,9 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>ชื่อ Tag</label>
-                        <input type="text" id="tagName" placeholder="เช่น: TAG001">
+                        <div class="auto-generated">
+                            <input type="text" id="tagName" placeholder="TAG001" readonly>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>UUID (8 ตัวอักษร)</label>
@@ -119,7 +155,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script src="../../assets/js/register_device.js"></script>
 </body>
 
