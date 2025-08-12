@@ -47,7 +47,81 @@
     <div class="main-content">
       <div class="content-header">
         <h1>แดชบอร์ด</h1>
-        <p>ภาพรวมระบบติดตามผู้เยี่ยมชม - <span id="lastUpdate">กำลังโหลด...</span></p>
+        <p>ภาพรวมระบบติดตามผู้เยี่ยมชม</p>
+      </div>
+
+      <!-- Search Section -->
+      <div class="search-section">
+        <div class="search-card">
+          <h3 class="search-title">
+            <i class="fas fa-search"></i> ค้นหาผู้เยี่ยมชม
+          </h3>
+          <div class="search-container">
+            <div class="search-group">
+              <label for="searchName">ชื่อ/ชื่อกลุ่ม</label>
+              <input type="text" id="searchName" placeholder="พิมพ์ชื่อ นามสกุล หรือชื่อกลุ่ม" class="search-input">
+            </div>
+            <div class="search-group">
+              <label for="searchTag">Tag ID</label>
+              <input type="text" id="searchTag" placeholder="Tag1234, ABC123" class="search-input">
+            </div>
+            <div class="search-group">
+              <label for="searchRoom">ห้อง</label>
+              <select id="searchRoom" class="search-input">
+                <option value="">ทุกห้อง</option>
+                <option value="1">ห้อง 1 - ห้องเกริกไกรเจ้าฟ้านักอนุรักษ์</option>
+                <option value="2">ห้อง 2 - หอวัตถุทรัพย์สิ่งล้นตน</option>
+                <option value="3">ห้อง 3 - เขาหลวงทรัพยากรมากมี</option>
+                <option value="4">ห้อง 4 - ศักยภาพมากล้นมีให้เห็น</option>
+                <option value="5">ห้อง 5 - ทรัพยากรลุ่มน้ำปากพนัง</option>
+                <option value="6">ห้อง 6 - ชายฝั่งอุดมสมบูรณ์</option>
+                <option value="7">ห้อง 7 - บริบูรณ์ทรัพยากรอ่าวไทย</option>
+                <option value="8">ห้อง 8 - ประโยชน์แท้แก่มหาชน</option>
+              </select>
+            </div>
+            <div class="search-actions">
+              <button class="search-btn" onclick="searchVisitors()">
+                <i class="fas fa-search"></i> ค้นหา
+              </button>
+              <button class="clear-btn" onclick="clearSearch()">
+                <i class="fas fa-times"></i> ล้าง
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Search Tags -->
+          <div class="quick-searches">
+            <div class="quick-search-tags">
+              <span class="quick-tag" onclick="quickSearch('group')">
+                <i class="fas fa-users"></i> กลุ่มทั้งหมด
+              </span>
+              <span class="quick-tag" onclick="quickSearch('individual')">
+                <i class="fas fa-user"></i> บุคคลทั่วไป
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Results Modal -->
+      <div id="searchModal" class="search-modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="search-modal-content">
+          <div class="search-modal-header">
+            <h3 id="searchModalTitle">ผลการค้นหา</h3>
+            <button class="modal-close" onclick="closeSearchModal()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="search-modal-body">
+            <div class="search-results-summary">
+              <span id="searchResultsCount">0 รายการ</span>
+            </div>
+            <div id="searchResultsContainer">
+              <!-- Search results will appear here -->
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="tab-content active">
@@ -58,9 +132,8 @@
               <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">👥</div>
               <div class="card-title">
                 ผู้เยี่ยมชมวันนี้
-                <i class="fas fa-search-plus view-all-visitors-btn" 
-                   title="ดูรายละเอียดผู้เยี่ยมชมทั้งหมด"
-                   style="margin-left: 8px; cursor: pointer; color: #3498db; font-size: 0.9em; opacity: 0.8;"></i>
+                <i class="fas fa-search-plus view-all-visitors-btn" title="ดูรายละเอียดผู้เยี่ยมชมทั้งหมด"
+                  style="margin-left: 8px; cursor: pointer; color: #3498db; font-size: 0.9em; opacity: 0.8;"></i>
               </div>
             </div>
             <div class="stat-number" id="totalVisitors">-</div>
@@ -81,14 +154,6 @@
             </div>
             <div class="stat-number" id="activeBeacons">-</div>
             <div class="stat-label">อุปกรณ์</div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-icon" style="background: linear-gradient(45deg, #e74c3c, #c0392b);">⏱️</div>
-              <div class="card-title">เวลาเฉลี่ย</div>
-            </div>
-            <div class="stat-number" id="avgTime">-</div>
-            <div class="stat-label">นาที</div>
           </div>
         </div>
 
@@ -247,17 +312,6 @@
                 <canvas id="timeSpentChart"></canvas>
               </div>
             </div>
-
-            <!-- Visitor Flow Timeline -->
-            <div class="chart-card full-width">
-              <h3 class="chart-title">
-                <i class="fas fa-chart-line"></i>
-                แนวโน้มผู้เยี่ยมชมตลอดวัน
-              </h3>
-              <div class="chart-container">
-                <canvas id="visitorFlowChart"></canvas>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -267,6 +321,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="../../assets/js/dashboard.js"></script>
+  <script src="../../assets/js/chart.js"></script>
+  <script src="../../assets/js/popularity_chart.js"></script>
+  <script src="../../assets/js/time_spent_chart.js"></script>
 
 </body>
 

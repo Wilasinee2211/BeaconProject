@@ -157,7 +157,7 @@ function formatDatetime(dt) {
 
       // 2) หาคนล่าสุดที่ใช้ UUID นี้ และยัง active
       const [visitorRows] = await db.execute(`
-        SELECT type, age, gender, first_name, last_name, group_name, group_size, group_type
+        SELECT id, type, age, gender, first_name, last_name, group_name, group_size, group_type
         FROM visitors
         WHERE uuid = ? AND active = TRUE
         ORDER BY visit_date DESC, id DESC
@@ -166,13 +166,14 @@ function formatDatetime(dt) {
 
       if (visitorRows.length > 0) {
         const visitor = visitorRows[0];
+        const visitorId = visitor.id; // ✅ เก็บ visitor_id
 
         // ---------- ADDED: ถ้ามี visitor active ให้เซ็ต status เป็น in_use ----------
         await db.execute(`
           UPDATE ibeacons_tag
           SET status = 'in_use'
           WHERE uuid = ?
-        `, [matchedUuid]); // ADDED
+        `, [matchedUuid]);
         // --------------------------------------------------------------------------
 
         // ตรวจสอบซ้ำก่อน INSERT
@@ -183,17 +184,17 @@ function formatDatetime(dt) {
         `, [timestamp, macAddress, uuid]);
 
         if (existingRows.length === 0) {
-          // ใช้ฟิลด์เดิมเท่านั้น โดยเก็บข้อมูลแตกต่างกันตาม type
+          // ✅ เพิ่ม visitor_id ในการ INSERT
           await db.execute(`
             INSERT INTO beacon_visits
-              (timestamp, mac_address, rssi, host_name, uuid_full, matched_uuid, age, gender)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-          `, [timestamp, macAddress, rssi, HostName, uuid, matchedUuid, visitor.age, visitor.gender]);
+              (timestamp, mac_address, rssi, host_name, uuid_full, matched_uuid, visitor_id, age, gender)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `, [timestamp, macAddress, rssi, HostName, uuid, matchedUuid, visitorId, visitor.age, visitor.gender]);
           
           if (visitor.type === 'individual') {
-            console.log(`👤 [Visit-Individual] ${visitor.first_name} ${visitor.last_name} → age=${visitor.age}, gender=${visitor.gender}`);
+            console.log(`👤 [Visit-Individual] ID:${visitorId} ${visitor.first_name} ${visitor.last_name} → age=${visitor.age}, gender=${visitor.gender}`);
           } else if (visitor.type === 'group') {
-            console.log(`👥 [Visit-Group] ${visitor.group_name} (${visitor.group_type}, ${visitor.group_size} คน) → age=${visitor.age}, gender=${visitor.gender}`);
+            console.log(`👥 [Visit-Group] ID:${visitorId} ${visitor.group_name} (${visitor.group_type}, ${visitor.group_size} คน) → age=${visitor.age}, gender=${visitor.gender}`);
           }
         } else {
           console.log(`⚠️ [Visit] Duplicate entry skipped`);

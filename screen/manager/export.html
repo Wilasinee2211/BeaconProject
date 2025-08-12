@@ -39,7 +39,7 @@
                     <a href="dashboard.html" class="nav-link">📊 แดชบอร์ด</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link active">📈 รายงาน</a>
+                    <a href="#" class="nav-link active">📤 ส่งออกข้อมูล</a>
                 </li>
             </ul>
             <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
@@ -48,180 +48,265 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="content-header">
-                <h1>รายงานและส่งออกข้อมูล</h1>
-                <p>สร้างรายงานและส่งออกข้อมูลระบบติดตามผู้เยี่ยมชม</p>
+                <h1>ส่งออกข้อมูล</h1>
+                <p>ส่งออกข้อมูลระบบติดตามผู้เยี่ยมชมและรายงานต่างๆ</p>
             </div>
 
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="icon">📊</div>
-                    <div class="number">15</div>
-                    <div class="label">รายงานทั้งหมด</div>
+                    <div class="number" id="total-tables">10</div>
+                    <div class="label">ตารางข้อมูล</div>
                 </div>
                 <div class="stat-card">
                     <div class="icon">📥</div>
-                    <div class="number">8</div>
-                    <div class="label">ดาวน์โหลดวันนี้</div>
+                    <div class="number" id="exports-today">0</div>
+                    <div class="label">ไฟล์ส่งออกวันนี้</div>
                 </div>
                 <div class="stat-card">
-                    <div class="icon">📄</div>
-                    <div class="number">127</div>
-                    <div class="label">ไฟล์ส่งออก</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">🗂️</div>
-                    <div class="number">4</div>
-                    <div class="label">ฐานข้อมูล</div>
+                    <div class="icon">📁</div>
+                    <div class="number" id="total-exports">0</div>
+                    <div class="label">ไฟล์ส่งออกทั้งหมด</div>
                 </div>
             </div>
 
             <!-- Tabs -->
             <div class="tabs">
-                <button class="tab-button active" onclick="showTab('report-generator')">📊 สร้างรายงาน</button>
-                <button class="tab-button" onclick="showTab('data-export')">📤 ส่งออกข้อมูล</button>
-                <button class="tab-button" onclick="showTab('report-history')">📋 ประวัติรายงาน</button>
+                <button class="tab-button active" onclick="showTab('visitor-export')">👥 ข้อมูลผู้เยี่ยมชม</button>
+                <button class="tab-button" onclick="showTab('beacon-export')">📡 ข้อมูล Beacon</button>
+                <button class="tab-button" onclick="showTab('system-export')">⚙️ ข้อมูลระบบ</button>
+                <button class="tab-button" onclick="showTab('export-history')">📋 ประวัติส่งออก</button>
             </div>
 
-            <!-- Report Generator Tab -->
-            <div id="report-generator" class="tab-content active">
+            <!-- Visitor Export Tab -->
+            <div id="visitor-export" class="tab-content active">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">📊</div>
-                        <div class="card-title">สร้างรายงาน</div>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #667eea, #764ba2);">👥</div>
+                        <div class="card-title">ส่งออกข้อมูลผู้เยี่ยมชม</div>
                     </div>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>ประเภทรายงาน:</label>
-                            <select id="reportType">
-                                <option value="daily">รายงานประจำวัน</option>
-                                <option value="weekly">รายงานสัปดาห์</option>
-                                <option value="monthly">รายงานประจำเดือน</option>
-                                <option value="visitor">รายงานผู้เยี่ยมชม</option>
-                                <option value="equipment">รายงานอุปกรณ์</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>วันที่เริ่มต้น:</label>
-                            <input type="date" id="startDate">
-                        </div>
-                        <div class="form-group">
-                            <label>วันที่สิ้นสุด:</label>
-                            <input type="date" id="endDate">
-                        </div>
-                        <div class="form-group">
-                            <label>รูปแบบ:</label>
-                            <select id="reportFormat">
-                                <option value="pdf">PDF</option>
-                                <option value="excel">Excel</option>
-                                <option value="csv">CSV</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="btn" onclick="generateReport()">สร้างรายงาน</button>
-                </div>
-            </div>
 
-            <!-- Data Export Tab -->
-            <div id="data-export" class="tab-content">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon" style="background: linear-gradient(45deg, #3498db, #2980b9);">📤</div>
-                        <div class="card-title">ส่งออกข้อมูล</div>
-                    </div>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>เลือกฐานข้อมูล:</label>
-                            <select id="database-name" required>
-                                <option value="" disabled selected>-- กรุณาเลือก --</option>
-                                <option value="beacons">beacons</option>
-                                <option value="beacon_averages">beacon_averages</option>
-                                <option value="beacon_visits">beacon_visits</option>
-                                <option value="visitors">visitors</option>
+                            <label>เลือกตารางข้อมูล:</label>
+                            <select id="visitor-table" onchange="handleVisitorTableChange()">
+                                <option value="visitors">ข้อมูลผู้เยี่ยมชมหลัก (visitors)</option>
+                                <option value="group_members">ข้อมูลสมาชิกกลุ่ม (group_members)</option>
+                                <option value="room_visit_summary">สรุปการเยี่ยมชมห้อง (room_visit_summary)</option>
                             </select>
                         </div>
+
                         <div class="form-group">
                             <label>วันที่เริ่มต้น:</label>
-                            <input type="date" id="export-start-date" required>
+                            <input type="date" id="visitor-start-date">
                         </div>
+
                         <div class="form-group">
                             <label>วันที่สิ้นสุด:</label>
-                            <input type="date" id="export-end-date" required>
+                            <input type="date" id="visitor-end-date">
+                        </div>
+                    </div>
+
+                    <div class="filter-section" id="visitor-filters">
+                        <div class="filter-title">ตัวกรองข้อมูล</div>
+                        <div class="form-grid">
+                            <div class="form-group" id="visitor-type-group">
+                                <label>ประเภทผู้เยี่ยมชม:</label>
+                                <select id="visitor-type-filter">
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="individual">รายบุคคล</option>
+                                    <option value="group">กลุ่ม</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="visitor-status-group">
+                                <label>สถานะ:</label>
+                                <select id="visitor-status-filter">
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="1">ยังคงอยู่</option>
+                                    <option value="0">ออกแล้ว</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="favorite-room-group">
+                                <label>ห้องที่ชื่นชอบ (สำหรับสรุปการเยี่ยมชม):</label>
+                                <select id="favorite-room-filter">
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="1">ห้องที่ 1</option>
+                                    <option value="2">ห้องที่ 2</option>
+                                    <option value="3">ห้องที่ 3</option>
+                                    <option value="4">ห้องที่ 4</option>
+                                    <option value="5">ห้องที่ 5</option>
+                                    <option value="6">ห้องที่ 6</option>
+                                    <option value="7">ห้องที่ 7</option>
+                                    <option value="8">ห้องที่ 8</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>รูปแบบไฟล์:</label>
                         <div class="export-file-types">
-                            <button onclick="selectFileType('csv', this)">CSV</button>
-                            <button onclick="selectFileType('excel', this)">Excel</button>
-                            <button onclick="selectFileType('pdf', this)">PDF</button>
-                            <button onclick="selectFileType('json', this)">JSON</button>
+                            <button onclick="selectFileType('csv', this, 'visitor')">CSV</button>
+                            <button onclick="selectFileType('excel', this, 'visitor')">Excel</button>
+                            <button onclick="selectFileType('json', this, 'visitor')">JSON</button>
                         </div>
                     </div>
 
-                    <button class="btn" id="export-button" onclick="exportData()">ส่งออกข้อมูล</button>
+                    <button class="btn" onclick="exportData('visitor')">ส่งออกข้อมูลผู้เยี่ยมชม</button>
                 </div>
             </div>
 
-            <!-- Report History Tab -->
-            <div id="report-history" class="tab-content">
+            <!-- Beacon Export Tab -->
+            <div id="beacon-export" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #28a745, #20c997);">📡</div>
+                        <div class="card-title">ส่งออกข้อมูล Beacon</div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>เลือกตารางข้อมูล:</label>
+                            <select id="beacon-table" onchange="handleBeaconTableChange()">
+                                <option value="beacons">ข้อมูล Beacon ดิบ (beacons)</option>
+                                <option value="beacon_visits">การเข้าชม Beacon (beacon_visits)</option>
+                                <option value="beacon_averages">ค่าเฉลี่ย Beacon (beacon_averages)</option>
+                                <option value="ibeacons_tag">แท็ก Beacon (ibeacons_tag)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>วันที่เริ่มต้น:</label>
+                            <input type="date" id="beacon-start-date">
+                        </div>
+
+                        <div class="form-group">
+                            <label>วันที่สิ้นสุด:</label>
+                            <input type="date" id="beacon-end-date">
+                        </div>
+                    </div>
+
+                    <div class="filter-section" id="beacon-filters">
+                        <div class="filter-title">ตัวกรองข้อมูล</div>
+                        <div class="form-grid">
+                            <div class="form-group" id="beacon-uuid-group">
+                                <label>UUID เฉพาะ:</label>
+                                <input type="text" id="uuid-filter" placeholder="กรอก UUID ที่ต้องการ (เลือกได้)">
+                            </div>
+
+                            <div class="form-group" id="beacon-status-group">
+                                <label>สถานะแท็ก:</label>
+                                <select id="tag-status-filter">
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="available">พร้อมใช้งาน</option>
+                                    <option value="in_use">กำลังใช้งาน</option>
+                                    <option value="offline">ออฟไลน์</option>
+                                    <option value="damaged">เสียหาย</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="beacon-rssi-group">
+                                <label>ช่วง RSSI:</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <input type="number" id="rssi-min" placeholder="ต่ำสุด" style="width: 50%;">
+                                    <input type="number" id="rssi-max" placeholder="สูงสุด" style="width: 50%;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รูปแบบไฟล์:</label>
+                        <div class="export-file-types">
+                            <button onclick="selectFileType('csv', this, 'beacon')">CSV</button>
+                            <button onclick="selectFileType('excel', this, 'beacon')">Excel</button>
+                            <button onclick="selectFileType('json', this, 'beacon')">JSON</button>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="exportData('beacon')">ส่งออกข้อมล Beacon</button>
+                </div>
+            </div>
+
+            <!-- System Export Tab -->
+            <div id="system-export" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(45deg, #ffc107, #fd7e14);">⚙️</div>
+                        <div class="card-title">ส่งออกข้อมูลระบบ</div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>เลือกตารางข้อมูล:</label>
+                            <select id="system-table" onchange="handleSystemTableChange()">
+                                <option value="users">ข้อมูลผู้ใช้งานระบบ (users)</option>
+                                <option value="equipment_return_log">บันทึกการคืนอุปกรณ์ (equipment_return_log)</option>
+                                <option value="hosts">ข้อมูล Host (hosts)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>วันที่เริ่มต้น:</label>
+                            <input type="date" id="system-start-date">
+                        </div>
+
+                        <div class="form-group">
+                            <label>วันที่สิ้นสุด:</label>
+                            <input type="date" id="system-end-date">
+                        </div>
+                    </div>
+
+                    <div class="filter-section" id="system-filters">
+                        <div class="filter-title">ตัวกรองข้อมูล</div>
+                        <div class="form-grid">
+                            <div class="form-group" id="system-user-role-group">
+                                <label>บทบาทผู้ใช้:</label>
+                                <select id="user-role-filter">
+                                    <option value="">ทั้งหมด</option>
+                                    <option value="admin">ผู้ดูแลระบบ</option>
+                                    <option value="manager">ผู้บริหาร</option>
+                                    <option value="staff">เจ้าหน้าที่</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>รูปแบบไฟล์:</label>
+                        <div class="export-file-types">
+                            <button onclick="selectFileType('csv', this, 'system')">CSV</button>
+                            <button onclick="selectFileType('excel', this, 'system')">Excel</button>
+                            <button onclick="selectFileType('json', this, 'system')">JSON</button>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="exportData('system')">ส่งออกข้อมูลระบบ</button>
+                </div>
+            </div>
+
+            <!-- Export History Tab -->
+            <div id="export-history" class="tab-content">
                 <div class="table-container">
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>วันที่สร้าง</th>
-                                <th>ประเภทรายงาน</th>
+                                <th>วันที่ส่งออก</th>
+                                <th>ตารางข้อมูล</th>
                                 <th>ช่วงวันที่</th>
                                 <th>รูปแบบ</th>
+                                <th>ขนาดไฟล์</th>
                                 <th>สถานะ</th>
                                 <th>ดาวน์โหลด</th>
                             </tr>
                         </thead>
-                        <tbody id="reportsTable">
+                        <tbody id="exportHistoryTable">
                             <tr>
-                                <td>2024-12-20 14:30</td>
-                                <td>รายงานประจำวัน</td>
-                                <td>2024-12-20</td>
-                                <td>PDF</td>
-                                <td><span class="badge badge-success">เสร็จสิ้น</span></td>
-                                <td><button class="btn btn-small"
-                                        onclick="downloadReport('daily_20241220.pdf')">ดาวน์โหลด</button></td>
-                            </tr>
-                            <tr>
-                                <td>2024-12-19 16:45</td>
-                                <td>รายงานสัปดาห์</td>
-                                <td>2024-12-13 - 2024-12-19</td>
-                                <td>Excel</td>
-                                <td><span class="badge badge-success">เสร็จสิ้น</span></td>
-                                <td><button class="btn btn-small"
-                                        onclick="downloadReport('weekly_week50.xlsx')">ดาวน์โหลด</button></td>
-                            </tr>
-                            <tr>
-                                <td>2024-12-18 09:15</td>
-                                <td>รายงานผู้เยี่ยมชม</td>
-                                <td>2024-12-01 - 2024-12-18</td>
-                                <td>CSV</td>
-                                <td><span class="badge badge-info">กำลังประมวลผล</span></td>
-                                <td><button class="btn btn-small" disabled>รอประมวลผล</button></td>
-                            </tr>
-                            <tr>
-                                <td>2024-12-17 13:22</td>
-                                <td>รายงานอุปกรณ์</td>
-                                <td>2024-12-17</td>
-                                <td>PDF</td>
-                                <td><span class="badge badge-success">เสร็จสิ้น</span></td>
-                                <td><button class="btn btn-small"
-                                        onclick="downloadReport('equipment_20241217.pdf')">ดาวน์โหลด</button></td>
-                            </tr>
-                            <tr>
-                                <td>2024-12-16 11:30</td>
-                                <td>รายงานประจำเดือน</td>
-                                <td>2024-11-01 - 2024-11-30</td>
-                                <td>Excel</td>
-                                <td><span class="badge badge-warning">ข้อผิดพลาด</span></td>
-                                <td><button class="btn btn-small"
-                                        onclick="regenerateReport('monthly_nov2024')">สร้างใหม่</button></td>
+                                <td colspan="7" style="text-align: center; padding: 20px;">กำลังโหลดประวัติการส่งออก...
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -230,211 +315,9 @@
         </div>
     </div>
 
-    <script>
-        let selectedFileType = '';
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../assets/js/export.js"></script>
 
-        // Tab switching
-        function showTab(tabId) {
-            // Hide all tab contents
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // Remove active class from all tab buttons
-            const tabButtons = document.querySelectorAll('.tab-button');
-            tabButtons.forEach(button => button.classList.remove('active'));
-
-            // Show selected tab content
-            document.getElementById(tabId).classList.add('active');
-
-            // Add active class to clicked button
-            event.target.classList.add('active');
-        }
-
-        // File type selection
-        function selectFileType(type, button) {
-            // Remove selected class from all buttons
-            const buttons = document.querySelectorAll('.export-file-types button');
-            buttons.forEach(btn => btn.classList.remove('selected'));
-
-            // Add selected class to clicked button
-            button.classList.add('selected');
-            selectedFileType = type;
-        }
-
-        // Generate report
-        function generateReport() {
-            const reportType = document.getElementById('reportType').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const reportFormat = document.getElementById('reportFormat').value;
-
-            if (!startDate || !endDate) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'กรุณาเลือกวันที่',
-                    text: 'กรุณาเลือกวันที่เริ่มต้นและสิ้นสุด',
-                    confirmButtonColor: '#2a8c78'
-                });
-                return;
-            }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'กำลังสร้างรายงาน',
-                text: `กำลังสร้างรายงาน${getReportTypeName(reportType)} รูปแบบ ${reportFormat.toUpperCase()}`,
-                confirmButtonColor: '#2a8c78'
-            });
-
-            // Add new row to reports table
-            addReportToTable(reportType, startDate, endDate, reportFormat);
-        }
-
-        // Export data
-        function exportData() {
-            const database = document.getElementById('database-name').value;
-            const startDate = document.getElementById('export-start-date').value;
-            const endDate = document.getElementById('export-end-date').value;
-
-            if (!database || !startDate || !endDate || !selectedFileType) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'กรุณากรอกข้อมูลให้ครบถ้วน',
-                    text: 'กรุณาเลือกฐานข้อมูล วันที่ และรูปแบบไฟล์',
-                    confirmButtonColor: '#2a8c78'
-                });
-                return;
-            }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'กำลังส่งออกข้อมูล',
-                text: `กำลังส่งออกข้อมูลจาก ${database} รูปแบบ ${selectedFileType.toUpperCase()}`,
-                confirmButtonColor: '#2a8c78'
-            });
-
-            // Simulate export process
-            setTimeout(() => {
-                const filename = `${database}_${startDate}_${endDate}.${selectedFileType}`;
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ส่งออกข้อมูลเสร็จสิ้น',
-                    text: `ไฟล์ ${filename} พร้อมดาวน์โหลด`,
-                    confirmButtonColor: '#2a8c78'
-                });
-            }, 2000);
-        }
-
-        // Download report
-        function downloadReport(filename) {
-            Swal.fire({
-                icon: 'success',
-                title: 'เริ่มดาวน์โหลด',
-                text: `กำลังดาวน์โหลดไฟล์ ${filename}`,
-                confirmButtonColor: '#2a8c78'
-            });
-        }
-
-        // Regenerate report
-        function regenerateReport(reportId) {
-            Swal.fire({
-                title: 'สร้างรายงานใหม่?',
-                text: 'คุณต้องการสร้างรายงานนี้ใหม่หรือไม่?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#2a8c78',
-                cancelButtonColor: '#dc3545',
-                confirmButtonText: 'ใช่, สร้างใหม่',
-                cancelButtonText: 'ยกเลิก'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'กำลังสร้างรายงานใหม่',
-                        text: 'กำลังประมวลผลรายงานใหม่...',
-                        confirmButtonColor: '#2a8c78'
-                    });
-                }
-            });
-        }
-
-        // Helper functions
-        function getReportTypeName(type) {
-            const names = {
-                'daily': 'ประจำวัน',
-                'weekly': 'สัปดาห์',
-                'monthly': 'ประจำเดือน',
-                'visitor': 'ผู้เยี่ยมชม',
-                'equipment': 'อุปกรณ์'
-            };
-            return names[type] || type;
-        }
-
-        function addReportToTable(reportType, startDate, endDate, format) {
-            const table = document.getElementById('reportsTable');
-            const now = new Date();
-            const currentDateTime = now.toLocaleString('th-TH');
-
-            const row = table.insertRow(0);
-            const dateRange = startDate === endDate ? startDate : `${startDate} - ${endDate}`;
-            const filename = `${reportType}_${startDate.replace(/-/g, '')}.${format}`;
-
-            row.innerHTML = `
-                <td>${currentDateTime}</td>
-                <td>รายงาน${getReportTypeName(reportType)}</td>
-                <td>${dateRange}</td>
-                <td>${format.toUpperCase()}</td>
-                <td><span class="badge badge-info">กำลังประมวลผล</span></td>
-                <td><button class="btn btn-small" disabled>รอประมวลผล</button></td>
-            `;
-
-            // Simulate processing completion
-            setTimeout(() => {
-                row.cells[4].innerHTML = '<span class="badge badge-success">เสร็จสิ้น</span>';
-                row.cells[5].innerHTML = `<button class="btn btn-small" onclick="downloadReport('${filename}')">ดาวน์โหลด</button>`;
-            }, 3000);
-        }
-
-        // Set default dates
-        document.addEventListener('DOMContentLoaded', function () {
-            const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
-
-            document.getElementById('startDate').value = todayStr;
-            document.getElementById('endDate').value = todayStr;
-            document.getElementById('export-start-date').value = todayStr;
-            document.getElementById('export-end-date').value = todayStr;
-        });
-
-        document.addEventListener("DOMContentLoaded", function () {
-            const firstname = localStorage.getItem("firstname");
-            const lastname = localStorage.getItem("lastname");
-            const role = localStorage.getItem("role");
-            const loginTime = localStorage.getItem("loginTime");
-
-            if (firstname && lastname) {
-                document.getElementById("profileName").textContent = `คุณ${firstname} ${lastname}`;
-            }
-
-            if (role) {
-                const roleText = {
-                    admin: "ผู้ดูแลระบบ",
-                    manager: "ผู้บริหาร",
-                    staff: "เจ้าหน้าที่"
-                };
-                document.getElementById("profileRole").textContent = roleText[role] || "ผู้ใช้งาน";
-            }
-
-            if (loginTime) {
-                document.getElementById("sidebarLoginTime").textContent = `เข้าสู่ระบบ: ${loginTime}`;
-            }
-        });
-
-        // ฟังก์ชัน logout
-        function logout() {
-            localStorage.clear();
-            window.location.href = '../login.html';
-        }
-    </script>
 </body>
 
 </html>
