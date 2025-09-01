@@ -15,7 +15,7 @@
 <body>
   <!-- Connection Status Indicator -->
   <div id="connectionStatus" class="connection-status disconnected">
-    <i class="bi bi-wifi-off"></i> กำลังเชื่อมต่อ...
+    <i class="fas fa-wifi"></i> กำลังเชื่อมต่อ...
   </div>
 
   <div class="dashboard-layout">
@@ -41,7 +41,7 @@
           <a href="export.html" class="nav-link"><i class="bi bi-box-arrow-up"></i> ส่งออกข้อมูล</a>
         </li>
       </ul>
-      <button class="logout-btn" onclick="logout()"><i class="bi bi-box-arrow-right"></i> ออกจากระบบ</button>
+      <button class="logout-btn" onclick="logout()">ออกจากระบบ</button>
     </div>
 
     <!-- Main Content -->
@@ -55,7 +55,7 @@
       <div class="search-section">
         <div class="search-card">
           <h3 class="search-title">
-            <i class="bi bi-search"></i> ค้นหาผู้เยี่ยมชม
+            <i class="fas fa-search"></i> ค้นหาผู้เยี่ยมชม
           </h3>
           <div class="search-container">
             <div class="search-group">
@@ -82,10 +82,10 @@
             </div>
             <div class="search-actions">
               <button class="search-btn" onclick="searchVisitors()">
-                <i class="bi bi-search"></i> ค้นหา
+                <i class="fas fa-search"></i> ค้นหา
               </button>
               <button class="clear-btn" onclick="clearSearch()">
-                <i class="bi bi-x-circle"></i> ล้าง
+                <i class="fas fa-times"></i> ล้าง
               </button>
             </div>
           </div>
@@ -94,10 +94,10 @@
           <div class="quick-searches">
             <div class="quick-search-tags">
               <span class="quick-tag" onclick="quickSearch('group')">
-                <i class="bi bi-people-fill"></i> กลุ่มทั้งหมด
+                <i class="fas fa-users"></i> กลุ่มทั้งหมด
               </span>
               <span class="quick-tag" onclick="quickSearch('individual')">
-                <i class="bi bi-person-fill"></i> บุคคลทั่วไป
+                <i class="fas fa-user"></i> บุคคลทั่วไป
               </span>
             </div>
           </div>
@@ -111,7 +111,7 @@
           <div class="search-modal-header">
             <h3 id="searchModalTitle">ผลการค้นหา</h3>
             <button class="modal-close" onclick="closeSearchModal()">
-              <i class="bi bi-x-lg"></i>
+              <i class="fas fa-times"></i>
             </button>
           </div>
           <div class="search-modal-body">
@@ -130,12 +130,10 @@
         <div class="dashboard-grid">
           <div class="card">
             <div class="card-header">
-              <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">
-                <i class="bi bi-people-fill"></i>
-              </div>
+              <div class="card-icon" style="background: linear-gradient(45deg, #2a8c78, #1a6b5e);">👥</div>
               <div class="card-title">
                 ผู้เยี่ยมชมวันนี้
-                <i class="bi bi-search view-all-visitors-btn" title="ดูรายละเอียดผู้เยี่ยมชมทั้งหมด"
+                <i class="fas fa-search-plus view-all-visitors-btn" title="ดูรายละเอียดผู้เยี่ยมชมทั้งหมด"
                   style="margin-left: 8px; cursor: pointer; color: #3498db; font-size: 0.9em; opacity: 0.8;"></i>
               </div>
             </div>
@@ -144,9 +142,7 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-icon" style="background: linear-gradient(45deg, #3498db, #2980b9);">
-                <i class="bi bi-building"></i>
-              </div>
+              <div class="card-icon" style="background: linear-gradient(45deg, #3498db, #2980b9);">🏢</div>
               <div class="card-title">ห้องที่เปิดใช้งาน</div>
             </div>
             <div class="stat-number">8</div>
@@ -154,9 +150,7 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-icon" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">
-                <i class="bi bi-wifi"></i>
-              </div>
+              <div class="card-icon" style="background: linear-gradient(45deg, #9b59b6, #8e44ad);">📡</div>
               <div class="card-title">iBeacon ออนไลน์</div>
             </div>
             <div class="stat-number" id="activeBeacons">-</div>
@@ -166,7 +160,7 @@
 
         <!-- Section Divider -->
         <div class="section-divider">
-          <h2><i class="bi bi-map"></i> แผนผังพิพิธภัณฑ์และสถิติแต่ละห้อง</h2>
+          <h2>🗺️ แผนผังพิพิธภัณฑ์และสถิติแต่ละห้อง</h2>
           <p>ข้อมูลผู้เยี่ยมชมแบบเรียลไทม์และการติดตามการเคลื่อนไหว</p>
         </div>
 
@@ -174,14 +168,69 @@
         <div class="main-dashboard">
           <div class="museum-layout">
             <h2 class="layout-title">
-              <i class="bi bi-map-fill"></i>
+              <i class="fas fa-map-marked-alt"></i>
               แผนผังพิพิธภัณฑ์
             </h2>
             <div class="museum-image-container">
               <img src="https://blog.wu.ac.th/wp-content/uploads/2022/10/S__12132359.jpg" alt="Museum Layout"
                 class="museum-image">
-              <!-- Room markers -->
-              <!-- (คงเดิม) -->
+
+              <!-- Room markers positioned on the museum image -->
+              <div class="room-marker" data-room="1" style="left: 32%; top: 78%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 1</div>
+              </div>
+
+              <div class="room-marker" data-room="2" style="left: 13%; top: 60%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 2</div>
+              </div>
+
+              <div class="room-marker" data-room="3" style="left: 25%; top: 25%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 3</div>
+              </div>
+
+              <div class="room-marker" data-room="4" style="left: 42%; top: 28%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 4</div>
+              </div>
+
+              <div class="room-marker" data-room="5" style="left: 68%; top: 68%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 5</div>
+              </div>
+
+              <div class="room-marker" data-room="6" style="left: 90%; top: 38%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 6</div>
+              </div>
+
+              <div class="room-marker" data-room="7" style="left: 78%; top: 26%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 7</div>
+              </div>
+
+              <div class="room-marker" data-room="8" style="left: 62%; top: 32%;">
+                <div class="marker-circle capacity-green">
+                  <span class="visitor-count">-</span>
+                </div>
+                <div class="room-label">ห้อง 8</div>
+              </div>
             </div>
 
             <div class="legend">
@@ -203,7 +252,7 @@
           <div class="details-panel">
             <div id="roomDetails" class="empty-state">
               <div class="empty-icon">
-                <i class="bi bi-hand-index"></i>
+                <i class="fas fa-mouse-pointer"></i>
               </div>
               <p style="font-size: 1.2rem; margin-bottom: 10px;">คลิกที่จุดบนแผนผัง</p>
               <p style="font-size: 1rem;">เพื่อดูรายละเอียดของแต่ละห้อง</p>
@@ -211,7 +260,7 @@
 
             <div class="quick-stats">
               <h4 class="quick-stats-title">
-                <i class="bi bi-trophy-fill"></i>
+                <i class="fas fa-trophy"></i>
                 ห้องที่คนเยอะที่สุด
               </h4>
               <div id="topRooms">
@@ -227,7 +276,7 @@
         <!-- Analytics Section -->
         <div class="analytics-section">
           <h2 class="section-title">
-            <i class="bi bi-bar-chart"></i>
+            <i class="fas fa-chart-bar"></i>
             การวิเคราะห์และสถิติ
           </h2>
 
@@ -235,7 +284,7 @@
             <!-- Demographics Chart -->
             <div class="chart-card">
               <h3 class="chart-title">
-                <i class="bi bi-people"></i>
+                <i class="fas fa-users"></i>
                 กลุ่มผู้เยี่ยมชมตามเพศและอายุ
               </h3>
               <div class="chart-container">
@@ -246,7 +295,7 @@
             <!-- Room Popularity Chart -->
             <div class="chart-card">
               <h3 class="chart-title">
-                <i class="bi bi-star-fill"></i>
+                <i class="fas fa-star"></i>
                 ความนิยมของแต่ละห้อง
               </h3>
               <div class="chart-container">
@@ -257,7 +306,7 @@
             <!-- Time Spent Chart -->
             <div class="chart-card full-width">
               <h3 class="chart-title">
-                <i class="bi bi-clock-fill"></i>
+                <i class="fas fa-clock"></i>
                 เวลาที่ใช้ในแต่ละห้อง (นาที)
               </h3>
               <div class="chart-container">

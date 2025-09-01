@@ -358,7 +358,21 @@ app.get('/api/debug-group-members', async (req, res) => {
     }
 });
 
-// ปรับปรุง API current-visitors ให้มี timeout ที่เหมาะสมกว่า
+// ฟังก์ชันสำหรับสร้างวันที่ปัจจุบันในเวลาไทย
+function getCurrentThailandDate() {
+    const now = new Date();
+    const thailandTime = new Date(now.getTime() + (7 * 60 * 60 * 1000)); // เพิ่ม 7 ชั่วโมง
+    return thailandTime.toISOString().split('T')[0]; // YYYY-MM-DD
+}
+
+// ฟังก์ชันสำหรับสร้าง timestamp ปัจจุบันในเวลาไทย
+function getCurrentThailandTimestamp() {
+    const now = new Date();
+    const thailandTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+    return thailandTime;
+}
+
+// ปรับปรุง API current-visitors - ใช้เวลาไทย
 app.get('/api/current-visitors', async (req, res) => {
     if (!db) {
         return res.status(503).json({
@@ -370,10 +384,8 @@ app.get('/api/current-visitors', async (req, res) => {
     }
 
     try {
-        const todayDate = new Date().toISOString().split('T')[0];
-        console.log(`🔍 Executing current visitors query for ${todayDate}`);
+        console.log(`🔍 Executing current visitors query without date filter...`);
 
-        // ปรับ timeout ให้เหมาะสมกว่า - ใช้ 2 นาทีแทน 2 นาที
         const query = `
             SELECT
                 v.id,
@@ -394,40 +406,40 @@ app.get('/api/current-visitors', async (req, res) => {
                 bv2.timestamp as last_seen,
                 bv2.rssi as last_rssi
             FROM (
-                -- เลือก visitor record ล่าสุดสำหรับแต่ละ UUID ที่ active = TRUE
                 SELECT v1.*
                 FROM visitors v1
                 INNER JOIN (
                     SELECT uuid, MAX(id) as max_id
                     FROM visitors
-                    WHERE DATE(visit_date) = ? AND active = TRUE
+                    WHERE active = TRUE
                     GROUP BY uuid
                 ) v2 ON v1.uuid = v2.uuid AND v1.id = v2.max_id
             ) v
             LEFT JOIN ibeacons_tag it ON v.uuid = it.uuid
             INNER JOIN (
-                -- เลือก beacon signal ล่าสุดสำหรับแต่ละ UUID
-                -- เพิ่ม timeout เป็น 3 นาที
                 SELECT bv1.*
                 FROM beacon_visits bv1
                 INNER JOIN (
                     SELECT matched_uuid, MAX(timestamp) as max_timestamp
                     FROM beacon_visits
-                    WHERE timestamp > NOW() - INTERVAL 3 MINUTE
+                    WHERE timestamp > NOW() - INTERVAL 5 MINUTE
                     GROUP BY matched_uuid
                 ) bv2 ON bv1.matched_uuid = bv2.matched_uuid AND bv1.timestamp = bv2.max_timestamp
             ) bv2 ON v.uuid = bv2.matched_uuid
             ORDER BY bv2.timestamp DESC
         `;
 
-        const [rows] = await db.execute(query, [todayDate]);
+        const [rows] = await db.execute(query);
         
-        console.log(`📊 Found ${rows.length} active visitors with recent signals (within 3 minutes)`);
+        console.log(`📊 Found ${rows.length} active visitors (no date filter)`);
         
-        // Debug: แสดงข้อมูลที่ได้
+        // Debug log
         rows.forEach((row, index) => {
-            const timeSinceLastSeen = new Date() - new Date(row.last_seen);
-            console.log(`${index + 1}. UUID: ${row.uuid}, Type: ${row.type}, Group Size: ${row.group_size}, Last seen: ${Math.round(timeSinceLastSeen/1000)}s ago`);
+            if (row.last_seen) {
+                const lastSeenTime = new Date(row.last_seen);
+                const timeDiff = Math.round((new Date() - lastSeenTime) / 1000);
+                console.log(`${index + 1}. UUID: ${row.uuid}, Type: ${row.type}, Active: ${row.active}, Last seen: ${timeDiff}s ago`);
+            }
         });
 
         const visitors = rows.map(row => {
@@ -462,7 +474,8 @@ app.get('/api/current-visitors', async (req, res) => {
             success: true,
             visitors: visitors,
             total: visitors.length,
-            timestamp: new Date()
+            timestamp: new Date(),
+            note: 'Showing all active visitors (no date filter)'
         });
 
     } catch (error) {
@@ -659,7 +672,7 @@ app.get('/api/debug-uuid/:uuid', async (req, res) => {
     }
 });
 
-// ดึงข้อมูลผู้เยี่ยมชมปัจจุบัน (Simple - ปรับปรุง Query)
+// ปรับปรุง API current-visitors-simple - ใช้เวลาไทย
 app.get('/api/current-visitors-simple', async (req, res) => {
     if (!db) {
         return res.status(503).json({
@@ -671,35 +684,36 @@ app.get('/api/current-visitors-simple', async (req, res) => {
     }
 
     try {
+        console.log('🔍 Executing current-visitors-simple without date filter...');
+        
         const query = `
             SELECT 
-                v.id, v.uuid, v.type, v.first_name, v.last_name, v.group_name, v.group_type, v.group_size, v.age, v.gender, v.active, v.created_at,
+                v.id, v.uuid, v.type, v.first_name, v.last_name, v.group_name, v.group_type, 
+                v.group_size, v.age, v.gender, v.active, v.visit_date, v.created_at,
                 it.tag_name,
                 bv.host_name as current_host,
                 MAX(bv.timestamp) as last_seen,
                 bv.rssi as last_rssi
             FROM (
-                -- เลือก record ล่าสุดสำหรับแต่ละ UUID ที่ active = 1
                 SELECT v1.*
                 FROM visitors v1
                 INNER JOIN (
                     SELECT uuid, MAX(id) as max_id
                     FROM visitors
-                    WHERE visit_date = CURDATE() AND active = TRUE
+                    WHERE active = TRUE
                     GROUP BY uuid
                 ) v2 ON v1.uuid = v2.uuid AND v1.id = v2.max_id
             ) v
             LEFT JOIN ibeacons_tag it ON v.uuid = it.uuid
             LEFT JOIN beacon_visits bv ON v.uuid = bv.matched_uuid
-            WHERE bv.timestamp > NOW() - INTERVAL 1 MINUTE
+            WHERE bv.timestamp > NOW() - INTERVAL 5 MINUTE
             GROUP BY v.uuid
             ORDER BY last_seen DESC
         `;
 
-        console.log('🔍 Executing improved current-visitors-simple query...');
         const [rows] = await db.execute(query);
         
-        console.log(`📊 Found ${rows.length} active visitors (simple query)`);
+        console.log(`📊 Found ${rows.length} active visitors (simple query, no date filter)`);
         
         const visitors = rows.map(row => {
             const displayName = createDisplayName(row);
@@ -714,7 +728,7 @@ app.get('/api/current-visitors-simple', async (req, res) => {
                 tag: row.tag_name || `Tag${row.uuid.slice(-4).toUpperCase()}`,
                 type: row.type,
                 group: displayGroup,
-                group_size: row.group_size || 1, // เพิ่ม group_size
+                group_size: row.group_size || 1,
                 age: formattedAge,
                 gender: formattedGender,
                 current_host: row.current_host,
@@ -722,6 +736,7 @@ app.get('/api/current-visitors-simple', async (req, res) => {
                 last_seen: row.last_seen,
                 last_rssi: row.last_rssi,
                 active: row.active,
+                visit_date: row.visit_date,
                 created_at: row.created_at
             };
         });
@@ -730,7 +745,8 @@ app.get('/api/current-visitors-simple', async (req, res) => {
             success: true,
             visitors: visitors,
             total: visitors.length,
-            timestamp: new Date()
+            timestamp: new Date(),
+            note: 'Showing all active visitors (no date filter)'
         });
 
     } catch (error) {
@@ -900,7 +916,76 @@ app.get('/api/latest-beacon-data', async (req, res) => {
     }
 });
 
-// Server-Sent Events สำหรับ real-time (ปรับปรุงให้ส่ง group_size และ type)
+// API สำหรับตรวจสอบข้อมูล active visitors โดยไม่มีเงื่อนไขวันที่
+app.get('/api/debug-active-visitors', async (req, res) => {
+    if (!db) {
+        return res.status(503).json({ success: false, error: 'Database not available' });
+    }
+
+    try {
+        // ดูข้อมูล visitors ที่ active ทั้งหมด
+        const [activeVisitors] = await db.execute(`
+            SELECT id, uuid, type, first_name, last_name, group_name, group_size,
+                   visit_date, active, created_at,
+                   DATE(visit_date) as visit_date_only,
+                   DATEDIFF(CURDATE(), DATE(visit_date)) as days_ago
+            FROM visitors 
+            WHERE active = TRUE
+            ORDER BY visit_date DESC, id DESC
+        `);
+
+        // ดู beacon visits ล่าสุด 5 นาที
+        const [recentBeacons] = await db.execute(`
+            SELECT matched_uuid, host_name, timestamp, rssi,
+                   TIMESTAMPDIFF(SECOND, timestamp, NOW()) as seconds_ago
+            FROM beacon_visits 
+            WHERE timestamp > NOW() - INTERVAL 5 MINUTE
+            ORDER BY timestamp DESC
+        `);
+
+        // เช็คว่า active visitors มี beacon visits ไหม
+        const [matchedVisitors] = await db.execute(`
+            SELECT DISTINCT v.uuid, v.type, v.first_name, v.last_name, v.group_name,
+                   v.visit_date, v.active,
+                   bv.host_name, bv.timestamp as last_beacon,
+                   TIMESTAMPDIFF(SECOND, bv.timestamp, NOW()) as seconds_since_beacon
+            FROM visitors v
+            INNER JOIN beacon_visits bv ON v.uuid = bv.matched_uuid
+            WHERE v.active = TRUE 
+            AND bv.timestamp > NOW() - INTERVAL 5 MINUTE
+            ORDER BY bv.timestamp DESC
+        `);
+
+        console.log('🔍 Active Visitors Debug:');
+        console.log(`📊 Total active visitors: ${activeVisitors.length}`);
+        console.log(`📡 Recent beacon visits: ${recentBeacons.length}`);
+        console.log(`✅ Active visitors with recent beacons: ${matchedVisitors.length}`);
+
+        // แสดงรายละเอียดของ active visitors
+        activeVisitors.forEach((v, index) => {
+            const hasRecentBeacon = recentBeacons.find(b => b.matched_uuid === v.uuid);
+            console.log(`  ${index + 1}. UUID=${v.uuid}, Type=${v.type}, Visit=${v.visit_date_only}, Days ago=${v.days_ago}, Has beacon=${!!hasRecentBeacon}`);
+        });
+
+        res.json({
+            success: true,
+            active_visitors: activeVisitors,
+            recent_beacon_visits: recentBeacons,
+            matched_visitors: matchedVisitors,
+            summary: {
+                total_active: activeVisitors.length,
+                recent_beacons: recentBeacons.length,
+                matched_count: matchedVisitors.length
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error in debug active visitors:', error);
+        res.status(500).json({ success: false, error: 'Database error' });
+    }
+});
+
+// ปรับปรุง Real-time SSE - ใช้เวลาไทย
 app.get('/api/realtime-events', (req, res) => {
     res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -909,7 +994,7 @@ app.get('/api/realtime-events', (req, res) => {
         'Access-Control-Allow-Origin': '*'
     });
 
-    res.write('data: {"message": "Connected to real-time stream", "connected": true}\n\n');
+    res.write('data: {"message": "Connected to real-time stream (no date filter)", "connected": true}\n\n');
 
     if (!db) {
         res.write('data: {"error": "Database not available"}\n\n');
@@ -920,10 +1005,6 @@ app.get('/api/realtime-events', (req, res) => {
     
     const interval = setInterval(async () => {
         try {
-            const todayDate = new Date().toISOString().split('T')[0];
-            
-            // Query ที่ถูกปรับปรุงให้มีประสิทธิภาพและถูกต้องที่สุด
-            // รวม group_size และ type ด้วย
             const query = `
                 SELECT
                     v.uuid,
@@ -943,15 +1024,17 @@ app.get('/api/realtime-events', (req, res) => {
                 FROM visitors v
                 INNER JOIN beacon_visits bv ON v.uuid = bv.matched_uuid
                 LEFT JOIN ibeacons_tag it ON v.uuid = it.uuid
-                WHERE v.active = TRUE AND v.visit_date = ? AND bv.timestamp > ?
+                WHERE v.active = TRUE 
+                AND bv.timestamp > ?
                 GROUP BY v.uuid
                 ORDER BY MAX(bv.timestamp) DESC
             `;
             
-            const [rows] = await db.execute(query, [todayDate, lastTimestamp]);
+            const [rows] = await db.execute(query, [lastTimestamp]);
             
             if (rows.length > 0) {
-                lastTimestamp = new Date(Math.max(...rows.map(r => new Date(r.last_seen))));
+                const maxTimestamp = Math.max(...rows.map(r => new Date(r.last_seen)));
+                lastTimestamp = new Date(maxTimestamp);
 
                 rows.forEach(row => {
                     const displayName = createDisplayName({
@@ -973,7 +1056,7 @@ app.get('/api/realtime-events', (req, res) => {
                     const eventData = {
                         timestamp: row.last_seen,
                         hostName: row.host_name,
-                        uuid: row.uuid, // ใช้ uuid แทน matched_uuid
+                        uuid: row.uuid,
                         matched_uuid: row.uuid,
                         rssi: row.last_rssi,
                         age: formattedAge,
@@ -981,8 +1064,8 @@ app.get('/api/realtime-events', (req, res) => {
                         name: displayName,
                         tag: row.tag_name || `Tag${row.uuid?.slice(-4)?.toUpperCase() || 'XXXX'}`,
                         group: displayGroup,
-                        type: row.visitor_type || 'individual', // เพิ่ม type
-                        group_size: row.visitor_group_size || 1, // เพิ่ม group_size
+                        type: row.visitor_type || 'individual',
+                        group_size: row.visitor_group_size || 1,
                         room_id: HOST_ROOM_MAPPING[row.host_name] || null,
                         visitor_id: row.visitor_id
                     };
@@ -1000,6 +1083,67 @@ app.get('/api/realtime-events', (req, res) => {
         clearInterval(interval);
         console.log('📡 SSE client disconnected');
     });
+});
+
+app.get('/api/today-visitors', async (req, res) => {
+    if (!db) {
+        return res.status(503).json({
+            success: false,
+            error: 'Database not available',
+            total: 0
+        });
+    }
+
+    try {
+        const todayDate = getCurrentThailandDate();
+        const currentTime = getCurrentThailandTimestamp();
+        console.log(`📊 Counting today visitors for date: ${todayDate}`);
+        
+        // นับจำนวนผู้เยี่ยมชมทั้งหมดวันนี้ (รวม individual + group members)
+        const [rows] = await db.execute(`
+            SELECT 
+                SUM(CASE 
+                    WHEN type = 'individual' THEN 1 
+                    WHEN type = 'group' THEN COALESCE(group_size, 1)
+                    ELSE 1 
+                END) as total_people,
+                COUNT(*) as total_entries,
+                SUM(CASE WHEN active = TRUE THEN 1 ELSE 0 END) as active_entries
+            FROM (
+                SELECT v1.*
+                FROM visitors v1
+                INNER JOIN (
+                    SELECT uuid, MAX(id) as max_id
+                    FROM visitors
+                    WHERE visit_date = ?
+                    GROUP BY uuid
+                ) v2 ON v1.uuid = v2.uuid AND v1.id = v2.max_id
+            ) latest_visitors
+        `, [todayDate]);
+
+        const totalPeople = rows[0]?.total_people || 0;
+        const totalEntries = rows[0]?.total_entries || 0;
+        const activeEntries = rows[0]?.active_entries || 0;
+
+        console.log(`📋 Today's summary: ${totalPeople} people, ${totalEntries} entries, ${activeEntries} active`);
+
+        res.json({
+            success: true,
+            total: totalPeople,
+            total_entries: totalEntries,
+            active_entries: activeEntries,
+            date: todayDate,
+            timestamp: currentTime
+        });
+
+    } catch (error) {
+        console.error('❌ Error counting today visitors:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Database error',
+            total: 0
+        });
+    }
 });
 
 // Debug API สำหรับ visitors วันนี้
@@ -1059,6 +1203,7 @@ app.get('/api/debug-today-visitors', async (req, res) => {
     }
 });
 
+// API สำหรับดึงจำนวน iBeacon ที่ active (สถานะ 'in_use')
 app.get('/api/active-beacons', async (req, res) => {
     if (!db) {
         return res.status(503).json({
@@ -1069,6 +1214,8 @@ app.get('/api/active-beacons', async (req, res) => {
     }
 
     try {
+        console.log('📡 Fetching active beacons count...');
+        
         // นับจำนวน tag ที่มีสถานะ 'in_use'
         const [rows] = await db.execute(`
             SELECT COUNT(*) as active_count 
@@ -1080,9 +1227,23 @@ app.get('/api/active-beacons', async (req, res) => {
         
         console.log(`📡 Active beacons count: ${activeCount}`);
 
+        // Debug: แสดงรายละเอียดของ beacon ที่ active
+        const [detailRows] = await db.execute(`
+            SELECT tag_id, tag_name, uuid, status, last_seen 
+            FROM ibeacons_tag 
+            WHERE status = 'in_use'
+            ORDER BY last_seen DESC
+        `);
+        
+        console.log(`📋 Active beacon details:`);
+        detailRows.forEach((beacon, index) => {
+            console.log(`  ${index + 1}. ${beacon.tag_name} (${beacon.uuid}) - Last seen: ${beacon.last_seen}`);
+        });
+
         res.json({
             success: true,
             count: activeCount,
+            active_beacons: detailRows, // เพิ่มรายละเอียดสำหรับ debug
             timestamp: new Date()
         });
 
@@ -1091,7 +1252,59 @@ app.get('/api/active-beacons', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Database error',
-            count: 0
+            count: 0,
+            message: error.message
+        });
+    }
+});
+
+// เพิ่ม API สำหรับ debug สถานะ beacon ทั้งหมด
+app.get('/api/debug-beacons', async (req, res) => {
+    if (!db) {
+        return res.status(503).json({
+            success: false,
+            error: 'Database not available'
+        });
+    }
+
+    try {
+        // ดึงข้อมูล beacon ทั้งหมด
+        const [allBeacons] = await db.execute(`
+            SELECT tag_id, tag_name, uuid, status, last_seen, created_at
+            FROM ibeacons_tag 
+            ORDER BY created_at DESC
+        `);
+
+        // นับสถานะ
+        const statusCount = {
+            available: 0,
+            in_use: 0,
+            offline: 0,
+            damaged: 0
+        };
+
+        allBeacons.forEach(beacon => {
+            if (statusCount.hasOwnProperty(beacon.status)) {
+                statusCount[beacon.status]++;
+            }
+        });
+
+        console.log('📊 Beacon status summary:', statusCount);
+
+        res.json({
+            success: true,
+            all_beacons: allBeacons,
+            status_summary: statusCount,
+            total_beacons: allBeacons.length,
+            timestamp: new Date()
+        });
+
+    } catch (error) {
+        console.error('❌ Error fetching beacon debug info:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Database error',
+            message: error.message
         });
     }
 });

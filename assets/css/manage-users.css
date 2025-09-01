@@ -560,13 +560,13 @@ body {
 
 /* ===== ปรับปรุงปุ่มยืนยันและยกเลิก ===== */
 #confirmBtn {
-    background: linear-gradient(45deg, #28a745, #20c997);
+    background: linear-gradient(45deg, #2a8c78, #1a6b5e);
     color: white;
     margin-right: 10px;
 }
 
 #confirmBtn:hover {
-    background: linear-gradient(45deg, #218838, #1e7e34);
+    background: linear-gradient(45deg, #1a6b5e, #114345);
 }
 
 #cancelBtn {

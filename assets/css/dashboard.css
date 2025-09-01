@@ -1118,7 +1118,7 @@ body {
 .search-loading {
     text-align: center;
     padding: 40px;
-    color: #3498db;
+    color: #2a8c78;
 }
 
 .search-loading i {
@@ -1203,7 +1203,5 @@ body {
         grid-template-columns: 1fr !important;
     }
 }
-.dashboard-grid {
-    display: none;
-}
+
 

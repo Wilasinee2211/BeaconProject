@@ -2,23 +2,36 @@
 const API_URL = '../../backend/staff/api/register_device_api.php';
 const FETCH_API_URL = '../../backend/staff/api/fetch_devices_api.php';
 const GENERATE_NAME_API_URL = '../../backend/staff/api/generate_device_name_api.php';
+const UPDATE_STATUS_API_URL = '../../backend/staff/api/update_device_status_api.php'; // เพิ่ม API สำหรับอัปเดตสถานะ
 
 // ตัวแปรเก็บข้อมูลอุปกรณ์
 let allDevicesData = [];
 let currentFilter = 'all';
 
-// เพิ่ม CSS สำหรับ animation
+// เพิ่ม CSS สำหรับ animation และ repair icon
 const style = document.createElement('style');
 style.textContent = `
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
+    
+    .repair-icon {
+        color: #28a745;
+        cursor: pointer;
+        margin-left: 8px;
+        transition: all 0.2s;
+    }
+    
+    .repair-icon:hover {
+        color: #1e7e34;
+        transform: scale(1.2);
+    }
 `;
 document.head.appendChild(style);
 
-// ฟังก์ชันสร้าง status badge
-function getStatusBadge(status) {
+// ฟังก์ชันสร้าง status badge พร้อมไอคอนแก้ไข
+function getStatusBadge(status, deviceId, deviceType) {
     console.log('Status received:', status); // Debug
     
     const statusMap = {
@@ -34,7 +47,52 @@ function getStatusBadge(status) {
         'dmg': '<span class="status-badge status-damaged">DAMAGED</span>'
     };
     
-    return statusMap[status] || `<span class="status-badge status-offline">UNKNOWN (${status})</span>`;
+    let badge = statusMap[status] || `<span class="status-badge status-offline">UNKNOWN (${status})</span>`;
+    
+    // เพิ่มไอคอนแก้ไขเฉพาะสถานะ damaged
+    if (status === 'damaged' || status === 'dmg') {
+        badge += ` <i class="bi bi-wrench repair-icon" onclick="repairDevice('${deviceId}', '${deviceType}')" title="คลิกเพื่อซ่อมแซม"></i>`;
+    }
+    
+    return badge;
+}
+
+// ฟังก์ชันซ่อมแซมอุปกรณ์ (เปลี่ยนสถานะจาก damaged เป็น available)
+async function repairDevice(deviceId, deviceType) {
+    try {
+        // แสดง loading
+        Swal.fire({
+            title: 'กำลังซ่อมแซม...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const response = await fetch(UPDATE_STATUS_API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                device_id: deviceId,
+                device_type: deviceType,
+                new_status: 'available'
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            Swal.fire('ซ่อมแซมสำเร็จ!', 'อุปกรณ์กลับมาใช้งานได้แล้ว', 'success');
+            loadDevicesData(); // รีโหลดข้อมูลใหม่
+        } else {
+            throw new Error(result.message || 'ไม่สามารถซ่อมแซมได้');
+        }
+    } catch (error) {
+        console.error('Error repairing device:', error);
+        Swal.fire('เกิดข้อผิดพลาด', error.message || 'ไม่สามารถซ่อมแซมอุปกรณ์ได้', 'error');
+    }
 }
 
 // ฟังก์ชันสำหรับลงทะเบียน iBeacon Tag
@@ -241,14 +299,16 @@ function displayDevices() {
     }
 
     filteredData.forEach(device => {
-        let deviceType, deviceName, deviceRow;
+        let deviceType, deviceName, deviceRow, deviceId;
 
         if (device.type === 'host') {
             deviceType = '<i class="bi bi-router"></i> ESP32 Host';
             deviceName = device.host_name;
+            deviceId = device.host_name; // ใช้ host_name เป็น identifier
         } else if (device.type === 'ibeacon') {
             deviceType = '<i class="bi bi-broadcast"></i> iBeacon Tag';
             deviceName = device.tag_name;
+            deviceId = device.tag_name; // ใช้ tag_name เป็น identifier
         }
 
         const createdDate = new Date(device.created_at).toLocaleDateString('th-TH', {
@@ -278,7 +338,7 @@ function displayDevices() {
                 </tr>
             `;
         } else if (currentFilter === 'ibeacon') {
-            const deviceStatus = getStatusBadge(device.status);
+            const deviceStatus = getStatusBadge(device.status, deviceId, device.type);
             deviceRow = `
                 <tr>
                     <td>${deviceType}</td>

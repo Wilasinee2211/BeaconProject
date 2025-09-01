@@ -18,11 +18,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-
 class RealtimeDashboard {
     constructor() {
         // กำหนด API base URL
         this.API_BASE_URL = 'http://localhost:4000';
+
+        // ✅ เพิ่มตัวแปรสำหรับจัดการ connection
+        this.sseRetryCount = 0;
+        this.maxRetries = 5;
+        this.retryDelay = 2000; // 2 วินาที
+        this.isConnecting = false;
+        this.fallbackInterval = null;
+        this.connectionCheckInterval = null;
 
         this.roomMapping = {
             'ESP32_Host1': 1,
@@ -153,70 +160,198 @@ class RealtimeDashboard {
         }
     }
 
-    // Server-Sent Events สำหรับ real-time
+    // ✅ ปรับปรุง startSSE ให้มี auto reconnect
     startSSE() {
+        if (this.isConnecting) {
+            console.log('⚠️ Already connecting, skip...');
+            return;
+        }
+
+        this.isConnecting = true;
+        console.log('🔌 Starting SSE connection...');
+
+        // ปิด connection เก่า
+        if (this.eventSource) {
+            this.eventSource.close();
+        }
+
         const eventSource = new EventSource(`${this.API_BASE_URL}/api/realtime-events`);
 
         eventSource.onopen = () => {
-            console.log('✅ SSE connection opened');
+            console.log('✅ SSE connection opened successfully');
             this.updateConnectionStatus('connected', 'เชื่อมต่อแล้ว');
+            this.sseRetryCount = 0; // รีเซ็ต retry count
+            this.isConnecting = false;
+
+            // หยุด fallback polling เมื่อ SSE เชื่อมต่อได้
+            this.stopFallbackPolling();
         };
 
         eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            this.handleRealtimeUpdate(data);
+            try {
+                const data = JSON.parse(event.data);
+                this.handleRealtimeUpdate(data);
+                console.log('📨 Received SSE message:', data);
+            } catch (error) {
+                console.error('❌ Error parsing SSE message:', error);
+            }
         };
 
         eventSource.onerror = (error) => {
             console.error('❌ SSE connection error:', error);
-            this.updateConnectionStatus('disconnected', 'การเชื่อมต่อขาดหาย');
+            this.isConnecting = false;
+
+            // เฉพาะเมื่อ connection หลุด (readyState = 2) ถึงจะ retry
+            if (eventSource.readyState === EventSource.CLOSED) {
+                console.log('🔄 SSE connection closed, attempting to reconnect...');
+                this.handleSSEError();
+            } else {
+                console.log('⚠️ SSE error but connection still open');
+            }
         };
 
-        // เก็บ reference เพื่อใช้ปิดการเชื่อมต่อ
         this.eventSource = eventSource;
     }
 
-    // ดึงข้อมูลล่าสุดจาก API (fallback method)
-    async fetchLatestData() {
-        try {
-            const response = await fetch(`${this.API_BASE_URL}/api/latest-beacon-data`);
-            const data = await response.json();
+    // ✅ เพิ่มฟังก์ชันจัดการ error และ retry
+    handleSSEError() {
+        this.updateConnectionStatus('disconnected', 'การเชื่อมต่อขาดหาย');
 
-            data.data.forEach(record => {
-                this.handleRealtimeUpdate(record);
-            });
+        if (this.sseRetryCount < this.maxRetries) {
+            this.sseRetryCount++;
+            const delay = this.retryDelay * this.sseRetryCount;
 
-            // อัปเดตสถานะการเชื่อมต่อเมื่อดึงข้อมูลสำเร็จ
-            this.updateConnectionStatus('connected', 'เชื่อมต่อแล้ว');
-        } catch (error) {
-            console.error('❌ Error fetching latest data:', error);
-            this.updateConnectionStatus('disconnected', 'การเชื่อมต่อขาดหาย');
+            console.log(`🔄 Retrying SSE connection (${this.sseRetryCount}/${this.maxRetries}) in ${delay}ms...`);
+
+            this.updateConnectionStatus('connecting', `กำลังเชื่อมต่อใหม่... (${this.sseRetryCount}/${this.maxRetries})`);
+
+            setTimeout(() => {
+                this.startSSE();
+            }, delay);
+        } else {
+            console.log('❌ Max SSE retries reached, switching to fallback polling');
+            this.updateConnectionStatus('disconnected', 'เปลี่ยนเป็นโหมดสำรอง');
+            this.startFallbackPolling();
         }
     }
 
+    // ✅ เพิ่ม Fallback Polling เมื่อ SSE ไม่ทำงาน
+    startFallbackPolling() {
+        if (this.fallbackInterval) {
+            clearInterval(this.fallbackInterval);
+        }
+
+        console.log('🔄 Starting fallback polling every 10 seconds...');
+
+        this.fallbackInterval = setInterval(async () => {
+            try {
+                console.log('📡 Polling latest data...');
+                await this.fetchLatestData();
+
+                // ลองเชื่อมต่อ SSE อีกครั้งทุก 30 วินาที
+                if (this.sseRetryCount >= this.maxRetries && Date.now() % 30000 < 10000) {
+                    console.log('🔄 Attempting to reconnect SSE...');
+                    this.sseRetryCount = 0;
+                    this.startSSE();
+                }
+            } catch (error) {
+                console.error('❌ Fallback polling error:', error);
+            }
+        }, 10000); // ทุก 10 วินาที
+    }
+
+    // ✅ หยุด fallback polling
+    stopFallbackPolling() {
+        if (this.fallbackInterval) {
+            console.log('⏹️ Stopping fallback polling');
+            clearInterval(this.fallbackInterval);
+            this.fallbackInterval = null;
+        }
+    }
+
+    // ✅ เพิ่มการตรวจสอบสถานะการเชื่อมต่อ
+    startConnectionHealthCheck() {
+        if (this.connectionCheckInterval) {
+            clearInterval(this.connectionCheckInterval);
+        }
+
+        this.connectionCheckInterval = setInterval(() => {
+            if (this.eventSource) {
+                const state = this.eventSource.readyState;
+                console.log('🔍 SSE ReadyState:', state);
+
+                // ถ้า connection ปิดแล้ว ให้ลอง reconnect
+                if (state === EventSource.CLOSED) {
+                    console.log('⚠️ SSE connection is closed, triggering reconnect...');
+                    this.handleSSEError();
+                }
+            }
+        }, 30000); // ตรวจสอบทุก 30 วินาที
+    }
+
+    // ✅ ปรับปรุง fetchLatestData ให้ดีขึ้น
+    async fetchLatestData() {
+        try {
+            const response = await fetch(`${this.API_BASE_URL}/api/latest-beacon-data`, {
+                timeout: 10000 // 10 วินาที timeout
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.data && Array.isArray(data.data)) {
+                console.log('📡 Fetched', data.data.length, 'latest records');
+
+                data.data.forEach(record => {
+                    this.handleRealtimeUpdate(record);
+                });
+
+                // อัปเดต UI หลังจากได้รับข้อมูลใหม่
+                this.updateUI();
+            }
+
+            // อัปเดตสถานะการเชื่อมต่อเมื่อดึงข้อมูลสำเร็จ
+            if (!this.eventSource || this.eventSource.readyState !== EventSource.OPEN) {
+                this.updateConnectionStatus('connected', 'เชื่อมต่อ (โหมดสำรอง)');
+            }
+
+        } catch (error) {
+            console.error('❌ Error fetching latest data:', error);
+            this.updateConnectionStatus('disconnected', 'การเชื่อมต่อมีปัญหา');
+        }
+    }
+
+    // ✅ ปรับปรุง initialize
     async initialize() {
         this.updateConnectionStatus('connecting', 'กำลังเชื่อมต่อ...');
 
         try {
             await this.loadInitialData();
-            this.startRealtimeUpdates();
+            this.startRealtimeUpdates(); // ใช้ฟังก์ชันที่ปรับปรุงแล้ว
             this.initializeUI();
-            this.createVisitorModal(); // เพิ่ม modal
-            this.createSearchModal(); // เพิ่ม search modal
-            this.initializeStatCardButtons(); // เพิ่มปุ่มใน stat cards
+            this.createVisitorModal();
+            this.createSearchModal();
+            this.initializeStatCardButtons();
 
-            this.updateConnectionStatus('connected', 'เชื่อมต่อแล้ว');
-            console.log('🚀 Real-time dashboard initialized');
+            console.log('🚀 Real-time dashboard initialized successfully');
         } catch (error) {
-            this.updateConnectionStatus('disconnected', 'การเชื่อมต่อล้มเหลว');
             console.error('❌ Dashboard initialization failed:', error);
+            this.updateConnectionStatus('disconnected', 'การเริ่มต้นล้มเหลว');
+
+            // ลองใช้ fallback polling หากไม่สามารถเริ่มต้นได้
+            this.startFallbackPolling();
         }
     }
 
+    // ✅ ปรับปรุง startRealtimeUpdates
     startRealtimeUpdates() {
         this.startSSE();
+        this.startConnectionHealthCheck(); // เพิ่มการตรวจสอบสถานะ
 
-        // 🔧 เปลี่ยนจาก 10000 เป็น 30000 (30 วินาที)
+        // cleanup inactive visitors - เก็บเดิม
         setInterval(() => {
             this.cleanupInactiveVisitors();
         }, 30000);
@@ -323,17 +458,77 @@ class RealtimeDashboard {
     }
 
     async updateStatistics() {
-        const totalVisitors = Object.values(this.roomData)
+        // จำนวนผู้เยี่ยมชมปัจจุบันในพิพิธภัณฑ์
+        const currentVisitors = Object.values(this.roomData)
             .reduce((sum, room) => sum + this.getRealVisitorCount(room.visitors), 0);
 
-        // ดึงข้อมูล active beacons
-        const activeBeacons = await this.fetchActiveBeacons();
+        // ✅ เพิ่มการดึงข้อมูลจำนวนผู้เยี่ยมชมวันนี้จาก API
+        let todayVisitors = currentVisitors; // fallback ใช้ข้อมูลปัจจุบัน
+        let activeBeacons = 0;
 
+        try {
+            // ดึงข้อมูลผู้เยี่ยมชมวันนี้
+            const todayResponse = await fetch(`${this.API_BASE_URL}/api/today-visitors`);
+            if (todayResponse.ok) {
+                const todayData = await todayResponse.json();
+                if (todayData.success) {
+                    todayVisitors = todayData.total || currentVisitors;
+                    console.log('📊 Today visitors from API:', todayVisitors);
+                }
+            }
+
+            // ดึงข้อมูล active beacons
+            const beaconResponse = await fetch(`${this.API_BASE_URL}/api/active-beacons`);
+            if (beaconResponse.ok) {
+                const beaconData = await beaconResponse.json();
+                if (beaconData.success) {
+                    activeBeacons = beaconData.count || 0;
+                    console.log('📡 Active beacons from API:', activeBeacons);
+                }
+            }
+
+        } catch (error) {
+            console.error('❌ Error fetching statistics:', error);
+            // ใช้ข้อมูล fallback
+        }
+
+        // อัปเดต UI
         const totalElement = document.getElementById('totalVisitors');
+        const currentElement = document.getElementById('currentVisitors'); // เพิ่มองค์ประกอบนี้ถ้ามี
         const beaconElement = document.getElementById('activeBeacons');
 
-        if (totalElement) totalElement.textContent = totalVisitors;
+        // ✅ แสดงจำนวนผู้เยี่ยมชมวันนี้แทนที่จะเป็นปัจจุบัน
+        if (totalElement) totalElement.textContent = todayVisitors;
+
+        // ถ้ามีการแสดงผู้เยี่ยมชมปัจจุบันแยกต่างหาก
+        if (currentElement) currentElement.textContent = currentVisitors;
+
         if (beaconElement) beaconElement.textContent = activeBeacons;
+
+        console.log(`📊 Statistics updated - Today: ${todayVisitors}, Current: ${currentVisitors}, Beacons: ${activeBeacons}`);
+    }
+
+    async initializeDashboard() {
+        try {
+            console.log('🚀 Initializing dashboard...');
+
+            // 1. อัปเดตสถิติครั้งแรก
+            await this.updateStatistics();
+
+            // 2. อัปเดต top rooms
+            this.updateTopRooms();
+
+            // 3. ตั้ง interval สำหรับอัปเดตสถิติทุก 30 วินาที
+            setInterval(async () => {
+                console.log('⏰ Updating statistics...');
+                await this.updateStatistics();
+            }, 30000); // 30 วินาที
+
+            console.log('✅ Dashboard initialized successfully');
+
+        } catch (error) {
+            console.error('❌ Error initializing dashboard:', error);
+        }
     }
 
     updateTopRooms() {
@@ -430,7 +625,7 @@ class RealtimeDashboard {
     }
 
     // ฟังก์ชันค้นหาผู้เยี่ยมชม - ปรับปรุงให้ค้นหาจาก roomData ก่อน
-     async searchVisitors(query = {}) {
+    async searchVisitors(query = {}) {
         try {
             console.log('🔍 Searching visitors with query:', query);
 
@@ -531,7 +726,7 @@ class RealtimeDashboard {
         return results;
     }
 
-   // ฟังก์ชันค้นหาด่วน - ปรับปรุงให้แสดงเฉพาะ active
+    // ฟังก์ชันค้นหาด่วน - ปรับปรุงให้แสดงเฉพาะ active
     async quickSearch(type) {
         console.log('🔍 Quick search type:', type);
 
@@ -1953,6 +2148,12 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('✅ Search event listeners setup completed');
 });
 
+// เรียกใช้เมื่อ DOM พร้อม
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOM loaded, initializing dashboard...');
+    initializeDashboard();
+});
+
 // เริ่มต้นใช้งาน
 const realtimeDashboard = new RealtimeDashboard();
 
@@ -1968,6 +2169,7 @@ window.showGroupMembersFromSearch = function (groupUuid) {
         window.dashboard.showGroupMembersModal(groupUuid, true);
     }
 };
+
 
 /*
 document.addEventListener('DOMContentLoaded', function () {
